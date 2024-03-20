@@ -10,7 +10,6 @@ type CurrencyRecord struct {
 
 	Currency *Currency
 
-	Name       string
 	Value      float64
 	RecordDate time.Time
 
@@ -19,7 +18,6 @@ type CurrencyRecord struct {
 
 func NewCurrencyRecord(
 	currency *Currency,
-	name string,
 	value float64,
 	recordDate time.Time,
 ) (*CurrencyRecord, error) {
@@ -27,6 +25,13 @@ func NewCurrencyRecord(
 		return nil, errors.New("Currency is null")
 	}
 
-	currencyRecord := CurrencyRecord{}
+	currencyRecord := CurrencyRecord{
+		Value: value,
+		RecordDate: recordDate,
+
+		Currency: currency,
+
+		CreatedAt: time.Now(),
+	}
 	return &currencyRecord, nil
 }

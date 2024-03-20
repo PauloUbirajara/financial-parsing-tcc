@@ -30,6 +30,15 @@ func NewTransaction(
 		return nil, errors.New("Wallet is null")
 	}
 
-	transaction := Transaction{}
+	transaction := Transaction{
+		Name: name,
+		Description: description,
+		TransactionDate: transactionDate,
+		Value: value,
+
+		Wallet: wallet,
+
+		CreatedAt: time.Now(),
+	}
 	return &transaction, nil
 }

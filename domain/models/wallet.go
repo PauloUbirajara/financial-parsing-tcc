@@ -25,6 +25,13 @@ func NewWallet(
 		return nil, errors.New("Currency is null")
 	}
 
-	wallet := Wallet{}
+	wallet := Wallet{
+		Name: name,
+		Description: description,
+
+		Currency: currency,
+
+		CreatedAt: time.Now(),
+	}
 	return &wallet, nil
 }
