@@ -8,7 +8,11 @@ import (
 )
 
 func TestTransaction_ShouldBelongToAValidWallet(t *testing.T) {
-	transaction := models.NewTransaction(nil, "Valid Name", "Valid Description", 123.45, time.Now())
+	transaction, err := models.NewTransaction(nil, "Valid Name", "Valid Description", 123.45, time.Now())
+
+	if err == nil {
+		t.Errorf("Did not throw error when creating invalid transaction")
+	}
 
 	if transaction != nil {
 		t.Errorf("Created invalid transaction with null wallet")
