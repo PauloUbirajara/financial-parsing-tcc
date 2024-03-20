@@ -12,3 +12,16 @@ type Currency struct {
 
 	CreatedAt time.Time
 }
+
+func NewCurrency(
+	name string,
+	representation string,
+) (*Currency, error) {
+	currency := Currency{
+		Name: name,
+		Representation: representation,
+
+		CreatedAt: time.Now(),
+	}
+	return &currency, nil
+}
