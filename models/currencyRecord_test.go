@@ -7,6 +7,14 @@ import (
 	models "financial-parsing/models"
 )
 
+func currencyRecordWithMissingCurrency() (*models.CurrencyRecord, error) {
+	return models.NewCurrencyRecord(nil, "Valid Name", 123.45, time.Now())
+}
+
+func validCurrencyRecord() (*models.CurrencyRecord, error) {
+	return models.NewCurrencyRecord(&models.Currency{}, "Valid Name", 123.45, time.Now())
+}
+
 func TestCurrencyRecord_ShouldFailIfCurrencyIsNull(t *testing.T) {
 	currencyRecord, err := models.NewCurrencyRecord(nil, "Valid Name", 123.45, time.Now())
 
