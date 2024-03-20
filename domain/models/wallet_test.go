@@ -26,6 +26,15 @@ func TestWallet_ShouldFailIfCurrencyIsNull(t *testing.T) {
 	}
 }
 
+func TestWallet_ShouldContainData(t *testing.T) {
+	wallet, _ := validWallet()
+
+	if wallet.CreatedAt.IsZero() { t.Errorf("Valid wallet does did not include createdAt when created") }
+	if wallet.Currency == nil { t.Errorf("Valid wallet does did not include currency when created") }
+	if wallet.Description == "" { t.Errorf("Valid wallet does did not include description when created") }
+	if wallet.Name == "" { t.Errorf("Valid wallet does did not include name when created") }
+}
+
 func TestWallet_ShouldPassIfValidData(t *testing.T) {
 	wallet, err := validWallet()
 

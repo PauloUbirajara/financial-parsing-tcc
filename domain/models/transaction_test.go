@@ -27,6 +27,17 @@ func TestTransaction_ShouldFailIfWalletIsNull(t *testing.T) {
 	}
 }
 
+func TestTransaction_ShouldContainData(t *testing.T) {
+	transaction, _ := validTransaction()
+
+	if transaction.CreatedAt.IsZero() { t.Errorf("Valid transaction does did not include createdAt when created") }
+	if transaction.Description == "" { t.Errorf("Valid transaction does did not include description when created") }
+	if transaction.Name == "" { t.Errorf("Valid transaction does did not include name when created") }
+	if transaction.TransactionDate.IsZero() { t.Errorf("Valid transaction does did not include transactionDate when created") }
+	if transaction.Value == 0 { t.Errorf("Valid transaction does did not include value when created") }
+	if transaction.Wallet == nil { t.Errorf("Valid transaction does did not include wallet when created") }
+}
+
 func TestTransaction_ShouldPassIfValidData(t *testing.T) {
 	transaction, err := validTransaction()
 
