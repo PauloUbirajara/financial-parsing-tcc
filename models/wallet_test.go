@@ -6,8 +6,16 @@ import (
 	models "financial-parsing/models"
 )
 
+func walletWithMissingCurrency() (*models.Wallet, error) {
+	return models.NewWallet(nil, "Valid Name", "Valid Description")
+}
+
+func validWallet() (*models.Wallet, error) {
+	return models.NewWallet(&models.Currency{}, "Valid Name", "Valid Description")
+}
+
 func TestWallet_ShouldFailIfCurrencyIsNull(t *testing.T) {
-	wallet, err := models.NewWallet(nil, "Valid Name", "Valid Description")
+	wallet, err := walletWithMissingCurrency()
 
 	if err == nil {
 		t.Errorf("Did not throw error when creating invalid wallet")
@@ -19,7 +27,7 @@ func TestWallet_ShouldFailIfCurrencyIsNull(t *testing.T) {
 }
 
 func TestWallet_ShouldPassIfValidData(t *testing.T) {
-	wallet, err := models.NewWallet(&models.Currency{}, "Valid Name", "Valid Description")
+	wallet, err := validWallet()
 
 	if err != nil {
 		t.Errorf("Threw error when creating valid wallet")
