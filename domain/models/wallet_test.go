@@ -3,7 +3,7 @@ package models_test
 import (
 	"testing"
 
-	models "financial-parsing/models"
+	models "financial-parsing/domain/models"
 )
 
 func walletWithMissingCurrency() (*models.Wallet, error) {

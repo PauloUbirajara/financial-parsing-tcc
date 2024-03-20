@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	models "financial-parsing/models"
+	models "financial-parsing/domain/models"
 )
 
 func transactionWithMissingWallet() (*models.Transaction, error) {
