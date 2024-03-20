@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  sonarqube-db:
+    image: postgres:latest
+    networks:
+      - sonarnet
+    env_file:
+      - .env
+    volumes:
+      - sonarqube_db_vol:/var/lib/postgresql
+      - sonarqube_db_vol_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U sonar" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  sonarqube:
+    image: sonarqube:latest
+    ports:
+      - "9000:9000"
+    networks:
+      - sonarnet
+    env_file:
+      - .env
+    depends_on:
+      sonarqube-db:
+        condition: service_healthy
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+
+networks:
+  sonarnet:
+    driver: bridge
+
+volumes:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_bundled-plugins:
+  sonarqube_db_vol:
+  sonarqube_db_vol_data:
