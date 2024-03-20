@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 )
 
@@ -18,7 +19,17 @@ type Transaction struct {
 	CreatedAt time.Time
 }
 
-func NewTransaction(wallet *Wallet, name string, description string, value float64, transactionDate time.Time) *Transaction {
+func NewTransaction(
+	wallet *Wallet,
+	name string,
+	description string,
+	value float64,
+	transactionDate time.Time,
+) (*Transaction, error) {
+	if wallet == nil {
+		return nil, errors.New("Wallet is null")
+	}
+
 	transaction := Transaction{}
-	return &transaction
+	return &transaction, nil
 }
