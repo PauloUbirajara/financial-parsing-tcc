@@ -3,8 +3,8 @@ package uuidgenerator_test
 import (
 	"testing"
 
-	protocols "financial-parsing/protocols"
-	uuidGenerator "financial-parsing/utils/uuidGenerator"
+	protocols "financial-parsing/src/protocols"
+	uuidGenerator "financial-parsing/src/utils/uuidGenerator"
 )
 
 type UUIDGeneratorTestData struct {

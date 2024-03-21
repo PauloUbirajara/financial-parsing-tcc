@@ -3,7 +3,7 @@ package models_test
 import (
 	"testing"
 
-	models "financial-parsing/domain/models"
+	models "financial-parsing/src/domain/models"
 )
 
 func validCurrency() (*models.Currency, error) {

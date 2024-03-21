@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	models "financial-parsing/domain/models"
+	models "financial-parsing/src/domain/models"
 )
 
 func currencyRecordWithMissingCurrency() (*models.CurrencyRecord, error) {
