@@ -3,10 +3,10 @@ GO_COVERAGE_TEST_FILE="coverage.out"
 ENV_FILE=".env"
 
 
-docker-build:
+scanner-build:
 	docker image build -t sonarqube-scanner:1.0 -f ${SONARQUBE_SCANNER_DOCKERFILE} .
 
-docker-run: docker-build
+scanner-run: scanner-build
 	docker container run --env-file=${ENV_FILE} --rm sonarqube-scanner:1.0
 
 go-test:
