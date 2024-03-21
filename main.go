@@ -1,17 +1,26 @@
 package main
 
 import (
-    "log"
+	"log"
 
-    "github.com/gofiber/fiber/v2"
+	configuration "financial-parsing/src/configuration"
+	middlewares "financial-parsing/src/middlewares"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-    app := fiber.New()
+	config := configuration.FiberConfig()
+	middlewares := middlewares.FiberMiddlewares()
 
-    app.Get("/", func (c *fiber.Ctx) error {
-        return c.SendString("Hello, World!")
-    })
+	app := fiber.New(config)
+	for _, middleware := range middlewares {
+		app.Use(middleware)
+	}
 
-    log.Fatal(app.Listen(":3000"))
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, Go!")
+	})
+
+	log.Fatal(app.Listen(":3000"))
 }
