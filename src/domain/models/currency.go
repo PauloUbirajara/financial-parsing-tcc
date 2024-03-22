@@ -5,12 +5,10 @@ import (
 )
 
 type Currency struct {
-	Id string
-
-	Name           string
-	Representation string
-
-	CreatedAt time.Time
+	Id             string    `json:"id"`
+	Name           string    `json:"name"`
+	Representation string    `json:"representation"`
+	CreatedAt      time.Time `json:"createdAt"`
 }
 
 func NewCurrency(
@@ -18,10 +16,9 @@ func NewCurrency(
 	representation string,
 ) (*Currency, error) {
 	currency := Currency{
-		Name: name,
+		Name:           name,
 		Representation: representation,
-
-		CreatedAt: time.Now(),
+		CreatedAt:      time.Now(),
 	}
 	return &currency, nil
 }

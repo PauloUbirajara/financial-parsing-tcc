@@ -6,7 +6,7 @@ import (
 
 type GoogleUUIDGenerator struct{}
 
-func (g *GoogleUUIDGenerator) Generate() string {
+func (g GoogleUUIDGenerator) Generate() string {
 	uuid := uuid.Must(uuid.NewV7())
 	return uuid.String()
 }

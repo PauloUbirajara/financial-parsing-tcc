@@ -6,14 +6,11 @@ import (
 )
 
 type CurrencyRecord struct {
-	Id string
-
-	Currency *Currency
-
-	Value      float64
-	RecordDate time.Time
-
-	CreatedAt time.Time
+	Id         string    `json:"id"`
+	Currency   *Currency `json:"currency"`
+	Value      float64   `json:"value"`
+	RecordDate time.Time `json:"recordDate"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 func NewCurrencyRecord(
@@ -26,12 +23,10 @@ func NewCurrencyRecord(
 	}
 
 	currencyRecord := CurrencyRecord{
-		Value: value,
+		Value:      value,
 		RecordDate: recordDate,
-
-		Currency: currency,
-
-		CreatedAt: time.Now(),
+		Currency:   currency,
+		CreatedAt:  time.Now(),
 	}
 	return &currencyRecord, nil
 }

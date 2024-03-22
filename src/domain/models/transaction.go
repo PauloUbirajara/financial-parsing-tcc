@@ -6,17 +6,14 @@ import (
 )
 
 type Transaction struct {
-	Id string
-
-	TransactionTypeId string
-	Wallet            *Wallet
-
-	Name            string
-	Description     string
-	Value           float64
-	TransactionDate time.Time
-
-	CreatedAt time.Time
+	Id                string    `form:"id" json:"id"`
+	TransactionTypeId string    `form:"TransactionTypeId" json:"TransactionTypeId"`
+	Wallet            *Wallet   `form:"wallet" json:"wallet"`
+	Name              string    `form:"name" json:"name"`
+	Description       string    `form:"description" json:"description"`
+	Value             float64   `form:"value" json:"value"`
+	TransactionDate   time.Time `form:"transactionDate" json:"transactionDate"`
+	CreatedAt         time.Time `form:"createdAt" json:"createdAt"`
 }
 
 func NewTransaction(
@@ -31,14 +28,12 @@ func NewTransaction(
 	}
 
 	transaction := Transaction{
-		Name: name,
-		Description: description,
+		Name:            name,
+		Description:     description,
 		TransactionDate: transactionDate,
-		Value: value,
-
-		Wallet: wallet,
-
-		CreatedAt: time.Now(),
+		Value:           value,
+		Wallet:          wallet,
+		CreatedAt:       time.Now(),
 	}
 	return &transaction, nil
 }

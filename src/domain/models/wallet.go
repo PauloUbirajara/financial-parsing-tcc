@@ -6,14 +6,11 @@ import (
 )
 
 type Wallet struct {
-	Id string
-
-	Currency *Currency
-
-	Name        string
-	Description string
-
-	CreatedAt time.Time
+	Id          string    `json:"id"`
+	Currency    *Currency `json:"currency"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 func NewWallet(
@@ -26,12 +23,10 @@ func NewWallet(
 	}
 
 	wallet := Wallet{
-		Name: name,
+		Name:        name,
 		Description: description,
-
-		Currency: currency,
-
-		CreatedAt: time.Now(),
+		Currency:    currency,
+		CreatedAt:   time.Now(),
 	}
 	return &wallet, nil
 }
