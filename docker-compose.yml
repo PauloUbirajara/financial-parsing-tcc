@@ -33,6 +33,16 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
 
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/app.Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+
+
 networks:
   sonarnet:
     driver: bridge
