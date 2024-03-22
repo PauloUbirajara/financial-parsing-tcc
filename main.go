@@ -24,7 +24,7 @@ func main() {
 	routes.TransactionRoutes(rootRouter)
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, Go!")
+		return c.SendString("Hello, Go")
 	})
 
 	log.Fatal(app.Listen(":3000"))

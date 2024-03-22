@@ -6,17 +6,20 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
-func FiberMiddlewares() [](func(*fiber.Ctx) error) {
+func FiberMiddlewares() []fiber.Handler {
 	rateLimiterHandler := limiter.New(limiter.Config{
-		Expiration: 10 * time.Second,
-		Max:        3,
+		Expiration: 2 * time.Second,
+		Max:        50,
 	})
 	corsHandler := cors.New()
+	recoverHandler := recover.New()
 
-	return [](func(*fiber.Ctx) error){
+	return []fiber.Handler{
 		rateLimiterHandler,
 		corsHandler,
+		recoverHandler,
 	}
 }
