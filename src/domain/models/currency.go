@@ -1,24 +1,12 @@
 package models
 
 import (
-	"time"
+	"gorm.io/gorm"
 )
 
 type Currency struct {
-	Id             string    `json:"id"`
-	Name           string    `json:"name"`
-	Representation string    `json:"representation"`
-	CreatedAt      time.Time `json:"createdAt"`
-}
+	gorm.Model
 
-func NewCurrency(
-	name string,
-	representation string,
-) (*Currency, error) {
-	currency := Currency{
-		Name:           name,
-		Representation: representation,
-		CreatedAt:      time.Now(),
-	}
-	return &currency, nil
+	Name           string
+	Representation *string
 }

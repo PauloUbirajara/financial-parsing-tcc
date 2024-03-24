@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	configuration "financial-parsing/src/configuration"
 	middlewares "financial-parsing/src/middlewares"
@@ -21,11 +23,15 @@ func main() {
 
 	rootRouter := app.Group("/api/v1")
 
-	routes.TransactionRoutes(rootRouter)
+	routes.CurrencyRoutes(rootRouter)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, Go")
 	})
 
-	log.Fatal(app.Listen(":3000"))
+	port := os.Getenv("APP_PORT")
+	if port == "" {
+		port = "3000"
+	}
+	log.Fatal(app.Listen(fmt.Sprintf(":%s", port)))
 }
