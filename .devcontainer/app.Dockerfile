@@ -11,6 +11,6 @@ RUN go build -ldflags="-s -w" -o api .
 
 FROM golang:1.21.8 AS runner
 
-COPY --from=builder ["/app/api", "/app/.env", "/"]
+COPY --from=builder /app/api /
 
 ENTRYPOINT ["/api"]
