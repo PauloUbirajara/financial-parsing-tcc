@@ -25,5 +25,10 @@ func (g GormDatabaseAdapter[T]) Create(model *T, fieldNames []string) (*T, error
 	return model, result.Error
 }
 
-// func (g GormDatabaseAdapter[T]) DeleteById(id string) (*any, error) {}
+func (g GormDatabaseAdapter[T]) DeleteByIds(ids []string) error {
+	var model T
+	result := g.Connection.Delete(&model, ids)
+	return result.Error
+}
+
 // func (g GormDatabaseAdapter[T]) UpdateById(id string, updated any) (*any, error) {}

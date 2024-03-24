@@ -69,18 +69,17 @@ func (t CurrencyController) Update(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(currency)
 }
 
-func (t CurrencyController) Delete(ctx *fiber.Ctx) error {
+func (c CurrencyController) Delete(ctx *fiber.Ctx) error {
 	ctx.SendString("Currency - Delete")
-	db, _ := helpers.CreateConnection()
 
 	ids := ctx.Query("ids")
 	idsToDelete := strings.Split(ids, ",")
 	log.Info("IDS to delete", ids, idsToDelete)
-	result := db.Delete(&models.Currency{}, idsToDelete)
+	err := c.DatabaseAdapter.DeleteByIds(idsToDelete)
 
-	if result.Error != nil {
+	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(
-			fmt.Sprintf("Currency Controller - Error when deleting currency by ids - %s", result.Error),
+			fmt.Sprintf("Currency Controller - Error when deleting currency by ids - %s", err),
 		)
 	}
 
