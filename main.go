@@ -6,6 +6,7 @@ import (
 	"os"
 
 	configuration "financial-parsing/src/configuration"
+	helpers "financial-parsing/src/helpers"
 	middlewares "financial-parsing/src/middlewares"
 	routes "financial-parsing/src/routes"
 
@@ -13,6 +14,12 @@ import (
 )
 
 func main() {
+	// DB
+	connection, dbError := helpers.CreateConnection()
+	if dbError != nil {
+		panic("Could not establish connection to the database")
+	}
+
 	// Configuration
 	config := configuration.FiberConfig()
 	middlewares := middlewares.FiberMiddlewares()
@@ -25,7 +32,7 @@ func main() {
 	// Routes Setup
 	rootRouter := app.Group("/api/v1")
 
-	routes.CurrencyRoutes(rootRouter)
+	routes.CurrencyRoutes(rootRouter, connection)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, Go")
