@@ -87,9 +87,8 @@ func (t CurrencyController) Delete(ctx *fiber.Ctx) error {
 	return ctx.SendStatus(fiber.StatusOK)
 }
 
-func (t CurrencyController) Create(ctx *fiber.Ctx) error {
+func (c CurrencyController) Create(ctx *fiber.Ctx) error {
 	ctx.SendString("Currency - Create")
-	db, _ := helpers.CreateConnection()
 
 	body := new(models.Currency)
 	if err := ctx.BodyParser(&body); err != nil {
@@ -97,11 +96,12 @@ func (t CurrencyController) Create(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).SendString("Currency Controller - Could not parse request body to currency")
 	}
 
-	result := db.Select("Name", "Representation").Create(&body)
+	fields := []string{"Name", "Representation"}
+	created, err := c.DatabaseAdapter.Create(body, fields)
 
-	if result.Error != nil {
+	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString("Currency Controller - Error when creating currency")
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(body)
+	return ctx.Status(fiber.StatusCreated).JSON(created)
 }
