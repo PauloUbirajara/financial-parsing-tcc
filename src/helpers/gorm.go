@@ -11,14 +11,17 @@ import (
 )
 
 func CreateConnection() (*gorm.DB, error) {
-	dsn := fmt.Sprintf(
+	connectionString := fmt.Sprintf(
 		"host=%s user=%s password=%s port=%s sslmode=disable TimeZone=UTC",
 		configuration.DatabaseHost,
 		configuration.DatabaseUsername,
 		configuration.DatabasePassword,
 		configuration.DatabasePort,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(
+		postgres.Open(connectionString),
+		&gorm.Config{},
+	)
 
 	db.AutoMigrate(&models.Currency{})
 
