@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	// Configuration
 	config := configuration.FiberConfig()
 	middlewares := middlewares.FiberMiddlewares()
 
@@ -21,6 +22,7 @@ func main() {
 		app.Use(middleware)
 	}
 
+	// Routes Setup
 	rootRouter := app.Group("/api/v1")
 
 	routes.CurrencyRoutes(rootRouter)
@@ -29,6 +31,7 @@ func main() {
 		return c.SendString("Hello, Go")
 	})
 
+	// Server start
 	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "3000"

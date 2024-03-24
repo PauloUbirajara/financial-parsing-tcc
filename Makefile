@@ -1,7 +1,14 @@
 SONARQUBE_SCANNER_DOCKERFILE=".devcontainer/sonarqube-scanner.Dockerfile"
 SONARQUBE_SCANNER_ENV_FILE=".devcontainer/.sonarqube-scanner.env"
+
 APP_DB_DOCKERFILE=".devcontainer/app-db.Dockerfile"
 APP_DB_ENV_FILE=".devcontainer/app-db.env"
+
+POSTGRES_HOST=localhost
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_PORT=5432
+
 GO_COVERAGE_TEST_FILE="coverage.out"
 
 
@@ -20,3 +27,11 @@ app-db-run: app-db-build
 go-test:
 	go test -coverprofile=${GO_COVERAGE_TEST_FILE} -v ./...
 	go tool cover -html=${GO_COVERAGE_TEST_FILE} -o coverage.html
+
+go-run:
+	\
+		POSTGRES_HOST=${POSTGRES_HOST} \
+		POSTGRES_USER=${POSTGRES_USER} \
+		POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+		POSTGRES_PORT=${POSTGRES_PORT} \
+		go run .
