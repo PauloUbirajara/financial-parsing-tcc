@@ -31,4 +31,13 @@ func (g GormDatabaseAdapter[T]) DeleteByIds(ids []string) error {
 	return result.Error
 }
 
-// func (g GormDatabaseAdapter[T]) UpdateById(id string, updated any) (*any, error) {}
+func (g GormDatabaseAdapter[T]) UpdateById(id string, updated *T) (*T, error) {
+	model, err := g.GetById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	updateResult := g.Connection.Model(&model).Updates(&updated)
+	return model, updateResult.Error
+}
