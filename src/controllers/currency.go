@@ -27,16 +27,14 @@ func (c CurrencyController) GetAll(ctx *fiber.Ctx) error {
 	return ctx.JSON(currencies)
 }
 
-func (t CurrencyController) GetById(ctx *fiber.Ctx) error {
+func (c CurrencyController) GetById(ctx *fiber.Ctx) error {
 	ctx.SendString("Currency - Get By Id")
-	db, _ := helpers.CreateConnection()
-	var currency models.Currency
 	id := ctx.Params("id")
-	result := db.First(&currency, "id = ?", id)
+	currency, err := c.DatabaseAdapter.GetById(id)
 
-	if result.Error != nil {
+	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(
-			fmt.Sprintf("Currency Controller - Error when getting currency by id - %s", result.Error),
+			fmt.Sprintf("Currency Controller - Error when getting currency by id - %s", err),
 		)
 	}
 

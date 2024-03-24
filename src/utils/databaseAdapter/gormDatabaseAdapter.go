@@ -14,7 +14,12 @@ func (g GormDatabaseAdapter[T]) GetAll() (*[]T, error) {
 	return &models, result.Error
 }
 
-// func (p PostgresDatabaseAdapter) Create(id string, model any) error {}
-// func (p PostgresDatabaseAdapter) DeleteById(id string) (*any, error) {}
-// func (p PostgresDatabaseAdapter) GetById(id string) (*any, error)                 {}
-// func (p PostgresDatabaseAdapter) UpdateById(id string, updated any) (*any, error) {}
+func (g GormDatabaseAdapter[T]) GetById(id string) (*T, error) {
+	var model T
+	result := g.Connection.First(&model, "id = ?", id)
+	return &model, result.Error
+}
+
+// func (g GormDatabaseAdapter) Create(id string, model any) error {}
+// func (g GormDatabaseAdapter) DeleteById(id string) (*any, error) {}
+// func (g GormDatabaseAdapter) UpdateById(id string, updated any) (*any, error) {}
