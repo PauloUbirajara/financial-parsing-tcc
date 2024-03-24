@@ -6,7 +6,7 @@ services:
     networks:
       - sonarnet
     env_file:
-      - .env
+      - .devcontainer/sonarqube-db.env
     volumes:
       - sonarqube_db_vol:/var/lib/postgresql
       - sonarqube_db_vol_data:/var/lib/postgresql/data
@@ -23,7 +23,7 @@ services:
     networks:
       - sonarnet
     env_file:
-      - .env
+      - .devcontainer/sonarqube.env
     depends_on:
       sonarqube-db:
         condition: service_healthy
@@ -33,10 +33,31 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
 
+  app-db:
+    image: postgres:latest
+    networks:
+      - app-network
+    env_file:
+      - .devcontainer/app-db.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - app_db_vol:/var/lib/postgresql
+      - app_db_vol_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U sonar" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
   app:
+    networks:
+      - app-network
     build:
       context: .
       dockerfile: .devcontainer/app.Dockerfile
+    env_file:
+      - .devcontainer/app.env
     volumes:
       - .:/app
     ports:
@@ -46,6 +67,8 @@ services:
 networks:
   sonarnet:
     driver: bridge
+  app-network:
+    driver: bridge
 
 volumes:
   sonarqube_conf:
@@ -54,3 +77,5 @@ volumes:
   sonarqube_bundled-plugins:
   sonarqube_db_vol:
   sonarqube_db_vol_data:
+  app_db_vol:
+  app_db_vol_data:
