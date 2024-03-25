@@ -28,3 +28,23 @@ func TestGoogleUUIDGeneratorShouldGenerateUUID(t *testing.T) {
 		t.Errorf("Did not generate an UUID")
 	}
 }
+
+func TestGoogleUUIDGeneratorShouldFailWhenValidatingInvalidUUID(t *testing.T) {
+	testData := NewUUIDGeneratorTestData()
+	invalidUUID := "invalid"
+	err := testData.sut.IsValidUUID(invalidUUID)
+
+	if err == nil {
+		t.Errorf("SUT did not throw error when validating invalid UUID")
+	}
+}
+
+func TestGoogleUUIDGeneratorShouldPassWhenValidatingValidUUID(t *testing.T) {
+	testData := NewUUIDGeneratorTestData()
+	validUUID := "11111111-1111-1111-1111-111111111111"
+	err := testData.sut.IsValidUUID(validUUID)
+
+	if err != nil {
+		t.Errorf("SUT threw error when validating valid UUID")
+	}
+}
