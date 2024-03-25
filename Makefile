@@ -17,20 +17,20 @@ APP_PORT=3000
 
 
 scanner-build:
-	docker image build -t sonarqube-scanner:1.0 -f ${SONARQUBE_SCANNER_DOCKERFILE} .
+	docker image build -t sonarqube-scanner:1.0 -f "${SONARQUBE_SCANNER_DOCKERFILE}" .
 
 scanner-run: scanner-build
-	docker container run --env-file=${SONARQUBE_SCANNER_ENV_FILE} --rm sonarqube-scanner:1.0
+	docker container run --env-file="${SONARQUBE_SCANNER_ENV_FILE}" --rm sonarqube-scanner:1.0
 
 app-db-build:
-	docker image build -t app-db:1.0 -f ${APP_DB_DOCKERFILE} .
+	docker image build -t app-db:1.0 -f "${APP_DB_DOCKERFILE}" .
 
 app-db-run: app-db-build
-	docker container run --env-file=${APP_DB_ENV_FILE} -p "${POSTGRES_PORT}:${POSTGRES_PORT}" --rm app-db:1.0
+	docker container run --env-file="${APP_DB_ENV_FILE}" -p "${POSTGRES_PORT}:${POSTGRES_PORT}" --rm app-db:1.0
 
 go-test:
-	go test -coverprofile=${GO_COVERAGE_TEST_FILE} -v ./...
-	go tool cover -html=${GO_COVERAGE_TEST_FILE} -o coverage.html
+	go test -coverprofile="${GO_COVERAGE_TEST_FILE}" -v ./...
+	go tool cover -html="${GO_COVERAGE_TEST_FILE}" -o coverage.html
 
 go-run:
 	\
