@@ -26,10 +26,9 @@ func main() {
 	}
 
 	// Configuration
-	config := configuration.FiberConfig()
 	middlewares := middlewares.FiberMiddlewares()
 
-	app := fiber.New(config)
+	app := fiber.New(configuration.FiberConfig)
 	for _, middleware := range middlewares {
 		app.Use(middleware)
 	}
