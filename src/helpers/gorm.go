@@ -3,20 +3,19 @@ package helpers
 import (
 	"fmt"
 
-	configuration "financial-parsing/src/configuration"
 	models "financial-parsing/src/domain/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func CreateConnection() (*gorm.DB, error) {
+func CreateConnection(host, username, password, port string) (*gorm.DB, error) {
 	connectionString := fmt.Sprintf(
 		"host=%s user=%s password=%s port=%s sslmode=disable TimeZone=UTC",
-		configuration.DatabaseHost,
-		configuration.DatabaseUsername,
-		configuration.DatabasePassword,
-		configuration.DatabasePort,
+		host,
+		username,
+		password,
+		port,
 	)
 	db, err := gorm.Open(
 		postgres.Open(connectionString),
