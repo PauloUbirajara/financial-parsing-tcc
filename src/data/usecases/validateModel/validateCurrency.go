@@ -25,7 +25,7 @@ func (v ValidateCurrency) Validate() bool {
 	}
 
 	// Representation
-	representationRegex, _ := regexp.Compile(".{0,256}")
+	representationRegex, _ := regexp.Compile("[A-Z]{1,5}")
 	if !representationRegex.MatchString(v.Currency.Representation) {
 		return false
 	}
