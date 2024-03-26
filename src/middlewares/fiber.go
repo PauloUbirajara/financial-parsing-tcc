@@ -9,17 +9,15 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
-func FiberMiddlewares() []fiber.Handler {
-	rateLimiterHandler := limiter.New(limiter.Config{
+var FiberMiddlewares []fiber.Handler = []fiber.Handler{
+	// Rate limiter
+	limiter.New(limiter.Config{
 		Expiration: 2 * time.Second,
 		Max:        50,
-	})
-	corsHandler := cors.New()
-	recoverHandler := recover.New()
+	}),
+	// CORS
+	cors.New(),
 
-	return []fiber.Handler{
-		rateLimiterHandler,
-		corsHandler,
-		recoverHandler,
-	}
+	// Error Recover
+	recover.New(),
 }
