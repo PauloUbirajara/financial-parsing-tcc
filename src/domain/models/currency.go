@@ -13,5 +13,5 @@ type Currency struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
 	Name           string
-	Representation *string
+	Representation string
 }
