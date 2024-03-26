@@ -14,8 +14,7 @@ import (
 )
 
 type ValidateCurrencyTestData struct {
-	sut      usecases.ValidateModel
-	currency models.Currency
+	sut usecases.ValidateModel[models.Currency]
 }
 
 type UUIDGeneratorStub struct{}
@@ -42,10 +41,9 @@ func newValidCurrency() models.Currency {
 	}
 }
 
-func validateCurrencyTestData(currency models.Currency) ValidateCurrencyTestData {
+func validateCurrencyTestData() ValidateCurrencyTestData {
 	return ValidateCurrencyTestData{
 		sut: validatemodel.ValidateCurrency{
-			Currency:      currency,
 			UUIDGenerator: UUIDGeneratorStub{},
 		},
 	}
@@ -55,9 +53,9 @@ func TestValidateCurrencyShouldFailOnEmptyName(t *testing.T) {
 	currency := newValidCurrency()
 	currency.Name = ""
 
-	testData := validateCurrencyTestData(currency)
+	testData := validateCurrencyTestData()
 
-	if testData.sut.Validate() {
+	if testData.sut.Validate(currency) == nil {
 		t.Errorf("Invalid Currency considered valid with empty name")
 	}
 }
@@ -66,9 +64,9 @@ func TestValidateCurrencyShouldFailOnInvalidName(t *testing.T) {
 	currency := newValidCurrency()
 	currency.Name = " invalid name"
 
-	testData := validateCurrencyTestData(currency)
+	testData := validateCurrencyTestData()
 
-	if testData.sut.Validate() {
+	if testData.sut.Validate(currency) == nil {
 		t.Errorf("Invalid Currency considered valid with invalid name")
 	}
 }
@@ -77,9 +75,9 @@ func TestValidateCurrencyShouldFailOnEmptyRepresentation(t *testing.T) {
 	currency := newValidCurrency()
 	currency.Representation = ""
 
-	testData := validateCurrencyTestData(currency)
+	testData := validateCurrencyTestData()
 
-	if testData.sut.Validate() {
+	if testData.sut.Validate(currency) == nil {
 		t.Errorf("Invalid Currency considered valid with empty representation")
 	}
 }
@@ -88,9 +86,9 @@ func TestValidateCurrencyShouldFailOnInvalidRepresentation(t *testing.T) {
 	currency := newValidCurrency()
 	currency.Representation = "abc"
 
-	testData := validateCurrencyTestData(currency)
+	testData := validateCurrencyTestData()
 
-	if testData.sut.Validate() {
+	if testData.sut.Validate(currency) == nil {
 		t.Errorf("Invalid Currency considered valid with invalid representation")
 	}
 }
@@ -99,9 +97,9 @@ func TestValidateCurrencyShouldFailOnInvalidID(t *testing.T) {
 	currency := newValidCurrency()
 	currency.ID = "invalid id"
 
-	testData := validateCurrencyTestData(currency)
+	testData := validateCurrencyTestData()
 
-	if testData.sut.Validate() {
+	if testData.sut.Validate(currency) == nil {
 		t.Errorf("Invalid Currency considered valid with empty id")
 	}
 }
@@ -109,9 +107,9 @@ func TestValidateCurrencyShouldFailOnInvalidID(t *testing.T) {
 func TestValidateCurrencyShouldPassOnValidCurrency(t *testing.T) {
 	currency := newValidCurrency()
 
-	testData := validateCurrencyTestData(currency)
+	testData := validateCurrencyTestData()
 
-	if !testData.sut.Validate() {
+	if testData.sut.Validate(currency) != nil {
 		t.Errorf("Valid Currency considered invalid")
 	}
 }
