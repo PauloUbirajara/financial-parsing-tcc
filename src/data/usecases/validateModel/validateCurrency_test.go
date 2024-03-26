@@ -61,3 +61,14 @@ func TestValidateCurrencyShouldFailOnEmptyName(t *testing.T) {
 		t.Errorf("Currency considered valid with empty name")
 	}
 }
+
+func TestValidateCurrencyShouldFailOnEmptyRepresentation(t *testing.T) {
+	currency := newValidCurrency()
+	currency.Representation = ""
+
+	testData := validateCurrencyTestData(currency)
+
+	if testData.sut.Validate() {
+		t.Errorf("Currency considered valid with empty representation")
+	}
+}
