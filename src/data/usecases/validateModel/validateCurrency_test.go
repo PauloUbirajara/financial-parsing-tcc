@@ -38,7 +38,7 @@ func newValidCurrency() models.Currency {
 		UpdatedAt:      time.Now(),
 		DeletedAt:      gorm.DeletedAt{},
 		Name:           "valid name",
-		Representation: "VALIDREPRESENTATION",
+		Representation: "REPR",
 	}
 }
 
@@ -58,10 +58,9 @@ func TestValidateCurrencyShouldFailOnEmptyName(t *testing.T) {
 	testData := validateCurrencyTestData(currency)
 
 	if testData.sut.Validate() {
-		t.Errorf("Currency considered valid with empty name")
+		t.Errorf("Invalid Currency considered valid with empty name")
 	}
 }
-
 
 func TestValidateCurrencyShouldFailOnInvalidName(t *testing.T) {
 	currency := newValidCurrency()
@@ -70,7 +69,7 @@ func TestValidateCurrencyShouldFailOnInvalidName(t *testing.T) {
 	testData := validateCurrencyTestData(currency)
 
 	if testData.sut.Validate() {
-		t.Errorf("Currency considered valid with invalid name")
+		t.Errorf("Invalid Currency considered valid with invalid name")
 	}
 }
 
@@ -81,10 +80,9 @@ func TestValidateCurrencyShouldFailOnEmptyRepresentation(t *testing.T) {
 	testData := validateCurrencyTestData(currency)
 
 	if testData.sut.Validate() {
-		t.Errorf("Currency considered valid with empty representation")
+		t.Errorf("Invalid Currency considered valid with empty representation")
 	}
 }
-
 
 func TestValidateCurrencyShouldFailOnInvalidRepresentation(t *testing.T) {
 	currency := newValidCurrency()
@@ -93,7 +91,7 @@ func TestValidateCurrencyShouldFailOnInvalidRepresentation(t *testing.T) {
 	testData := validateCurrencyTestData(currency)
 
 	if testData.sut.Validate() {
-		t.Errorf("Currency considered valid with invalid representation")
+		t.Errorf("Invalid Currency considered valid with invalid representation")
 	}
 }
 
@@ -104,6 +102,16 @@ func TestValidateCurrencyShouldFailOnInvalidID(t *testing.T) {
 	testData := validateCurrencyTestData(currency)
 
 	if testData.sut.Validate() {
-		t.Errorf("Currency considered valid with empty id")
+		t.Errorf("Invalid Currency considered valid with empty id")
+	}
+}
+
+func TestValidateCurrencyShouldPassOnValidCurrency(t *testing.T) {
+	currency := newValidCurrency()
+
+	testData := validateCurrencyTestData(currency)
+
+	if !testData.sut.Validate() {
+		t.Errorf("Valid Currency considered invalid")
 	}
 }
