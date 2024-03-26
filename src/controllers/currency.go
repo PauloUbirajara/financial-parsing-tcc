@@ -13,6 +13,7 @@ import (
 
 type CurrencyController struct {
 	DatabaseAdapter protocols.DatabaseAdapter[models.Currency]
+	UUIDGenerator protocols.UUIDGenerator
 }
 
 func (c CurrencyController) GetAll(ctx *fiber.Ctx) error {
@@ -86,8 +87,9 @@ func (c CurrencyController) Create(ctx *fiber.Ctx) error {
 		log.Warn("Error when parsing", err)
 		return ctx.Status(fiber.StatusBadRequest).SendString("Currency Controller - Could not parse request body to currency")
 	}
+	body.ID = c.UUIDGenerator.Generate()
 
-	fields := []string{"Name", "Representation"}
+	fields := []string{"ID", "Name", "Representation"}
 	created, err := c.DatabaseAdapter.Create(body, fields)
 
 	if err != nil {
