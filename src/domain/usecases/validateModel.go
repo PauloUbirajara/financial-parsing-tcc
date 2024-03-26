@@ -1,5 +1,5 @@
 package usecases
 
-type ValidateModel interface {
-	Validate() bool
+type ValidateModel[T interface{}] interface {
+	Validate(model T) error
 }

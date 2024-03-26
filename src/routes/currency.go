@@ -2,6 +2,7 @@ package routes
 
 import (
 	controllers "financial-parsing/src/controllers"
+	validatemodel "financial-parsing/src/data/usecases/validateModel"
 	models "financial-parsing/src/domain/models"
 
 	databaseadapter "financial-parsing/src/utils/databaseAdapter"
@@ -14,11 +15,16 @@ import (
 func CurrencyRoutes(router fiber.Router, connection *gorm.DB) fiber.Router {
 	currenciesRouter := router.Group("/currencies")
 
+	uuidGenerator := uuidgenerator.GoogleUUIDGenerator{}
+
 	var currencyController controllers.BaseController = controllers.CurrencyController{
 		DatabaseAdapter: databaseadapter.GormDatabaseAdapter[models.Currency]{
 			Connection: connection,
 		},
-		UUIDGenerator: uuidgenerator.GoogleUUIDGenerator{},
+		UUIDGenerator: uuidGenerator,
+		ValidateCurrency: validatemodel.ValidateCurrency{
+			UUIDGenerator: uuidGenerator,
+		},
 	}
 
 	currenciesRouter.Get("/", currencyController.GetAll)
