@@ -209,3 +209,34 @@ func TestGormDatabaseAdapterShouldPassOnUpdate(t *testing.T) {
 		t.Fatal("Did not update test model", model)
 	}
 }
+
+func TestGormDatabaseAdapterShouldFailOnUpdateIfInvalidID(t *testing.T) {
+	testData := NewGormDatabaseAdapterTestData()
+	defer testData.db.Close()
+
+	// Saved content
+	testData.mock.
+		NewRows([]string{"id", "name"}).
+		AddRows([]driver.Value{"valid id", "valid name"})
+
+	// Should select 0 rows before update
+	testData.mock.
+		ExpectQuery(`SELECT (.+) FROM "test_models" WHERE id = ?`).
+		WithArgs("invalid id", 1).
+		WillReturnRows(sqlmock.NewRows([]string{}))
+
+	updatedTestModel := TestModel{
+		ID:   "valid id 2",
+		Name: "valid name 2",
+	}
+	fields := []string{"Name"}
+	model, err := testData.sut.UpdateById("invalid id", &updatedTestModel, fields)
+
+	if model != nil {
+		t.Fatal("Updated model with invalid id", model)
+	}
+
+	if err == nil {
+		t.Fatal("Did not fail when updating test model using invalid id", err, model)
+	}
+}
