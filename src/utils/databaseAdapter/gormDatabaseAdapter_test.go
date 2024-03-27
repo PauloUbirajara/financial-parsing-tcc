@@ -8,6 +8,7 @@ import (
 
 	"database/sql"
 	"database/sql/driver"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -106,5 +107,33 @@ func TestGormDatabaseAdapterShouldPassOnGetById(t *testing.T) {
 
 	if model.ID != "valid id" {
 		t.Fatal("Did not get test model by id", model, err, model.ID)
+	}
+}
+
+func TestGormDatabaseAdapterShouldPassOnCreate(t *testing.T) {
+	testData := NewGormDatabaseAdapterTestData()
+	defer testData.db.Close()
+
+	testData.mock.ExpectBegin()
+	testData.mock.
+		ExpectExec(`INSERT`).
+		WithArgs("valid id 2", "valid name 2").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	testData.mock.ExpectCommit()
+
+	testModel := TestModel{
+		ID:   "valid id 2",
+		Name: "valid name 2",
+	}
+	model, err := testData.sut.Create(&testModel, []string{"ID", "Name"})
+
+	if model.ID != "valid id 2" {
+		t.Fatal("Did not create test model", model)
+	}
+
+	err = testData.mock.ExpectationsWereMet()
+
+	if err != nil {
+		t.Fatal("Error when creating test model", err, model)
 	}
 }
