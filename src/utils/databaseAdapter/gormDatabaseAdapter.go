@@ -21,7 +21,9 @@ func (g GormDatabaseAdapter[T]) GetById(id string) (*T, error) {
 }
 
 func (g GormDatabaseAdapter[T]) Create(model *T, fieldNames []string) (*T, error) {
-	result := g.Connection.Select(fieldNames).Create(model)
+	result := g.Connection.
+		Select(fieldNames).
+		Create(model)
 	return model, result.Error
 }
 
@@ -31,13 +33,16 @@ func (g GormDatabaseAdapter[T]) DeleteByIds(ids []string) error {
 	return result.Error
 }
 
-func (g GormDatabaseAdapter[T]) UpdateById(id string, updated *T) (*T, error) {
+func (g GormDatabaseAdapter[T]) UpdateById(id string, updated *T, fields []string) (*T, error) {
 	model, err := g.GetById(id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	updateResult := g.Connection.Model(&model).Updates(&updated)
+	updateResult := g.Connection.
+		Model(&model).
+		Select(fields).
+		Updates(&updated)
 	return model, updateResult.Error
 }
