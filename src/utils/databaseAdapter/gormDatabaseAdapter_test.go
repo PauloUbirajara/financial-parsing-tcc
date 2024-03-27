@@ -171,3 +171,41 @@ func TestGormDatabaseAdapterShouldPassOnDeleteWithMultipleIDS(t *testing.T) {
 		t.Fatal("Error when deleting test model with multiple ids", err)
 	}
 }
+
+func TestGormDatabaseAdapterShouldPassOnUpdate(t *testing.T) {
+	testData := NewGormDatabaseAdapterTestData()
+	defer testData.db.Close()
+
+	// Expected content to be updated
+	rows := testData.mock.
+		NewRows([]string{"id", "name"}).
+		AddRows(
+			[]driver.Value{"valid id", "valid name"},
+		)
+
+	// Should select and update
+	testData.mock.
+		ExpectQuery(`SELECT (.+) FROM "test_models" WHERE id = ?`).
+		WithArgs("valid id", 1).
+		WillReturnRows(rows)
+	testData.mock.ExpectBegin()
+	testData.mock.
+		ExpectExec(`UPDATE`).
+		WithArgs("valid name 2", "valid id").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	testData.mock.ExpectCommit()
+	updatedTestModel := TestModel{
+		ID:   "valid id 2",
+		Name: "valid name 2",
+	}
+	fields := []string{"Name"}
+	model, err := testData.sut.UpdateById("valid id", &updatedTestModel, fields)
+
+	if err != nil {
+		t.Fatal("Error when updating test model", err, model)
+	}
+
+	if model.Name != "valid name 2" {
+		t.Fatal("Did not update test model", model)
+	}
+}
