@@ -127,13 +127,47 @@ func TestGormDatabaseAdapterShouldPassOnCreate(t *testing.T) {
 	}
 	model, err := testData.sut.Create(&testModel, []string{"ID", "Name"})
 
+	if err != nil {
+		t.Fatal("Error when creating test model", err, model)
+	}
+
 	if model.ID != "valid id 2" {
 		t.Fatal("Did not create test model", model)
 	}
+}
 
-	err = testData.mock.ExpectationsWereMet()
+func TestGormDatabaseAdapterShouldPassOnDeleteWithSingleID(t *testing.T) {
+	testData := NewGormDatabaseAdapterTestData()
+	defer testData.db.Close()
+
+	testData.mock.ExpectBegin()
+	testData.mock.
+		ExpectExec(`DELETE`).
+		WithArgs("valid id 2").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	testData.mock.ExpectCommit()
+
+	err := testData.sut.DeleteByIds([]string{"valid id 2"})
 
 	if err != nil {
-		t.Fatal("Error when creating test model", err, model)
+		t.Fatal("Error when deleting test model with single id", err)
+	}
+}
+
+func TestGormDatabaseAdapterShouldPassOnDeleteWithMultipleIDS(t *testing.T) {
+	testData := NewGormDatabaseAdapterTestData()
+	defer testData.db.Close()
+
+	testData.mock.ExpectBegin()
+	testData.mock.
+		ExpectExec(`DELETE`).
+		WithArgs("valid id", "valid id 2").
+		WillReturnResult(sqlmock.NewResult(0, 2))
+	testData.mock.ExpectCommit()
+
+	err := testData.sut.DeleteByIds([]string{"valid id", "valid id 2"})
+
+	if err != nil {
+		t.Fatal("Error when deleting test model with multiple ids", err)
 	}
 }
