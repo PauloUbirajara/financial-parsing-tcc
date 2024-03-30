@@ -2,6 +2,6 @@
   import { Card } from "flowbite-svelte";
 </script>
 
-<Card>
+<Card size="md">
   <slot />
 </Card>
