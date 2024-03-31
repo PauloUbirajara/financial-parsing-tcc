@@ -12,13 +12,16 @@ import (
 )
 
 func AuthRoutes(router fiber.Router, connection *gorm.DB) fiber.Router {
-	authRouter := router.Group("/auth")
 	authController := controllers.AuthController{
 		JwtSecret:     os.Getenv("JWT_SECRET"),
 		Connection:    connection,
 		UUIDGenerator: uuidgenerator.GoogleUUIDGenerator{},
 	}
+
+	authRouter := router.Group("/auth")
+
 	authRouter.Post("/login", authController.Login)
 	authRouter.Post("/register", authController.Register)
+
 	return authRouter
 }
