@@ -14,4 +14,5 @@ type User struct {
 
 	Email        string
 	PasswordHash string
+	Active       bool
 }

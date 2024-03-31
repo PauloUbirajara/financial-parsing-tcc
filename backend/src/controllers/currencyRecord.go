@@ -67,45 +67,65 @@ func (c CurrencyRecordController) GetById(ctx *fiber.Ctx) error {
 
 func (c CurrencyRecordController) Update(ctx *fiber.Ctx) error {
 	log.Info("CurrencyRecord - Update")
-	return nil
-	//
-	// id := ctx.Params("id")
-	// currencyRecord := new(models.CurrencyRecord)
-	//
-	// if err := ctx.BodyParser(&currencyRecord); err != nil {
-	// 	log.Warn("Error when parsing", err)
-	// 	return ctx.
-	// 		Status(fiber.StatusBadRequest).
-	// 		SendString("CurrencyRecord Controller - Could not parse request body to CurrencyRecord")
-	// }
-	//
-	// // Validate before updating in DB
-	// if err := c.ValidateCurrencyRecord.Validate(*currencyRecord); err != nil {
-	// 	return ctx.
-	// 		Status(fiber.StatusBadRequest).
-	// 		SendString(err.Error())
-	// }
-	//
-	// fields := []string{"Currency", "CurrencyRefer", "Value", "RecordDate"}
-	// updated, err := c.DatabaseAdapter.UpdateById(id, currencyRecord, fields)
-	// if err != nil {
-	// 	return ctx.
-	// 		Status(fiber.StatusInternalServerError).
-	// 		SendString(
-	// 			fmt.Sprintf(
-	// 				"CurrencyRecord Controller - Error when updating CurrencyRecord by id - %s",
-	// 				err,
-	// 			),
-	// 		)
-	// }
-	//
-	// return ctx.
-	// 	Status(fiber.StatusOK).
-	// 	JSON(updated)
+
+	// Getting existing currency to update
+	id := ctx.Params("id")
+	currencyId := ctx.Params("currencyId")
+	var existingCurrencyRecord models.CurrencyRecord
+
+	result := c.Connection.
+		Table("currency_records").
+		Joins("JOIN currency_currency_records ON currency_currency_records.currency_record_id = currency_records.id").
+		First(
+			&existingCurrencyRecord,
+			"currency_currency_records.currency_id = ? AND currency_currency_records.currency_record_id = ?",
+			currencyId,
+			id,
+		)
+
+	if existingCurrencyRecord.CreatedAt.IsZero() {
+		return ctx.
+			Status(fiber.StatusNotFound).
+			SendString("Could not find currency record by id for update")
+	}
+
+	if result.Error != nil {
+		log.Warn("Error when searching existing currency record to update", result.Error)
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			SendString("Error when searching for existing currency record to update")
+	}
+
+	currencyRecord := new(models.CurrencyRecord)
+	if err := ctx.BodyParser(&currencyRecord); err != nil {
+		log.Warn("Error when parsing", err)
+		return ctx.
+			Status(fiber.StatusBadRequest).
+			SendString("Could not parse request body to CurrencyRecord")
+	}
+
+	existingCurrencyRecord.RecordDate = currencyRecord.RecordDate
+	existingCurrencyRecord.Value = currencyRecord.Value
+
+	trx := c.Connection.Begin()
+	updateResult := trx.Save(&existingCurrencyRecord)
+
+	if updateResult.Error != nil {
+		log.Warn("Error when updating", updateResult.Error)
+		trx.Rollback()
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			SendString("Error when updating CurrencyRecord by id")
+	}
+	trx.Commit()
+
+	return ctx.
+		Status(fiber.StatusOK).
+		JSON(existingCurrencyRecord)
 }
 
 func (c CurrencyRecordController) Delete(ctx *fiber.Ctx) error {
-	log.Info("CurrencyRecord - Update")
+	log.Info("CurrencyRecord - Delete")
 
 	currencyId := ctx.Params("currencyId")
 	ids := ctx.Query("ids")
@@ -172,7 +192,7 @@ func (c CurrencyRecordController) Create(ctx *fiber.Ctx) error {
 
 	if result.Error != nil {
 		log.Warn(result.Error)
-		trx.AddError(result.Error)
+		trx.Rollback()
 		return ctx.
 			Status(fiber.StatusInternalServerError).
 			SendString("Error when creating relationship between currency and currency record")
