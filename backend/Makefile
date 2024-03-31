@@ -14,6 +14,7 @@ POSTGRES_PASSWORD=postgres
 POSTGRES_PORT=5432
 APP_HOST=localhost
 APP_PORT=3000
+JWT_SECRET=secret
 
 
 scanner-build:
@@ -40,4 +41,21 @@ go-run:
 		POSTGRES_PORT=${POSTGRES_PORT} \
 		APP_HOST=${APP_HOST} \
 		APP_PORT=${APP_PORT} \
+		JWT_SECRET=${JWT_SECRET} \
 		go run .
+
+sonarqube-clean:
+	docker compose down
+	docker volume rm \
+		financial-parsing-tcc_sonarqube_bundled-plugins \
+		financial-parsing-tcc_sonarqube_conf \
+		financial-parsing-tcc_sonarqube_data \
+		financial-parsing-tcc_sonarqube_db_vol \
+		financial-parsing-tcc_sonarqube_db_vol_data \
+		financial-parsing-tcc_sonarqube_extensions
+
+scanner-clean:
+	docker image rm sonarqube-scanner:1.0
+
+clean: sonarqube-clean;scanner-clean
+	echo "Cleaning"

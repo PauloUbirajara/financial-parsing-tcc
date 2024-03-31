@@ -27,14 +27,18 @@ func main() {
 
 	// Configuration
 	app := fiber.New(configuration.FiberConfig)
-	for _, middleware := range middlewares.FiberMiddlewares {
-		app.Use(middleware)
-	}
+	app.Use(middlewares.FiberCORS)
+	app.Use(middlewares.FiberErrorRecovery)
+	app.Use(middlewares.FiberRateLimiter)
 
 	// Routes Setup
 	rootRouter := app.Group("/api/v1")
+	routes.AuthRoutes(rootRouter, connection)
 
+	// JWT will be used on the next routes
+	app.Use(middlewares.FiberJWT)
 	routes.CurrencyRoutes(rootRouter, connection)
+	routes.CurrencyRecordsRoutes(rootRouter, connection)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, Go")

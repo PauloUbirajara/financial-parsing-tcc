@@ -22,7 +22,13 @@ func CreateConnection(host, username, password, port string) (*gorm.DB, error) {
 		&gorm.Config{},
 	)
 
-	db.AutoMigrate(&models.Currency{})
+	db.AutoMigrate(
+		&models.User{},
+		&models.Currency{},
+		&models.Currency_User{},
+		&models.CurrencyRecord{},
+		&models.Currency_CurrencyRecord{},
+	)
 
 	return db, err
 }

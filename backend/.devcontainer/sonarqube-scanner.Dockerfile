@@ -15,8 +15,11 @@ FROM sonarsource/sonar-scanner-cli:5.0
 
 COPY --from=builder /app /usr/src
 
+ENV SONAR_SCANNER_OPTS="-Xmx512m"
+
 CMD sonar-scanner \
-  -Dsonar.projectKey=financial-parsing \
-  -Dsonar.sources=. \
-  -Dsonar.host.url="${SONARQUBE_SCANNER_HOST}" \
-  -Dsonar.login="${SONARQUBE_SCANNER_LOGIN}"
+	-Dsonar.projectKey=financial-parsing \
+	-Dsonar.sources=. \
+	-Dsonar.host.url="${SONARQUBE_SCANNER_HOST}" \
+	-Dsonar.login="${SONARQUBE_SCANNER_LOGIN}" \
+	-Dproject.settings="${SONARQUBE_SCANNER_PROPERTIES}"
