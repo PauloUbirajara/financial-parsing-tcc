@@ -1,7 +1,6 @@
 <script lang="ts">
   import "../app.pcss";
   import {
-    DarkMode,
     Footer,
     FooterBrand,
     FooterCopyright,
@@ -12,7 +11,7 @@
     Navbar,
   } from "flowbite-svelte";
 
-  let isLogged = false;
+  const isLogged = false;
 </script>
 
 <Navbar
@@ -27,29 +26,29 @@
     />
   </NavBrand>
   <NavHamburger />
-  <div class="flex">
-    <NavUl>
-      {#if isLogged}
-        <NavLi href="/dashboard">Dashboard</NavLi>
-        <NavLi href="/wallets">Carteiras</NavLi>
-        <NavLi href="/transactions">Transações</NavLi>
-        <NavLi href="/exports">Exportações</NavLi>
-      {:else}
-        <NavLi href="/auth/login">Acessar conta</NavLi>
-        <NavLi href="/auth/register">Criar conta</NavLi>
-      {/if}
-    </NavUl>
-    <DarkMode
-      class="text-primary-500 dark:text-primary-600 border dark:border-gray-800"
-    />
-  </div>
+  <NavUl>
+    {#if isLogged}
+      <NavLi href="/dashboard">Dashboard</NavLi>
+      <NavLi href="/wallets">Carteiras</NavLi>
+      <NavLi href="/transactions">Transações</NavLi>
+      <NavLi href="/exports">Exportações</NavLi>
+    {/if}
+    {#if !isLogged}
+      <NavLi href="/auth/login">Acessar conta</NavLi>
+      <NavLi href="/auth/register">Criar conta</NavLi>
+    {/if}
+  </NavUl>
 </Navbar>
+<!-- <DarkMode -->
+<!--   class="aspect-square text-primary-500 dark:text-primary-600 border dark:border-gray-800" -->
+<!-- /> -->
 
 <main class="p-10 h-full">
   <slot />
 </main>
 
-<Footer footerType="default">
+<div class="relative">
+<Footer footerType="default" class="fixed w-full bottom-0" style="position: sticky">
   <FooterBrand
     href="/"
     src="/images/logo.png"
@@ -58,3 +57,4 @@
   />
   <FooterCopyright href="/" by="Financial Parsing™" />
 </Footer>
+</div>

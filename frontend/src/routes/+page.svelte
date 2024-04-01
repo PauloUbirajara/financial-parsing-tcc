@@ -1,5 +1,8 @@
-<h1>Welcome to SvelteKit</h1>
-<p>
-  Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
-</p>
-<p></p>
+<script>
+  import { A, Heading, P } from "flowbite-svelte";
+</script>
+
+<Heading>Welcome to SvelteKit</Heading>
+<P>
+  Visit <A href="https://kit.svelte.dev">kit.svelte.dev</A> to read the documentation
+</P>
