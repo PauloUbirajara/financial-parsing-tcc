@@ -11,7 +11,8 @@
     Navbar,
   } from "flowbite-svelte";
 
-  const isLogged = false;
+  export let data
+  let isLogged = Boolean(data?.isLogged)
 </script>
 
 <Navbar
@@ -28,10 +29,10 @@
   <NavHamburger />
   <NavUl>
     {#if isLogged}
-      <NavLi href="/dashboard">Dashboard</NavLi>
-      <NavLi href="/wallets">Carteiras</NavLi>
-      <NavLi href="/transactions">Transações</NavLi>
-      <NavLi href="/exports">Exportações</NavLi>
+      <NavLi href="/api/dashboard">Dashboard</NavLi>
+      <NavLi href="/api/wallets">Carteiras</NavLi>
+      <NavLi href="/api/transactions">Transações</NavLi>
+      <NavLi href="/api/exports">Exportações</NavLi>
     {/if}
     {#if !isLogged}
       <NavLi href="/auth/login">Acessar conta</NavLi>
