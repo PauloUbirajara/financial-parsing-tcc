@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func AuthRoutes(router fiber.Router, connection *gorm.DB) fiber.Router {
+func AuthRoutes(router fiber.Router, connection *gorm.DB, jwtMiddleware fiber.Handler) fiber.Router {
 	authController := controllers.AuthController{
 		JwtSecret:     os.Getenv("JWT_SECRET"),
 		Connection:    connection,
@@ -20,6 +20,7 @@ func AuthRoutes(router fiber.Router, connection *gorm.DB) fiber.Router {
 
 	authRouter := router.Group("/auth")
 
+	authRouter.Get("/user", jwtMiddleware, authController.GetUser)
 	authRouter.Post("/login", authController.Login)
 	authRouter.Post("/register", authController.Register)
 

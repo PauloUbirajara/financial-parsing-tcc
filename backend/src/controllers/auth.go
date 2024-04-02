@@ -58,29 +58,35 @@ func (a AuthController) Register(ctx *fiber.Ctx) error {
 		log.Warn("Error when parsing body", err)
 		return ctx.
 			Status(fiber.StatusBadRequest).
-			SendString("Erro ao obter dados para cadastro de usuário")
+			JSON(fiber.Map{
+				"error": "Erro ao obter dados para cadastro de usuário",
+			})
 	}
 
 	log.Debug(registerBody)
-
-	// Validate before adding to database
-	if err := validateRegisterBody(registerBody); err != nil {
-		return ctx.
-			Status(fiber.StatusBadRequest).
-			SendString(err.Error())
-	}
 
 	// Check if already exists user with email
 	var existingUser models.User
 	result := a.Connection.
 		Table("users").
-		First(&existingUser, "email = ?", registerBody.Email)
+		First(&existingUser, "users.email = ?", registerBody.Email)
 
 	if !existingUser.CreatedAt.IsZero() {
 		log.Warn(result.Error)
 		return ctx.
 			Status(fiber.StatusConflict).
-			SendString("Usuário já existe com esse email")
+			JSON(fiber.Map{
+				"error": "Usuário com email já cadastrado",
+			})
+	}
+
+	// Validate before adding to database
+	if err := validateRegisterBody(registerBody); err != nil {
+		return ctx.
+			Status(fiber.StatusBadRequest).
+			JSON(fiber.Map{
+				"error": err.Error(),
+			})
 	}
 
 	// Add to database
@@ -96,11 +102,18 @@ func (a AuthController) Register(ctx *fiber.Ctx) error {
 	trx.Create(&user)
 	commitResult := trx.Commit()
 	if commitResult.Error != nil {
-		return ctx.SendStatus(fiber.StatusInternalServerError)
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Erro ao cadastrar usuário em sistema",
+			})
 	}
 
-	return ctx.SendStatus(fiber.StatusCreated)
-
+	return ctx.
+		Status(fiber.StatusCreated).
+		JSON(fiber.Map{
+			"message": "Usuário criado com sucesso",
+		})
 }
 
 func (a AuthController) Login(ctx *fiber.Ctx) error {
@@ -112,7 +125,9 @@ func (a AuthController) Login(ctx *fiber.Ctx) error {
 		log.Warn("Error when parsing body", err)
 		return ctx.
 			Status(fiber.StatusBadRequest).
-			SendString("Erro ao obter dados para login de usuário")
+			JSON(fiber.Map{
+				"error": "Erro ao obter dados para login de usuário",
+			})
 	}
 
 	// Validate within database
@@ -128,7 +143,11 @@ func (a AuthController) Login(ctx *fiber.Ctx) error {
 
 	if result.Error != nil {
 		log.Warn("Error when logging user in", result.Error)
-		return ctx.SendStatus(fiber.StatusUnauthorized)
+		return ctx.
+			Status(fiber.StatusUnauthorized).
+			JSON(fiber.Map{
+				"error": "E-mail ou senha inválido(s)",
+			})
 	}
 
 	// Create the Claims
@@ -144,8 +163,22 @@ func (a AuthController) Login(ctx *fiber.Ctx) error {
 	// Generate encoded token and send it as response.
 	t, err := token.SignedString([]byte(a.JwtSecret))
 	if err != nil {
-		return ctx.SendStatus(fiber.StatusInternalServerError)
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Erro ao realizar login de usuário",
+			})
 	}
 
-	return ctx.JSON(fiber.Map{"token": t})
+	return ctx.
+		Status(fiber.StatusOK).
+		JSON(fiber.Map{
+			"message": "Usuário criado com sucesso",
+			"token":   t,
+		})
+}
+
+func (a AuthController) GetUser(ctx *fiber.Ctx) error {
+	log.Info("Get User")
+	return ctx.SendStatus(fiber.StatusOK)
 }

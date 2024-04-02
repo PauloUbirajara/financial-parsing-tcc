@@ -11,6 +11,6 @@ func (g GoogleUUIDGenerator) Generate() string {
 	return uuid.String()
 }
 
-func (g GoogleUUIDGenerator) IsValidUUID(id string) error  {
+func (g GoogleUUIDGenerator) IsValidUUID(id string) error {
 	return uuid.Validate(id)
 }

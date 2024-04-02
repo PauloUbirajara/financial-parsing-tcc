@@ -33,7 +33,7 @@ func main() {
 
 	// Routes Setup
 	rootRouter := app.Group("/api/v1")
-	routes.AuthRoutes(rootRouter, connection)
+	routes.AuthRoutes(rootRouter, connection, middlewares.FiberJWT)
 
 	// JWT will be used on the next routes
 	app.Use(middlewares.FiberJWT)

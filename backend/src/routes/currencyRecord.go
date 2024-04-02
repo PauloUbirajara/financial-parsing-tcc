@@ -19,7 +19,7 @@ func CurrencyRecordsRoutes(router fiber.Router, connection *gorm.DB) fiber.Route
 
 	var currencyRecordController controllers.BaseController = controllers.CurrencyRecordController{
 		UUIDGenerator: uuidGenerator,
-		Connection: connection,
+		Connection:    connection,
 		ValidateCurrencyRecord: validatemodel.ValidateCurrencyRecord{
 			UUIDGenerator: uuidGenerator,
 		},
