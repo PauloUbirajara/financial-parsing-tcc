@@ -44,6 +44,9 @@ go-run:
 		JWT_SECRET=${JWT_SECRET} \
 		go run .
 
+go-format:
+	gofmt -w .
+
 sonarqube-clean:
 	docker compose down
 	docker volume rm \
