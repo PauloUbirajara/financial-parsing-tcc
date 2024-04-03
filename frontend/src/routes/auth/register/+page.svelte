@@ -38,13 +38,24 @@
 
     <form method="POST" on:submit={onRegister}>
       <div class="mb-6">
+        <Label for="username" class="mb-2">Apelido</Label>
+        <Input
+          type="username"
+          id="username"
+          name="username"
+          size="lg"
+          placeholder="Digite seu apelido"
+          required
+        />
+      </div>
+      <div class="mb-6">
         <Label for="email" class="mb-2">E-mail</Label>
         <Input
           type="email"
           id="email"
           name="email"
           size="lg"
-          placeholder="john.doe@company.com"
+          placeholder="Digite seu e-mail"
           required
         />
       </div>
@@ -54,7 +65,7 @@
           id="password"
           name="password"
           type={showPassword ? "text" : "password"}
-          placeholder="•••••••••"
+          placeholder="Digite sua senha"
           size="lg"
           required
         >
@@ -74,12 +85,12 @@
         </Input>
       </div>
       <div class="mb-6">
-        <Label for="confirm-password" class="mb-2">Senha</Label>
+        <Label for="confirm-password" class="mb-2">Confirmação de Senha</Label>
         <Input
           id="confirm-password"
           name="confirm-password"
           type={showPassword ? "text" : "password"}
-          placeholder="•••••••••"
+          placeholder="Digite novamente a sua senha"
           size="lg"
           required
         >

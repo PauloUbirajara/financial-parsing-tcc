@@ -6,6 +6,7 @@ async function getRegisterBody(e): object {
 	const formData = await e.request.formData();
 	const registerBody = {
 		email: formData.get('email'),
+		username: formData.get('username'),
 		password: formData.get('password'),
 		confirmPassword: formData.get('confirm-password'),
 	}
