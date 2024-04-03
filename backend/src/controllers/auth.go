@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"errors"
-	"financial-parsing/src/domain/models"
-	"financial-parsing/src/helpers"
-	"financial-parsing/src/protocols"
 	"regexp"
+	"strings"
 	"time"
+
+	models "financial-parsing/src/domain/models"
+	helpers "financial-parsing/src/helpers"
+	protocols "financial-parsing/src/protocols"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -21,6 +23,7 @@ type AuthController struct {
 }
 
 type RegisterBody struct {
+	Username        string
 	Email           string
 	Password        string
 	ConfirmPassword string
@@ -35,6 +38,11 @@ func validateRegisterBody(registerBody RegisterBody) error {
 	emailRegex, _ := regexp.Compile(`^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$`)
 	if !emailRegex.MatchString(registerBody.Email) {
 		return errors.New("E-mail inválido")
+	}
+
+	usernameRegex, _ := regexp.Compile(`^[a-z]{3,64}$`)
+	if !usernameRegex.MatchString(registerBody.Username) {
+		return errors.New("Apelido deve conter apenas letras minúsculas e ter tamanho entre 3 e 64 caracteres")
 	}
 
 	if registerBody.Password != registerBody.ConfirmPassword {
@@ -69,7 +77,7 @@ func (a AuthController) Register(ctx *fiber.Ctx) error {
 	var existingUser models.User
 	result := a.Connection.
 		Table("users").
-		First(&existingUser, "users.email = ?", registerBody.Email)
+		First(&existingUser, "users.email = ? OR users.username = ?", registerBody.Email, registerBody.Username)
 
 	if !existingUser.CreatedAt.IsZero() {
 		log.Warn(result.Error)
@@ -95,6 +103,7 @@ func (a AuthController) Register(ctx *fiber.Ctx) error {
 	user := models.User{
 		ID:           a.UUIDGenerator.Generate(),
 		Email:        registerBody.Email,
+		Username:     registerBody.Username,
 		PasswordHash: helpers.StringToSHA512Sum(registerBody.Password),
 		Active:       false,
 	}
@@ -153,8 +162,8 @@ func (a AuthController) Login(ctx *fiber.Ctx) error {
 	// Create the Claims
 	// TODO Use later with 15 min
 	claims := jwt.MapClaims{
-		"email": loginBody.Email,
-		"exp":   time.Now().Add(time.Minute * 2).Unix(),
+		"username": user.Username,
+		"exp":      time.Now().Add(time.Minute * 2).Unix(),
 	}
 
 	// Create token
@@ -180,5 +189,12 @@ func (a AuthController) Login(ctx *fiber.Ctx) error {
 
 func (a AuthController) GetUser(ctx *fiber.Ctx) error {
 	log.Info("Get User")
-	return ctx.SendStatus(fiber.StatusOK)
+
+	username := helpers.GetUsername(ctx)
+
+	return ctx.
+		Status(fiber.StatusOK).
+		JSON(fiber.Map{
+			"username": username,
+		})
 }

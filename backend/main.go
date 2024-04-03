@@ -37,6 +37,7 @@ func main() {
 
 	// JWT will be used on the next routes
 	app.Use(middlewares.FiberJWT)
+	app.Use(middlewares.JWTInfoMiddleware(os.Getenv("JWT_SECRET")))
 	routes.CurrencyRoutes(rootRouter, connection)
 	routes.CurrencyRecordsRoutes(rootRouter, connection)
 

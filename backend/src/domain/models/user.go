@@ -12,6 +12,7 @@ type User struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
+	Username     string `gorm:"uniqueIndex"`
 	Email        string
 	PasswordHash string
 	Active       bool
