@@ -56,11 +56,38 @@ func (c CurrencyController) GetAll(ctx *fiber.Ctx) error {
 func (c CurrencyController) GetById(ctx *fiber.Ctx) error {
 	log.Debug("Currency - GetById")
 
+	var (
+		currency models.Currency
+		user     models.User
+		id       string = ctx.Params("id")
+	)
+
+	result := c.Connection.First(&user, "username = ?", helpers.GetUsername(ctx))
+
+	if result.Error != nil {
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not get user while getting currency by id",
+			})
+	}
+
+	result = c.Connection.
+		Table("currencies").
+		Joins("JOIN currency_users ON currency_users.user_id = ?", user.ID).
+		First(&currency, "currencies.id = ?", id)
+
+	if result.Error != nil {
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not get currency by id",
+			})
+	}
+
 	return ctx.
-		Status(fiber.StatusInternalServerError).
-		JSON(fiber.Map{
-			"error": "Could not get currency by id",
-		})
+		Status(fiber.StatusOK).
+		JSON(currency)
 }
 
 func (c CurrencyController) Update(ctx *fiber.Ctx) error {
