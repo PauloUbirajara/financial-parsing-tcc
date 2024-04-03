@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"strings"
-
 	models "financial-parsing/src/domain/models"
 	usecases "financial-parsing/src/domain/usecases"
 	helpers "financial-parsing/src/helpers"
@@ -20,214 +18,77 @@ type CurrencyController struct {
 }
 
 func (c CurrencyController) GetAll(ctx *fiber.Ctx) error {
-	log.Info("Currency - Get All")
+	log.Debug("Currency - GetAll")
 
-	var currencies []models.Currency
+	var (
+		currencies []models.Currency
+		user       models.User
+	)
 
-	result := c.Connection.
+	result := c.Connection.First(&user, "username = ?", helpers.GetUsername(ctx))
+
+	if result.Error != nil {
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not get user while getting all currencies",
+			})
+	}
+
+	result = c.Connection.
 		Table("currencies").
+		Joins("JOIN currency_users ON currency_users.user_id = ?", user.ID).
 		Find(&currencies)
 
 	if result.Error != nil {
-		log.Warn(result.Error)
 		return ctx.
 			Status(fiber.StatusInternalServerError).
-			SendString("Error when getting all currencies")
+			JSON(fiber.Map{
+				"error": "Could not get all currencies",
+			})
 	}
-
-	return ctx.JSON(currencies)
-}
-
-func (c CurrencyController) GetById(ctx *fiber.Ctx) error {
-	log.Info("Currency - Get By Id")
-
-	id := ctx.Params("id")
-
-	var currency models.Currency
-
-	result := c.Connection.
-		Table("currencies").
-		First(&currency, "currencies.id = ?", id)
-
-	if result.Error != nil {
-		log.Warn(result.Error)
-		return ctx.
-			Status(fiber.StatusInternalServerError).
-			SendString("Error when getting currency by id")
-	}
-
-	return ctx.JSON(currency)
-}
-
-func (c CurrencyController) Update(ctx *fiber.Ctx) error {
-	log.Info("Currency - Update")
-
-	// Getting existing currency to update
-	id := ctx.Params("id")
-	var existingCurrency models.Currency
-
-	result := c.Connection.
-		Table("currencies").
-		First(&existingCurrency, "currencies.id = ?", id)
-
-	if existingCurrency.CreatedAt.IsZero() {
-		return ctx.
-			Status(fiber.StatusNotFound).
-			SendString("Could not find currency by id for update")
-	}
-
-	if result.Error != nil {
-		log.Warn("Error when searching existing currency to update", result.Error)
-		return ctx.
-			Status(fiber.StatusInternalServerError).
-			SendString("Error when searching for existing currency to update")
-	}
-
-	currency := new(models.Currency)
-	if err := ctx.BodyParser(&currency); err != nil {
-		log.Warn("Error when parsing", err)
-		return ctx.
-			Status(fiber.StatusBadRequest).
-			SendString("Could not parse request body to Currency")
-	}
-
-	existingCurrency.Name = currency.Name
-	existingCurrency.Representation = currency.Representation
-
-	trx := c.Connection.Begin()
-	updateResult := trx.Save(&existingCurrency)
-
-	if updateResult.Error != nil {
-		log.Warn("Error when updating", updateResult.Error)
-		trx.Rollback()
-		return ctx.
-			Status(fiber.StatusInternalServerError).
-			SendString("Error when updating Currency by id")
-	}
-	trx.Commit()
 
 	return ctx.
 		Status(fiber.StatusOK).
-		JSON(existingCurrency)
+		JSON(currencies)
+}
+
+func (c CurrencyController) GetById(ctx *fiber.Ctx) error {
+	log.Debug("Currency - GetById")
+
+	return ctx.
+		Status(fiber.StatusInternalServerError).
+		JSON(fiber.Map{
+			"error": "Could not get currency by id",
+		})
+}
+
+func (c CurrencyController) Update(ctx *fiber.Ctx) error {
+	log.Debug("Currency - UpdateById")
+
+	return ctx.
+		Status(fiber.StatusInternalServerError).
+		JSON(fiber.Map{
+			"error": "Could not update currency by id",
+		})
 }
 
 func (c CurrencyController) Delete(ctx *fiber.Ctx) error {
-	log.Info("Currency - Delete")
+	log.Debug("Currency - Delete")
 
-	ids := ctx.Query("ids")
-	idsToDelete := strings.Split(ids, ",")
-	log.Info("IDS to delete: ", idsToDelete)
-
-	var deleted []models.Currency
-
-	// Delete currencies
-	trx := c.Connection.Begin()
-
-	result := trx.
-		Table("currencies").
-		Delete(&deleted, "currencies.id = ?", idsToDelete)
-
-	if result.Error != nil {
-		log.Warn(result.Error)
-		trx.Rollback()
-		return ctx.
-			Status(fiber.StatusInternalServerError).
-			SendString("Error when deleting currencies by id")
-	}
-
-	// Delete currency-user relationship
-	var deletedRelationships []models.Currency_User
-	result = trx.
-		Table("currency_users").
-		Delete(&deletedRelationships, "currency_users.currency_id = ?", idsToDelete)
-
-	if result.Error != nil {
-		log.Warn(result.Error)
-		trx.Rollback()
-		return ctx.
-			Status(fiber.StatusInternalServerError).
-			SendString("Error when deleting relationships between user and currencies by id")
-	}
-
-	trx.Commit()
-
-	return ctx.SendStatus(fiber.StatusOK)
+	return ctx.
+		Status(fiber.StatusInternalServerError).
+		JSON(fiber.Map{
+			"error": "Could not delete currencies by ids",
+		})
 }
 
 func (c CurrencyController) Create(ctx *fiber.Ctx) error {
-	log.Info("Currency - Create")
-
-	var body models.Currency
-
-	// Parse request body as currency
-	if err := ctx.BodyParser(&body); err != nil {
-		log.Warn("Error when parsing body to currency")
-		log.Warn(err)
-		return ctx.
-			Status(fiber.StatusBadRequest).
-			SendString("Could not parse specified request body to Currency")
-	}
-	body.ID = c.UUIDGenerator.Generate()
-
-	if err := c.ValidateCurrency.Validate(body); err != nil {
-		log.Warn("Failed when validating body as currency")
-		log.Warn(err.Error)
-		return ctx.
-			Status(fiber.StatusBadRequest).
-			SendString(err.Error())
-	}
-
-	trx := c.Connection.Begin()
-
-	// Create currency
-	result := trx.
-		Table("currencies").
-		Create(&body)
-
-	if result.Error != nil {
-		log.Warn(result.Error)
-		trx.Rollback()
-		return ctx.
-			Status(fiber.StatusInternalServerError).
-			SendString("Error when creating currency")
-	}
-
-	// Find user by username
-	username := helpers.GetUsername(ctx)
-
-	var user models.User = models.User{
-		Username: username,
-	}
-	result = trx.First(&user)
-	if result.Error != nil {
-		log.Warn(result.Error)
-		trx.Rollback()
-		return ctx.
-			Status(fiber.StatusInternalServerError).
-			SendString("Error when searching user")
-	}
-
-	// Create relationship between user and currency
-	result = trx.
-		Table("currency_users").
-		Create(&models.Currency_User{
-			ID:         c.UUIDGenerator.Generate(),
-			CurrencyId: body.ID,
-			UserId:     user.ID,
-		})
-
-	if result.Error != nil {
-		log.Warn(result.Error)
-		trx.Rollback()
-		return ctx.
-			Status(fiber.StatusInternalServerError).
-			SendString("Error when creating relationship between currency and user")
-	}
-
-	// Save changes
-	trx.Commit()
+	log.Debug("Currency - Create")
 
 	return ctx.
-		Status(fiber.StatusCreated).
-		JSON(body)
+		Status(fiber.StatusInternalServerError).
+		JSON(fiber.Map{
+			"error": "Could not create currency",
+		})
 }

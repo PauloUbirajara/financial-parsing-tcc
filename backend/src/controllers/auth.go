@@ -190,7 +190,35 @@ func (a AuthController) Login(ctx *fiber.Ctx) error {
 func (a AuthController) GetUser(ctx *fiber.Ctx) error {
 	log.Info("Get User")
 
-	username := helpers.GetUsername(ctx)
+	authorizationString, hasToken := ctx.GetReqHeaders()[fiber.HeaderAuthorization]
+
+	if !hasToken {
+		return ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	log.Debug(authorizationString)
+	tokenString := strings.Split(authorizationString[0], " ")
+
+	if len(tokenString) < 2 {
+		log.Warn("Could not get bearer token from authorization header")
+		return ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	token, err := helpers.ParseJWTToken(a.JwtSecret, tokenString[1])
+	if err != nil {
+		log.Warn("Failed when checking if token is valid")
+		log.Warn(err.Error())
+
+		return ctx.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	username, hasUsername := claims["username"]
+
+	if !hasUsername {
+		log.Warn("Token without username")
+		return ctx.SendStatus(fiber.StatusUnauthorized)
+	}
 
 	return ctx.
 		Status(fiber.StatusOK).
