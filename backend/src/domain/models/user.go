@@ -13,7 +13,7 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
 	Username     string `gorm:"uniqueIndex"`
-	Email        string
+	Email        string `gorm:"uniqueIndex"`
 	PasswordHash string
 	Active       bool
 }

@@ -12,6 +12,6 @@ type Currency_CurrencyRecord struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	CurrencyId       string `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" gorm:"foreignKey: CurrencyID"`
-	CurrencyRecordId string `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" gorm:"foreignKey: CurrencyRecordID"`
+	CurrencyId       string `json:"currency_id" gorm:"not null"`
+	CurrencyRecordId string `json:"currency_record_id" gorm:"not null"`
 }
