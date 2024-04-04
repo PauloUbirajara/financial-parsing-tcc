@@ -58,11 +58,42 @@ func (c CurrencyRecordController) GetAll(ctx *fiber.Ctx) error {
 
 func (c CurrencyRecordController) GetById(ctx *fiber.Ctx) error {
 	log.Debug("CurrencyRecord - GetById")
+
+	var (
+		currencyId string = ctx.Params("currencyId")
+		id         string = ctx.Params("id")
+
+		currencyRecord models.CurrencyRecord
+		user           models.User
+	)
+
+	result := c.Connection.First(&user, "username = ?", helpers.GetUsername(ctx))
+
+	if result.Error != nil {
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not get user while getting currency record by id",
+			})
+	}
+
+	result = c.Connection.
+		Joins("JOIN currency_currency_records ON currency_currency_records.currency_record_id = currency_records.id").
+		Joins("JOIN currency_users ON currency_users.currency_id = currency_currency_records.currency_id").
+		Joins("JOIN users ON users.id = currency_users.user_id").
+		First(&currencyRecord, "currency_users.user_id = ? AND currency_currency_records.currency_id = ? AND currency_currency_records.currency_record_id = ?", user.ID, currencyId, id)
+
+	if result.Error != nil {
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not get currency record by id",
+			})
+	}
+
 	return ctx.
-		Status(fiber.StatusInternalServerError).
-		JSON(fiber.Map{
-			"error": "Could not get currency record by id",
-		})
+		Status(fiber.StatusOK).
+		JSON(currencyRecord)
 }
 
 func (c CurrencyRecordController) Update(ctx *fiber.Ctx) error {
