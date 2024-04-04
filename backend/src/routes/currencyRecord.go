@@ -2,10 +2,8 @@ package routes
 
 import (
 	controllers "financial-parsing/src/controllers"
-	// models "financial-parsing/src/domain/models"
 
 	validatemodel "financial-parsing/src/data/usecases/validateModel"
-	// databaseadapter "financial-parsing/src/utils/databaseAdapter"
 	uuidgenerator "financial-parsing/src/utils/uuidGenerator"
 
 	"github.com/gofiber/fiber/v2"

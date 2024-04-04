@@ -12,6 +12,6 @@ type Currency_User struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	CurrencyId string `gorm:"foreignKey:CurrencyId"`
-	UserId     string `gorm:"foreignKey:UserId"`
+	CurrencyId string `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	UserId     string `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
