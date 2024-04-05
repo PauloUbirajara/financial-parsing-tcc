@@ -59,9 +59,10 @@ func (c CurrencyController) GetById(ctx *fiber.Ctx) error {
 	log.Debug("Currency - GetById")
 
 	var (
+		id string = ctx.Params("id")
+
 		currency models.Currency
 		user     models.User
-		id       string = ctx.Params("id")
 	)
 
 	result := c.Connection.First(&user, "username = ?", helpers.GetUsername(ctx))
@@ -96,10 +97,11 @@ func (c CurrencyController) Update(ctx *fiber.Ctx) error {
 	log.Debug("Currency - UpdateById")
 
 	var (
-		currency        models.Currency
-		updatedCurrency models.Currency
-		user            models.User
-		id              string = ctx.Params("id")
+		id string = ctx.Params("id")
+
+		currency models.Currency
+		body     models.Currency
+		user     models.User
 	)
 
 	result := c.Connection.First(&user, "username = ?", helpers.GetUsername(ctx))
@@ -113,7 +115,7 @@ func (c CurrencyController) Update(ctx *fiber.Ctx) error {
 	}
 
 	// Parse updated body
-	if err := ctx.BodyParser(&updatedCurrency); err != nil {
+	if err := ctx.BodyParser(&body); err != nil {
 		log.Warn("Error when parsing currency body for update")
 		log.Warn(err)
 		return ctx.
@@ -123,15 +125,12 @@ func (c CurrencyController) Update(ctx *fiber.Ctx) error {
 			})
 	}
 
-	trx := c.Connection.Begin()
-
-	result = trx.
+	result = c.Connection.
 		Joins("JOIN currency_users ON currency_users.currency_id = currencies.id").
 		Joins("JOIN users ON users.id = currency_users.user_id").
 		First(&currency, "currency_users.user_id = ? AND currency_users.currency_id = ?", user.ID, id)
 
 	if result.Error != nil {
-		trx.Rollback()
 		return ctx.
 			Status(fiber.StatusInternalServerError).
 			JSON(fiber.Map{
@@ -139,11 +138,19 @@ func (c CurrencyController) Update(ctx *fiber.Ctx) error {
 			})
 	}
 
-	currency.Name = updatedCurrency.Name
-	currency.Representation = updatedCurrency.Representation
+	trx := c.Connection.Begin()
+	currency.Name = body.Name
+	currency.Representation = body.Representation
 
-	trx.Save(&currency)
-
+	result = trx.Save(&currency)
+	if result.Error != nil {
+		trx.Rollback()
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not update currency using body",
+			})
+	}
 	trx.Commit()
 
 	return ctx.
@@ -155,13 +162,13 @@ func (c CurrencyController) Delete(ctx *fiber.Ctx) error {
 	log.Debug("Currency - Delete")
 
 	var (
+		ids string = ctx.Query("ids")
+
 		currenciesUser []models.Currency_User
-		idsToDelete    []string
 		user           models.User
-		ids            string = ctx.Query("ids")
 	)
 
-	idsToDelete = strings.Split(ids, ",")
+	idsToDelete := strings.Split(ids, ",")
 
 	result := c.Connection.First(&user, "username = ?", helpers.GetUsername(ctx))
 
