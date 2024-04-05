@@ -96,11 +96,68 @@ func (c CurrencyRecordController) GetById(ctx *fiber.Ctx) error {
 
 func (c CurrencyRecordController) Update(ctx *fiber.Ctx) error {
 	log.Debug("CurrencyRecord - Update")
+
+	var (
+		currencyId string = ctx.Params("currencyId")
+		id         string = ctx.Params("id")
+
+		body           models.CurrencyRecord
+		currencyRecord models.CurrencyRecord
+		user           models.User
+	)
+
+	result := c.Connection.First(&user, "username = ?", helpers.GetUsername(ctx))
+
+	if result.Error != nil {
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not get user while getting currency record by id",
+			})
+	}
+
+	// Parse currency record body
+	if err := ctx.BodyParser(&body); err != nil {
+		log.Warn("Error when parsing currency body for create")
+		log.Warn(err)
+		return ctx.
+			Status(fiber.StatusBadRequest).
+			JSON(fiber.Map{
+				"error": "Error when parsing body for create",
+			})
+	}
+
+	result = c.Connection.
+		Joins("JOIN currency_record_users ON currency_record_users.currency_record_id = currency_records.id").
+		Joins("JOIN users ON users.id = currency_record_users.user_id").
+		First(&currencyRecord, "currency_record_users.user_id = ? AND currency_record_users.currency_id = ? AND currency_record_users.currency_record_id = ?", user.ID, currencyId, id)
+
+	if result.Error != nil {
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not get currency record by id",
+			})
+	}
+
+	trx := c.Connection.Begin()
+	currencyRecord.Value = body.Value
+	currencyRecord.RecordDate = body.RecordDate
+
+	result = trx.Save(&currencyRecord)
+	if result.Error != nil {
+		trx.Rollback()
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not update currency record using body",
+			})
+	}
+	trx.Commit()
+
 	return ctx.
-		Status(fiber.StatusInternalServerError).
-		JSON(fiber.Map{
-			"error": "Could not update currency record by id",
-		})
+		Status(fiber.StatusOK).
+		JSON(currencyRecord)
 }
 
 func (c CurrencyRecordController) Delete(ctx *fiber.Ctx) error {
