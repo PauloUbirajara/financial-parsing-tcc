@@ -175,18 +175,16 @@ func (c CurrencyController) Delete(ctx *fiber.Ctx) error {
 
 	trx := c.Connection.Begin()
 
-	// Find relationships between user and currencies by currency id
+	// Find currency relationships
 	result = trx.
 		Find(&currenciesUser, "currency_users.user_id = ? AND currency_users.currency_id IN ?", user.ID, idsToDelete)
-
-	log.Debug("relationships to delete:", currenciesUser)
 
 	if result.Error != nil {
 		trx.Rollback()
 		return ctx.
 			Status(fiber.StatusInternalServerError).
 			JSON(fiber.Map{
-				"error": "Could not find relationships between user and currencies by ids to delete",
+				"error": "Could not find currency relationships to delete",
 			})
 	}
 
@@ -209,7 +207,7 @@ func (c CurrencyController) Delete(ctx *fiber.Ctx) error {
 			})
 	}
 
-	// Delete relationships between user and currencies
+	// Delete currency relationships
 	result = trx.
 		Where("currency_users.currency_id IN ?", currenciesToDelete).
 		Delete(&models.Currency_User{})
@@ -219,7 +217,7 @@ func (c CurrencyController) Delete(ctx *fiber.Ctx) error {
 		return ctx.
 			Status(fiber.StatusInternalServerError).
 			JSON(fiber.Map{
-				"error": "Could not delete relationships between user and currencies by ids",
+				"error": "Could not delete currency relationships",
 			})
 	}
 
@@ -279,7 +277,7 @@ func (c CurrencyController) Create(ctx *fiber.Ctx) error {
 			})
 	}
 
-	// Create relationship between user and currency
+	// Create currency relationship
 	currencyUser = models.Currency_User{
 		ID:         c.UUIDGenerator.Generate(),
 		UserId:     user.ID,
@@ -295,7 +293,7 @@ func (c CurrencyController) Create(ctx *fiber.Ctx) error {
 		return ctx.
 			Status(fiber.StatusInternalServerError).
 			JSON(fiber.Map{
-				"error": "Could not create relationship between user and currency",
+				"error": "Could not create currency relationship",
 			})
 	}
 

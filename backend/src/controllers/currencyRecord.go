@@ -38,10 +38,9 @@ func (c CurrencyRecordController) GetAll(ctx *fiber.Ctx) error {
 	}
 
 	result = c.Connection.
-		Joins("JOIN currency_currency_records ON currency_currency_records.currency_record_id = currency_records.id").
-		Joins("JOIN currency_users ON currency_users.currency_id = currency_currency_records.currency_id").
-		Joins("JOIN users ON users.id = currency_users.user_id").
-		Find(&currencyRecords, "currency_users.user_id = ? AND currency_currency_records.currency_id = ?", user.ID, currencyId)
+		Joins("JOIN currency_record_users ON currency_record_users.currency_record_id = currency_records.id").
+		Joins("JOIN users ON users.id = currency_record_users.user_id").
+		Find(&currencyRecords, "currency_record_users.user_id = ? AND currency_record_users.currency_id = ?", user.ID, currencyId)
 
 	if result.Error != nil {
 		return ctx.
@@ -78,10 +77,9 @@ func (c CurrencyRecordController) GetById(ctx *fiber.Ctx) error {
 	}
 
 	result = c.Connection.
-		Joins("JOIN currency_currency_records ON currency_currency_records.currency_record_id = currency_records.id").
-		Joins("JOIN currency_users ON currency_users.currency_id = currency_currency_records.currency_id").
-		Joins("JOIN users ON users.id = currency_users.user_id").
-		First(&currencyRecord, "currency_users.user_id = ? AND currency_currency_records.currency_id = ? AND currency_currency_records.currency_record_id = ?", user.ID, currencyId, id)
+		Joins("JOIN currency_record_users ON currency_record_users.currency_record_id = currency_records.id").
+		Joins("JOIN users ON users.id = currency_record_users.user_id").
+		First(&currencyRecord, "currency_record_users.user_id = ? AND currency_record_users.currency_id = ? AND currency_record_users.currency_record_id = ?", user.ID, currencyId, id)
 
 	if result.Error != nil {
 		return ctx.
@@ -116,9 +114,77 @@ func (c CurrencyRecordController) Delete(ctx *fiber.Ctx) error {
 
 func (c CurrencyRecordController) Create(ctx *fiber.Ctx) error {
 	log.Debug("CurrencyRecord - Create")
+
+	var (
+		currencyId string = ctx.Params("currencyId")
+
+		currencyRecord         models.CurrencyRecord
+		currencyCurrencyRecord models.CurrencyRecord_User
+		user                   models.User
+	)
+
+	result := c.Connection.First(&user, "username = ?", helpers.GetUsername(ctx))
+
+	if result.Error != nil {
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not get user while creating currency record",
+			})
+	}
+
+	// Parse body
+	if err := ctx.BodyParser(&currencyRecord); err != nil {
+		log.Warn("Error when parsing currency record body for create")
+		log.Warn(err)
+		return ctx.
+			Status(fiber.StatusBadRequest).
+			JSON(fiber.Map{
+				"error": "Error when parsing body for create",
+			})
+	}
+	currencyRecord.ID = c.UUIDGenerator.Generate()
+
+	trx := c.Connection.Begin()
+
+	// Create currency record
+	result = trx.
+		Create(&currencyRecord)
+
+	if result.Error != nil {
+		log.Warn(result.Error)
+		trx.Rollback()
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not create currency record",
+			})
+	}
+
+	// Create currency record relationship
+	currencyCurrencyRecord = models.CurrencyRecord_User{
+		ID:               c.UUIDGenerator.Generate(),
+		CurrencyRecordId: currencyRecord.ID,
+		CurrencyId:       currencyId,
+		UserId:           user.ID,
+	}
+
+	result = trx.
+		Create(&currencyCurrencyRecord)
+
+	if result.Error != nil {
+		log.Warn(result.Error)
+		trx.Rollback()
+		return ctx.
+			Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"error": "Could not create currency record relationship",
+			})
+	}
+
+	trx.Commit()
+
 	return ctx.
-		Status(fiber.StatusInternalServerError).
-		JSON(fiber.Map{
-			"error": "Could not create currency record",
-		})
+		Status(fiber.StatusOK).
+		JSON(currencyRecord)
 }
