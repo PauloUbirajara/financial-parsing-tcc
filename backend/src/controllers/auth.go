@@ -182,7 +182,7 @@ func (a AuthController) Login(ctx *fiber.Ctx) error {
 	return ctx.
 		Status(fiber.StatusOK).
 		JSON(fiber.Map{
-			"message": "Usuário criado com sucesso",
+			"message": "Usuário logado com sucesso",
 			"token":   t,
 		})
 }
