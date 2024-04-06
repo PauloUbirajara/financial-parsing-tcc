@@ -9,8 +9,9 @@ class Currency(models.Model):
         default=uuid.uuid4,
         editable=False
     )
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(auto_now=True)
 
     name = models.TextField()
     representation = models.TextField()
+
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)

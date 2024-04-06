@@ -9,8 +9,14 @@ class CurrencyRecord(models.Model):
         default=uuid.uuid4,
         editable=False
     )
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(auto_now=True)
+
+    currency = models.ForeignKey(
+        to='currency.Currency',
+        on_delete=models.CASCADE
+    )
 
     value = models.FloatField()
     record_date = models.DateField()
+
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)

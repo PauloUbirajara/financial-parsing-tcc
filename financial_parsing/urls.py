@@ -20,12 +20,21 @@ from django.urls import path, include
 from apps.currency.views import CurrencyViewSet
 from apps.currency_record.views import CurrencyRecordViewSet
 
-from rest_framework.routers import DefaultRouter
+from rest_framework_extensions.routers import ExtendedSimpleRouter
 
 
-router = DefaultRouter()
-router.register(r'currencies', CurrencyViewSet, basename='currency')
-router.register(r'currency-records', CurrencyRecordViewSet, basename='currency-record')
+router = ExtendedSimpleRouter()
+currencies_routes = router.register(
+    r'currencies',
+    CurrencyViewSet,
+    basename='currency'
+)
+currencies_routes.register(
+    r'records',
+    CurrencyRecordViewSet,
+    basename='record',
+    parents_query_lookups=['currency']
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
