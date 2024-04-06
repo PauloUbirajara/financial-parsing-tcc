@@ -1,7 +1,6 @@
 from apps.currency.models import Currency
 from apps.currency import serializers
 
-import logging
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
@@ -62,5 +61,5 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not serializer.is_valid():
             return Response(status=400, data=serializer.error_messages)
 
-        self.queryset.create(**serializer.data)
+        self.queryset.create(**serializer.validated_data)
         return Response(data=serializer.data)
