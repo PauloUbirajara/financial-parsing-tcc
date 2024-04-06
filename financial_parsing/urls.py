@@ -19,6 +19,7 @@ from django.urls import path, include
 
 from apps.currency.views import CurrencyViewSet
 from apps.currency_record.views import CurrencyRecordViewSet
+from apps.wallet.views import WalletViewSet
 
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 from rest_framework_simplejwt.views import (
@@ -40,11 +41,16 @@ currencies_routes.register(
     basename='record',
     parents_query_lookups=['currency']
 )
+router.register(
+    r'wallets',
+    WalletViewSet,
+    basename='wallet'
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('auth/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/validate', TokenVerifyView.as_view(), name='token_verify'),
 ]

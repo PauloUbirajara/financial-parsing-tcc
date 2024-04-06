@@ -10,6 +10,11 @@ class Currency(models.Model):
         editable=False
     )
 
+    user = models.ForeignKey(
+        to='auth.User',
+        on_delete=models.CASCADE
+    )
+
     name = models.TextField()
     representation = models.TextField()
 

@@ -1,8 +1,9 @@
-from rest_framework.exceptions import NotAuthenticated
-from apps.currency.models import Currency
+from django.apps import apps
+
 from apps.currency_record.models import CurrencyRecord
 from apps.currency_record import serializers
 
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
@@ -10,12 +11,15 @@ from typing import Optional
 from http import HTTPStatus
 
 
+Currency = apps.get_model('currency', 'Currency')
+
+
 class CurrencyRecordViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        return CurrencyRecord.objects.all()
+        return CurrencyRecord.objects.filter(user=self.request.user)
 
     def get_currency(self) -> Optional[Currency]:
         currency_id = self.get_parents_query_dict().get('currency')
@@ -102,7 +106,8 @@ class CurrencyRecordViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
         record = {
             **serializer.validated_data,
-            "currency": currency
+            "currency": currency,
+            "user": request.user
         }
 
         self.get_queryset().create(**record)

@@ -13,7 +13,7 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        return Currency.objects.all()
+        return Currency.objects.filter(user=self.request.user)
     
     def get_serializer_class(self):
         supported_serializers = {
@@ -67,6 +67,10 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        Currency.objects.create(**serializer.validated_data)
+        currency = {
+            **serializer.validated_data,
+            "user": request.user
+        }
+        self.get_queryset().create(**currency)
 
         return Response(data=serializer.data)

@@ -10,13 +10,17 @@ class Wallet(models.Model):
         editable=False
     )
 
+    user = models.ForeignKey(
+        to='auth.User',
+        on_delete=models.CASCADE
+    )
     currency = models.ForeignKey(
         to='currency.Currency',
         on_delete=models.CASCADE
     )
 
     name = models.TextField()
-    description = models.TextField()
+    description = models.TextField(blank=True, default="")
 
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)

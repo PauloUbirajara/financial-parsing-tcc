@@ -10,6 +10,10 @@ class CurrencyRecord(models.Model):
         editable=False
     )
 
+    user = models.ForeignKey(
+        to='auth.User',
+        on_delete=models.CASCADE
+    )
     currency = models.ForeignKey(
         to='currency.Currency',
         on_delete=models.CASCADE
