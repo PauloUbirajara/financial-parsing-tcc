@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     # Apps
     'apps.currency',
+    'apps.currency_record',
 ]
 
 MIDDLEWARE = [

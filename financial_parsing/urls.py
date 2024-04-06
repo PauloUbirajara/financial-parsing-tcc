@@ -18,12 +18,14 @@ from django.contrib import admin
 from django.urls import path, include
 
 from apps.currency.views import CurrencyViewSet
+from apps.currency_record.views import CurrencyRecordViewSet
 
 from rest_framework.routers import DefaultRouter
 
 
 router = DefaultRouter()
 router.register(r'currencies', CurrencyViewSet, basename='currency')
+router.register(r'currency-records', CurrencyRecordViewSet, basename='currency-record')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
