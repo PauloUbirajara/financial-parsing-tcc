@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # Apps
     'apps.currency',
     'apps.currency_record',
+    'apps.wallet',
 ]
 
 MIDDLEWARE = [
