@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'apps.currency',
     'apps.currency_record',
     'apps.wallet',
+    'apps.user_activation',
 ]
 
 MIDDLEWARE = [
@@ -175,3 +176,9 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+# Mailtrap Email Credentials
+EMAIL_HOST = getenv("EMAIL_HOST")
+EMAIL_HOST_USER = getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = getenv("EMAIL_PORT")
