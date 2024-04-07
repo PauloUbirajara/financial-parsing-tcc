@@ -27,6 +27,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
+from financial_parsing.views import RegisterView
 
 
 router = ExtendedSimpleRouter()
@@ -49,7 +50,14 @@ router.register(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # API endpoints
     path('api/', include(router.urls)),
+
+    # User Management
+    path('auth/register', RegisterView.as_view(), name='user-register'),
+
+    # JWT
     path('auth/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/validate', TokenVerifyView.as_view(), name='token_verify'),
