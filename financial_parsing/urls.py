@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 from apps.currency.views import CurrencyViewSet
-from apps.currency_record.views import CurrencyRecordViewSet
 from apps.wallet.views import WalletViewSet
 
 from rest_framework_extensions.routers import ExtendedSimpleRouter
@@ -31,16 +30,10 @@ from apps.user_activation.views import UserActivationRegisterView, UserActivatio
 
 
 router = ExtendedSimpleRouter()
-currencies_routes = router.register(
+router.register(
     r'currencies',
     CurrencyViewSet,
     basename='currency'
-)
-currencies_routes.register(
-    r'records',
-    CurrencyRecordViewSet,
-    basename='record',
-    parents_query_lookups=['currency']
 )
 router.register(
     r'wallets',
