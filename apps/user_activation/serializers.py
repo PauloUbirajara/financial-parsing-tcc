@@ -12,3 +12,7 @@ class UserActivationRegisterSerializer(serializers.Serializer):
             raise serializers.ValidationError('Passwords do not match')
 
         return attrs
+
+
+class UserActivationResendActivationSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
