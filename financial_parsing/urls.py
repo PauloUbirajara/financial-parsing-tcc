@@ -20,6 +20,7 @@ from django.urls import path, include
 from apps.currency.views import CurrencyViewSet
 from apps.wallet.views import WalletViewSet
 from apps.transaction.views import TransactionViewSet
+from apps.category.views import CategoryViewSet
 
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 from rest_framework_simplejwt.views import (
@@ -35,6 +36,11 @@ router.register(
     r'currencies',
     CurrencyViewSet,
     basename='currency'
+)
+router.register(
+    r'categories',
+    CategoryViewSet,
+    basename='category'
 )
 router.register(
     r'wallets',
