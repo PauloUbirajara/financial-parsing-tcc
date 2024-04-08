@@ -24,3 +24,6 @@ class Wallet(models.Model):
 
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
+
+    def __str__(self) -> str:
+        return '{} ({})'.format(self.name, self.id)

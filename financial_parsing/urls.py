@@ -19,6 +19,7 @@ from django.urls import path, include
 
 from apps.currency.views import CurrencyViewSet
 from apps.wallet.views import WalletViewSet
+from apps.transaction.views import TransactionViewSet
 
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 from rest_framework_simplejwt.views import (
@@ -39,6 +40,11 @@ router.register(
     r'wallets',
     WalletViewSet,
     basename='wallet'
+)
+router.register(
+    r'transactions',
+    TransactionViewSet,
+    basename='transaction'
 )
 
 urlpatterns = [

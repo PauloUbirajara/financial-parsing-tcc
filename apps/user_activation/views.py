@@ -128,8 +128,10 @@ class UserActivationConfirmView(APIView):
         pending_user.is_active = True
         pending_user.save()
 
-        # Create default currencies
-        call_command('apps.currency.add_default_currencies')
+        # Create default models
+        # TODO ADD TRANSACTION TO AVOID ISSUES ON SOME POINTS AND HAVING IT DOING CHANGES
+        call_command('add_default_currencies', pending_user.id)
+        call_command('add_default_wallet', pending_user.id)
 
         # Remove activation
         pending_user_activation.delete()
