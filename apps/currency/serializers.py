@@ -6,9 +6,11 @@ class CurrencySerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     representation = serializers.CharField(required=True)
 
+
 class CreateCurrencySerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     representation = serializers.CharField(required=True)
+
 
 class UpdateCurrencySerializer(serializers.Serializer):
     name = serializers.CharField(required=True)

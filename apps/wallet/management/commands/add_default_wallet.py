@@ -30,7 +30,7 @@ class Command(BaseCommand):
         parser.add_argument(
             'user_id',
             type=int,
-            help='Specify which user to create default currencies'
+            help='Specify which user to create default wallet'
         )
 
     def handle(self, *args, **kwargs):

@@ -132,6 +132,7 @@ class UserActivationConfirmView(APIView):
         # TODO ADD TRANSACTION TO AVOID ISSUES ON SOME POINTS AND HAVING IT DOING CHANGES
         call_command('add_default_currencies', pending_user.id)
         call_command('add_default_wallet', pending_user.id)
+        call_command('add_default_categories', pending_user.id)
 
         # Remove activation
         pending_user_activation.delete()
