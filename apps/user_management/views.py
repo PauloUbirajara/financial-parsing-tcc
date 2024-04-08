@@ -1,11 +1,16 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, make_password
 from django.db.utils import IntegrityError
 from django.core.mail import send_mail
 from django.core.management import call_command
 from django.conf import settings
 
 from apps.user_management.models import UserManagement
-from apps.user_management.serializers import UserManagementRegisterSerializer, UserManagementResendActivationSerializer
+from apps.user_management.serializers import (
+    UserManagementRegisterSerializer,
+    UserManagementResendActivationSerializer,
+    UserManagementChangeEmailSerializer,
+    UserManagementChangePasswordSerializer
+)
 
 from rest_framework.views import APIView
 from rest_framework.reverse import reverse
@@ -136,5 +141,43 @@ class UserManagementConfirmView(APIView):
 
         # Remove activation
         pending_user_management.delete()
+
+        return Response(status=HTTPStatus.OK)
+
+
+class UserManagementChangeEmailView(APIView):
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response(status=HTTPStatus.UNAUTHORIZED)
+
+        serializer = UserManagementChangeEmailSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
+
+        if request.user.email != serializer.validated_data['old_email']:
+            error = {"error": "Invalid email"}
+            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
+
+        request.user.email = serializer.validated_data['new_email']
+        request.user.save()
+
+        return Response(status=HTTPStatus.OK)
+
+
+class UserManagementChangePasswordView(APIView):
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response(status=HTTPStatus.UNAUTHORIZED)
+
+        serializer = UserManagementChangePasswordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
+
+        if not request.user.check_password(serializer.validated_data['old_password']):
+            error = {"error": "Invalid password"}
+            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
+
+        request.user.set_password(serializer.validated_data['new_password'])
+        request.user.save()
 
         return Response(status=HTTPStatus.OK)
