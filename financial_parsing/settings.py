@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     # Apps
     'apps.currency',
     'apps.wallet',
-    'apps.user_activation',
+    'apps.user_management',
     'apps.transaction',
     'apps.category',
 ]

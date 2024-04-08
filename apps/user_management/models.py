@@ -3,8 +3,8 @@ from django.db import models
 import uuid
 
 
-class UserActivation(models.Model):
-    activation_token = models.UUIDField(
+class UserManagement(models.Model):
+    token = models.UUIDField(
         default=uuid.uuid4,
         editable=False
     )

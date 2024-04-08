@@ -28,7 +28,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
-from apps.user_activation.views import UserActivationRegisterView, UserActivationConfirmView, UserActivationResendActivationView
+from apps.user_management.views import UserManagementRegisterView, UserManagementConfirmView, UserManagementResendActivationView
 
 
 router = ExtendedSimpleRouter()
@@ -60,9 +60,9 @@ urlpatterns = [
     path('api/', include(router.urls)),
 
     # User Management
-    path('auth/register', UserActivationRegisterView.as_view(), name='user-register'),
-    path('auth/activate/<uuid:token>', UserActivationConfirmView.as_view(), name='user-activate'),
-    path('auth/activate/resend', UserActivationResendActivationView.as_view(), name='user-resend-activation'),
+    path('auth/register', UserManagementRegisterView.as_view(), name='user-register'),
+    path('auth/activate/<uuid:token>', UserManagementConfirmView.as_view(), name='user-activate'),
+    path('auth/activate/resend', UserManagementResendActivationView.as_view(), name='user-resend-activation'),
 
     # JWT
     path('auth/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),

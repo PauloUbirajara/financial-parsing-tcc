@@ -4,8 +4,8 @@ from django.core.mail import send_mail
 from django.core.management import call_command
 from django.conf import settings
 
-from apps.user_activation.models import UserActivation
-from apps.user_activation.serializers import UserActivationRegisterSerializer, UserActivationResendActivationSerializer
+from apps.user_management.models import UserManagement
+from apps.user_management.serializers import UserManagementRegisterSerializer, UserManagementResendActivationSerializer
 
 from rest_framework.views import APIView
 from rest_framework.reverse import reverse
@@ -19,10 +19,10 @@ import uuid
 
 def setup_account_activation(user: User, request: Request) -> Response:
     # Create/Update user activation
-    user_activation, _ = UserActivation.objects.get_or_create(user=user)
-    user_activation.activation_token = str(uuid.uuid4())
-    user_activation.created_at = datetime.now(tz=timezone.utc)
-    user_activation.save()
+    user_management, _ = UserManagement.objects.get_or_create(user=user)
+    user_management.token = str(uuid.uuid4())
+    user_management.created_at = datetime.now(tz=timezone.utc)
+    user_management.save()
 
     # Setup link for activating
     activation_link = urljoin(
@@ -30,12 +30,12 @@ def setup_account_activation(user: User, request: Request) -> Response:
         reverse(
             'user-activate',
             kwargs={
-                "token": user_activation.activation_token
+                "token": user_management.token
             }
         ),
     )
     send_mail(
-        subject="Financial Parsing - Account Activation",
+        subject="Financial Parsing - Account Management",
         message="Use this link to active your account on the Financial Parsing platform:\n{}".format(activation_link),
         from_email=None,
         recipient_list=[user.email],
@@ -44,7 +44,7 @@ def setup_account_activation(user: User, request: Request) -> Response:
     return Response(status=HTTPStatus.OK)
 
 
-class UserActivationResendActivationView(APIView):
+class UserManagementResendActivationView(APIView):
     def post(self, request):
         if request.user.is_authenticated:
             return Response(status=HTTPStatus.UNAUTHORIZED)
@@ -53,7 +53,7 @@ class UserActivationResendActivationView(APIView):
             data = {"message": "User already active"}
             return Response(status=HTTPStatus.OK, data=data)
 
-        serializer = UserActivationResendActivationSerializer(data=request.data)
+        serializer = UserManagementResendActivationSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
@@ -66,12 +66,12 @@ class UserActivationResendActivationView(APIView):
         return setup_account_activation(user=user, request=request)
 
 
-class UserActivationRegisterView(APIView):
+class UserManagementRegisterView(APIView):
     def post(self, request):
         if request.user.is_authenticated:
             return Response(status=HTTPStatus.UNAUTHORIZED)
 
-        serializer = UserActivationRegisterSerializer(data=request.data)
+        serializer = UserManagementRegisterSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
@@ -97,7 +97,7 @@ class UserActivationRegisterView(APIView):
         return Response(status=HTTPStatus.OK)
 
 
-class UserActivationConfirmView(APIView):
+class UserManagementConfirmView(APIView):
     def get(self, request, token=None):
         if request.user.is_authenticated:
             return Response(status=HTTPStatus.UNAUTHORIZED)
@@ -105,26 +105,26 @@ class UserActivationConfirmView(APIView):
         if token is None:
             return Response(status=HTTPStatus.BAD_REQUEST)
 
-        pending_user_activation = (
-            UserActivation.objects
-            .filter(activation_token=token)
+        pending_user_management = (
+            UserManagement.objects
+            .filter(token=token)
             .first()
         )
-        if pending_user_activation is None:
+        if pending_user_management is None:
             error = {"error": "There were no pending account activation requests"}
             return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
-        if pending_user_activation.user.is_active:
+        if pending_user_management.user.is_active:
             error = {"error": "User already active"}
             return Response(status=HTTPStatus.CONFLICT, data=error)
 
         # Check if activation is not expired
-        if datetime.now(tz=timezone.utc) - pending_user_activation.created_at > timedelta(minutes=settings.ACTIVATION_EXPIRATION_TIME_IN_MINUTES):
+        if datetime.now(tz=timezone.utc) - pending_user_management.created_at > timedelta(minutes=settings.ACTIVATION_EXPIRATION_TIME_IN_MINUTES):
             error = {"error": "Activation link expired, please request a new one"}
             return Response(status=HTTPStatus.GONE, data=error)
 
         # Activate user
-        pending_user = pending_user_activation.user
+        pending_user = pending_user_management.user
         pending_user.is_active = True
         pending_user.save()
 
@@ -135,6 +135,6 @@ class UserActivationConfirmView(APIView):
         call_command('add_default_categories', pending_user.id)
 
         # Remove activation
-        pending_user_activation.delete()
+        pending_user_management.delete()
 
         return Response(status=HTTPStatus.OK)
