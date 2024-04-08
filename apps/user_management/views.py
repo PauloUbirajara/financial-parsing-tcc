@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, make_password
+from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.core.mail import send_mail
 from django.core.management import call_command
@@ -9,7 +9,8 @@ from apps.user_management.serializers import (
     UserManagementRegisterSerializer,
     UserManagementResendActivationSerializer,
     UserManagementChangeEmailSerializer,
-    UserManagementChangePasswordSerializer
+    UserManagementChangePasswordSerializer,
+    UserManagementResetPasswordSerializer
 )
 
 from rest_framework.views import APIView
@@ -42,6 +43,25 @@ def setup_account_activation(user: User, request: Request) -> Response:
     send_mail(
         subject="Financial Parsing - Account Management",
         message="Use this link to active your account on the Financial Parsing platform:\n{}".format(activation_link),
+        from_email=None,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    return Response(status=HTTPStatus.OK)
+
+
+def setup_password_reset(request: Request, user: User) -> Response:
+    app_url = request.build_absolute_uri('/')
+
+    # Change user password
+    temporary_password = str(uuid.uuid4())
+    user.set_password(temporary_password)
+    user.save()
+
+    # Setup email message
+    send_mail(
+        subject="Financial Parsing - Reset Password",
+        message="""Your account password was reset and set to "{}".\nUse it to log in into {}, and change it to a new password in your profile settings.""".format(temporary_password, app_url),
         from_email=None,
         recipient_list=[user.email],
         fail_silently=False,
@@ -181,3 +201,25 @@ class UserManagementChangePasswordView(APIView):
         request.user.save()
 
         return Response(status=HTTPStatus.OK)
+
+
+class UserManagementResetPasswordView(APIView):
+    def post(self, request):
+        if request.user.is_authenticated:
+            return Response(status=HTTPStatus.UNAUTHORIZED)
+
+        serializer = UserManagementResetPasswordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
+
+        user = (
+            User.objects
+            .filter(username=serializer.validated_data['username'])
+            .first()
+        )
+
+        if user is None:
+            error = {"error": "Invalid username"}
+            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
+
+        return setup_password_reset(request=request, user=user)

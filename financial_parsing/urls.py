@@ -33,7 +33,8 @@ from apps.user_management.views import (
 	UserManagementConfirmView,
 	UserManagementResendActivationView,
     UserManagementChangeEmailView,
-    UserManagementChangePasswordView
+    UserManagementChangePasswordView,
+    UserManagementResetPasswordView
 )
 
 
@@ -67,8 +68,9 @@ urlpatterns = [
 
     # User Management
     path('auth/register', UserManagementRegisterView.as_view(), name='user-register'),
-    path('auth/activate/<uuid:token>', UserManagementConfirmView.as_view(), name='user-activate'),
+    path('auth/reset-password', UserManagementResetPasswordView.as_view(), name='user-reset-password'),
     path('auth/activate/resend', UserManagementResendActivationView.as_view(), name='user-resend-activation'),
+    path('auth/activate/<uuid:token>', UserManagementConfirmView.as_view(), name='user-activate'),
     path('auth/settings/change-email', UserManagementChangeEmailView.as_view(), name='user-change-email'),
     path('auth/settings/change-password', UserManagementChangePasswordView.as_view(), name='user-change-password'),
 
