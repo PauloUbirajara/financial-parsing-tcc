@@ -15,7 +15,7 @@ class Category(models.Model):
         on_delete=models.CASCADE
     )
 
-    name = models.TextField()
+    name = models.TextField(unique=True)
 
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)

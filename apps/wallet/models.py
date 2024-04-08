@@ -19,7 +19,7 @@ class Wallet(models.Model):
         on_delete=models.CASCADE
     )
 
-    name = models.TextField()
+    name = models.TextField(unique=True)
     description = models.TextField(blank=True, default="")
 
     created_at = models.DateField(auto_now_add=True)

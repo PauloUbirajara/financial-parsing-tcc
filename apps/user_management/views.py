@@ -41,7 +41,7 @@ def setup_account_activation(user: User, request: Request) -> Response:
         ),
     )
     send_mail(
-        subject="Financial Parsing - Account Management",
+        subject="Financial Parsing - Activate Account",
         message="Use this link to active your account on the Financial Parsing platform:\n{}".format(activation_link),
         from_email=None,
         recipient_list=[user.email],
