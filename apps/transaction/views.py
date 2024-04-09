@@ -1,4 +1,5 @@
 from django.apps import apps
+from rest_framework.decorators import action
 
 from apps.transaction.models import Transaction
 from apps.transaction import serializers
@@ -63,6 +64,7 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         transaction.description = serializer.validated_data.get('description', transaction.description)
         transaction.transaction_date = serializer.validated_data.get('transaction_date', transaction.transaction_date)
         transaction.value = serializer.validated_data.get('value', transaction.value)
+        transaction.categories.set(serializer.validated_data.get('categories', transaction.categories))
 
         if not serializer.validated_data.get('wallet_id'):
             transaction.save()
@@ -90,13 +92,26 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        transaction = {
-            **serializer.validated_data,
+        # Create transaction with no categories
+        transaction = Transaction(**{
+            "name": serializer.validated_data['name'],
+            "description": serializer.validated_data['description'],
+            "transaction_date": serializer.validated_data['transaction_date'],
+            "wallet": serializer.validated_data['wallet'],
+            "value": serializer.validated_data['value'],
             "user": request.user
-        }
-        self.get_queryset().create(**transaction)
+        })
+        transaction.save()
+
+        # Add categories once the transaction was created due to ID
+        transaction.categories.set(serializer.validated_data['categories'])
+        transaction.save()
 
         return Response(
             data=serializer.data,
             status=HTTPStatus.CREATED
         )
+
+    @action(methods=['POST'], detail=True)
+    def set_categories(self, request, pk=None, *args, **kwargs):
+        return Response(status=HTTPStatus.OK)
