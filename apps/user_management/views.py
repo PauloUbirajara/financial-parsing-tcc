@@ -23,13 +23,10 @@ from urllib.parse import urljoin
 from datetime import datetime, timedelta, timezone
 import uuid
 
+from data.usecases.send_activate_account.django_email_send_activate_account import DjangoEmailSendActivateAccount
 from data.usecases.send_password_reset.django_email_send_password_reset import DjangoEmailSendPasswordReset
+from domain.usecases.send_activate_account import SendActivateAccount
 from domain.usecases.send_password_reset import SendPasswordReset
-
-
-send_password_reset: SendPasswordReset = DjangoEmailSendPasswordReset(
-    application_link=os.getenv("FRONTEND_LOGIN_URL")
-)
 
 
 def setup_account_activation(user: User, request: Request) -> Response:
@@ -39,36 +36,34 @@ def setup_account_activation(user: User, request: Request) -> Response:
     user_management.created_at = datetime.now(tz=timezone.utc)
     user_management.save()
 
-    # Setup link for activating
-    activation_link = urljoin(
-        request.build_absolute_uri('/'),
-        reverse(
-            'user-activate',
-            kwargs={
-                "token": user_management.token
-            }
-        ),
+    send_activate_account: SendActivateAccount = DjangoEmailSendActivateAccount(
+        activation_link = urljoin(
+            request.build_absolute_uri('/'),
+            reverse(
+                'user-activate',
+                kwargs={
+                    "token": user_management.token
+                }
+            ),
+        )
     )
-    send_mail(
-        subject="Financial Parsing - Activate Account",
-        message="Use this link to active your account on the Financial Parsing platform:\n{}".format(activation_link),
-        from_email=None,
-        recipient_list=[user.email],
-        fail_silently=False,
-    )
+    send_activate_account.send(user=user)
+
     return Response(status=HTTPStatus.OK)
 
 
-def setup_password_reset(request: Request, user: User) -> Response:
+def setup_password_reset(user: User) -> Response:
     # Change user password
     temporary_password = str(uuid.uuid4())
     user.set_password(temporary_password)
     user.save()
 
-    send_password_reset.send(
-        temporary_password=temporary_password,
-        user=user
+    # Send password reset email
+    send_password_reset: SendPasswordReset = DjangoEmailSendPasswordReset(
+        application_link=os.getenv("FRONTEND_LOGIN_URL"),
+        temporary_password=temporary_password
     )
+    send_password_reset.send(user=user)
 
     return Response(status=HTTPStatus.OK)
 
@@ -226,4 +221,4 @@ class UserManagementResetPasswordView(APIView):
             error = {"error": "Invalid username"}
             return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
-        return setup_password_reset(request=request, user=user)
+        return setup_password_reset(user=user)
