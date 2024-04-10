@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.core.mail import send_mail
@@ -21,6 +22,14 @@ from http import HTTPStatus
 from urllib.parse import urljoin
 from datetime import datetime, timedelta, timezone
 import uuid
+
+from data.usecases.send_password_reset.django_email_send_password_reset import DjangoEmailSendPasswordReset
+from domain.usecases.send_password_reset import SendPasswordReset
+
+
+send_password_reset: SendPasswordReset = DjangoEmailSendPasswordReset(
+    application_link=os.getenv("FRONTEND_LOGIN_URL")
+)
 
 
 def setup_account_activation(user: User, request: Request) -> Response:
@@ -51,21 +60,16 @@ def setup_account_activation(user: User, request: Request) -> Response:
 
 
 def setup_password_reset(request: Request, user: User) -> Response:
-    app_url = request.build_absolute_uri('/')
-
     # Change user password
     temporary_password = str(uuid.uuid4())
     user.set_password(temporary_password)
     user.save()
 
-    # Setup email message
-    send_mail(
-        subject="Financial Parsing - Reset Password",
-        message="""Your account password was reset and set to "{}".\nUse it to log in into {}, and change it to a new password in your profile settings.""".format(temporary_password, app_url),
-        from_email=None,
-        recipient_list=[user.email],
-        fail_silently=False,
+    send_password_reset.send(
+        temporary_password=temporary_password,
+        user=user
     )
+
     return Response(status=HTTPStatus.OK)
 
 
