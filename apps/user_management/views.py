@@ -1,30 +1,33 @@
 import os
+import uuid
+from datetime import datetime, timedelta, timezone
+from http import HTTPStatus
+from urllib.parse import urljoin
+
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.utils import IntegrityError
 from django.core.mail import send_mail
 from django.core.management import call_command
-from django.conf import settings
+from django.db.utils import IntegrityError
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 
 from apps.user_management.models import UserManagement
 from apps.user_management.serializers import (
-    UserManagementRegisterSerializer,
-    UserManagementResendActivationSerializer,
     UserManagementChangeEmailSerializer,
     UserManagementChangePasswordSerializer,
-    UserManagementResetPasswordSerializer
+    UserManagementRegisterSerializer,
+    UserManagementResendActivationSerializer,
+    UserManagementResetPasswordSerializer,
 )
-
-from rest_framework.views import APIView
-from rest_framework.reverse import reverse
-from rest_framework.response import Response
-from rest_framework.request import Request
-from http import HTTPStatus
-from urllib.parse import urljoin
-from datetime import datetime, timedelta, timezone
-import uuid
-
-from data.usecases.send_activate_account.django_email_send_activate_account import DjangoEmailSendActivateAccount
-from data.usecases.send_password_reset.django_email_send_password_reset import DjangoEmailSendPasswordReset
+from data.usecases.send_activate_account.django_email_send_activate_account import (
+    DjangoEmailSendActivateAccount,
+)
+from data.usecases.send_password_reset.django_email_send_password_reset import (
+    DjangoEmailSendPasswordReset,
+)
 from domain.usecases.send_activate_account import SendActivateAccount
 from domain.usecases.send_password_reset import SendPasswordReset
 
@@ -37,14 +40,9 @@ def setup_account_activation(user: User, request: Request) -> Response:
     user_management.save()
 
     send_activate_account: SendActivateAccount = DjangoEmailSendActivateAccount(
-        activation_link = urljoin(
-            request.build_absolute_uri('/'),
-            reverse(
-                'user-activate',
-                kwargs={
-                    "token": user_management.token
-                }
-            ),
+        activation_link=urljoin(
+            request.build_absolute_uri("/"),
+            reverse("user-activate", kwargs={"token": user_management.token}),
         )
     )
     send_activate_account.send(user=user)
@@ -61,7 +59,7 @@ def setup_password_reset(user: User) -> Response:
     # Send password reset email
     send_password_reset: SendPasswordReset = DjangoEmailSendPasswordReset(
         application_link=os.getenv("FRONTEND_LOGIN_URL"),
-        temporary_password=temporary_password
+        temporary_password=temporary_password,
     )
     send_password_reset.send(user=user)
 
@@ -81,7 +79,9 @@ class UserManagementResendActivationView(APIView):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        user = User.objects.filter(username=serializer.validated_data['username']).first()
+        user = User.objects.filter(
+            username=serializer.validated_data["username"]
+        ).first()
 
         if user is None:
             error = {"error": "Could not find registered user"}
@@ -101,10 +101,10 @@ class UserManagementRegisterView(APIView):
 
         try:
             User.objects.create_user(
-                username=serializer.validated_data['username'],
-                email=serializer.validated_data['email'],
-                password=serializer.validated_data['password'],
-                is_active=False
+                username=serializer.validated_data["username"],
+                email=serializer.validated_data["email"],
+                password=serializer.validated_data["password"],
+                is_active=False,
             )
         except IntegrityError as e:
             error = {
@@ -129,11 +129,7 @@ class UserManagementConfirmView(APIView):
         if token is None:
             return Response(status=HTTPStatus.BAD_REQUEST)
 
-        pending_user_management = (
-            UserManagement.objects
-            .filter(token=token)
-            .first()
-        )
+        pending_user_management = UserManagement.objects.filter(token=token).first()
         if pending_user_management is None:
             error = {"error": "There were no pending account activation requests"}
             return Response(status=HTTPStatus.NOT_FOUND, data=error)
@@ -143,7 +139,11 @@ class UserManagementConfirmView(APIView):
             return Response(status=HTTPStatus.CONFLICT, data=error)
 
         # Check if activation is not expired
-        if datetime.now(tz=timezone.utc) - pending_user_management.created_at > timedelta(minutes=settings.ACTIVATION_EXPIRATION_TIME_IN_MINUTES):
+        if datetime.now(
+            tz=timezone.utc
+        ) - pending_user_management.created_at > timedelta(
+            minutes=settings.ACTIVATION_EXPIRATION_TIME_IN_MINUTES
+        ):
             error = {"error": "Activation link expired, please request a new one"}
             return Response(status=HTTPStatus.GONE, data=error)
 
@@ -154,9 +154,9 @@ class UserManagementConfirmView(APIView):
 
         # Create default models
         # TODO ADD TRANSACTION TO AVOID ISSUES ON SOME POINTS AND HAVING IT DOING CHANGES
-        call_command('add_default_currencies', pending_user.id)
-        call_command('add_default_wallet', pending_user.id)
-        call_command('add_default_categories', pending_user.id)
+        call_command("add_default_currencies", pending_user.id)
+        call_command("add_default_wallet", pending_user.id)
+        call_command("add_default_categories", pending_user.id)
 
         # Remove activation
         pending_user_management.delete()
@@ -173,11 +173,11 @@ class UserManagementChangeEmailView(APIView):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        if request.user.email != serializer.validated_data['old_email']:
+        if request.user.email != serializer.validated_data["old_email"]:
             error = {"error": "Invalid email"}
             return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
-        request.user.email = serializer.validated_data['new_email']
+        request.user.email = serializer.validated_data["new_email"]
         request.user.save()
 
         return Response(status=HTTPStatus.OK)
@@ -192,11 +192,11 @@ class UserManagementChangePasswordView(APIView):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        if not request.user.check_password(serializer.validated_data['old_password']):
+        if not request.user.check_password(serializer.validated_data["old_password"]):
             error = {"error": "Invalid password"}
             return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
-        request.user.set_password(serializer.validated_data['new_password'])
+        request.user.set_password(serializer.validated_data["new_password"])
         request.user.save()
 
         return Response(status=HTTPStatus.OK)
@@ -211,11 +211,9 @@ class UserManagementResetPasswordView(APIView):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        user = (
-            User.objects
-            .filter(username=serializer.validated_data['username'])
-            .first()
-        )
+        user = User.objects.filter(
+            username=serializer.validated_data["username"]
+        ).first()
 
         if user is None:
             error = {"error": "Invalid username"}

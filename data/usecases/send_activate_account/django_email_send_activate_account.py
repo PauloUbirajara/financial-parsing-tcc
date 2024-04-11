@@ -1,17 +1,20 @@
-from domain.usecases.send_activate_account import SendActivateAccount
+from inspect import cleandoc
 
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from inspect import cleandoc
+
+from domain.usecases.send_activate_account import SendActivateAccount
 
 
 class DjangoEmailSendActivateAccount(SendActivateAccount):
     subject = "Financial Parsing - Account Activation"
-    message_template = cleandoc("""
+    message_template = cleandoc(
+        """
         To activate your account in our Financial Parsing application, you just need to confirm through the following link:
 
         {activation_link}
-    """)
+    """
+    )
 
     activation_link: str
 
@@ -19,9 +22,7 @@ class DjangoEmailSendActivateAccount(SendActivateAccount):
         self.activation_link = activation_link
 
     def send(self, user: User):
-        message = self.message_template.format(
-            activation_link=self.activation_link
-        )
+        message = self.message_template.format(activation_link=self.activation_link)
         send_mail(
             subject=self.subject,
             message=message,

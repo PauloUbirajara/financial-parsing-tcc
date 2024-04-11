@@ -1,26 +1,14 @@
-from django.db import models
-
 import uuid
+
+from django.db import models
 
 
 class Transaction(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    user = models.ForeignKey(
-        to='auth.User',
-        on_delete=models.CASCADE
-    )
-    wallet = models.ForeignKey(
-        to='wallet.Wallet',
-        on_delete=models.CASCADE
-    )
-    categories = models.ManyToManyField(
-        to='category.Category'
-    )
+    user = models.ForeignKey(to="auth.User", on_delete=models.CASCADE)
+    wallet = models.ForeignKey(to="wallet.Wallet", on_delete=models.CASCADE)
+    categories = models.ManyToManyField(to="category.Category")
 
     name = models.TextField()
     description = models.TextField(blank=True, default="")

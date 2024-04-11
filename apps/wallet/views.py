@@ -1,16 +1,15 @@
-from django.apps import apps
-
-from apps.wallet.models import Wallet
-from apps.wallet import serializers
-
-from rest_framework.exceptions import NotAuthenticated
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework_extensions.mixins import NestedViewSetMixin
 from http import HTTPStatus
 
+from django.apps import apps
+from rest_framework import viewsets
+from rest_framework.exceptions import NotAuthenticated
+from rest_framework.response import Response
+from rest_framework_extensions.mixins import NestedViewSetMixin
 
-Currency = apps.get_model('currency', 'Currency')
+from apps.wallet import serializers
+from apps.wallet.models import Wallet
+
+Currency = apps.get_model("currency", "Currency")
 
 
 class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
@@ -19,13 +18,15 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             raise NotAuthenticated()
 
         return Wallet.objects.filter(user=self.request.user)
-    
+
     def get_serializer_class(self):
         supported_serializers = {
             "create": serializers.CreateWalletSerializer,
             "update": serializers.UpdateWalletSerializer,
         }
-        serializer_class = supported_serializers.get(self.action, serializers.WalletSerializer)
+        serializer_class = supported_serializers.get(
+            self.action, serializers.WalletSerializer
+        )
 
         return serializer_class
 
@@ -53,24 +54,23 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-
         wallet: Wallet = self.get_queryset().filter(id=pk).first()
 
         if wallet is None:
             return Response(status=HTTPStatus.NOT_FOUND)
 
-        wallet.name = serializer.validated_data.get('name', wallet.name)
-        wallet.description = serializer.validated_data.get('description', wallet.description)
+        wallet.name = serializer.validated_data.get("name", wallet.name)
+        wallet.description = serializer.validated_data.get(
+            "description", wallet.description
+        )
 
-        if not serializer.validated_data.get('currency_id'):
+        if not serializer.validated_data.get("currency_id"):
             wallet.save()
             return Response(data=serializer.data)
 
-        currency = (
-            Currency.objects
-            .filter(id=serializer.validated_data.get('currency_id'))
-            .first()
-        )
+        currency = Currency.objects.filter(
+            id=serializer.validated_data.get("currency_id")
+        ).first()
 
         if currency is None:
             return Response(status=HTTPStatus.BAD_REQUEST)
@@ -88,11 +88,9 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        currency = (
-            Currency.objects
-            .filter(id=serializer.validated_data.get('currency_id'))
-            .first()
-        )
+        currency = Currency.objects.filter(
+            id=serializer.validated_data.get("currency_id")
+        ).first()
 
         if currency is None:
             return Response(status=HTTPStatus.BAD_REQUEST)
@@ -100,11 +98,8 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         wallet = {
             **serializer.validated_data,
             "currency": currency,
-            "user": request.user
+            "user": request.user,
         }
         self.get_queryset().create(**wallet)
 
-        return Response(
-            data=serializer.data,
-            status=HTTPStatus.CREATED
-        )
+        return Response(data=serializer.data, status=HTTPStatus.CREATED)

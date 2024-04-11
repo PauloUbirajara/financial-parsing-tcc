@@ -1,11 +1,12 @@
-from rest_framework.exceptions import NotAuthenticated
-from apps.currency.models import Currency
-from apps.currency import serializers
+from http import HTTPStatus
 
 from rest_framework import viewsets
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from http import HTTPStatus
+
+from apps.currency import serializers
+from apps.currency.models import Currency
 
 
 class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
@@ -14,13 +15,15 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             raise NotAuthenticated()
 
         return Currency.objects.filter(user=self.request.user)
-    
+
     def get_serializer_class(self):
         supported_serializers = {
             "create": serializers.CreateCurrencySerializer,
             "update": serializers.UpdateCurrencySerializer,
         }
-        serializer_class = supported_serializers.get(self.action, serializers.CurrencySerializer)
+        serializer_class = supported_serializers.get(
+            self.action, serializers.CurrencySerializer
+        )
 
         return serializer_class
 
@@ -53,8 +56,10 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if currency is None:
             return Response(status=HTTPStatus.NOT_FOUND)
 
-        currency.name = serializer.validated_data.get('name', currency.name)
-        currency.representation = serializer.validated_data.get('representation', currency.representation)
+        currency.name = serializer.validated_data.get("name", currency.name)
+        currency.representation = serializer.validated_data.get(
+            "representation", currency.representation
+        )
 
         currency.save()
 
@@ -67,10 +72,7 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        currency = {
-            **serializer.validated_data,
-            "user": request.user
-        }
+        currency = {**serializer.validated_data, "user": request.user}
         self.get_queryset().create(**currency)
 
         return Response(data=serializer.data)

@@ -1,12 +1,12 @@
-from django.core.management.base import BaseCommand
-from django.apps import apps
-from django.contrib.auth.models import User
-
-from apps.category.models import Category
 import logging
 
+from django.apps import apps
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
 
-Currency = apps.get_model('currency', 'Currency')
+from apps.category.models import Category
+
+Currency = apps.get_model("currency", "Currency")
 
 
 def create_default_categories(user: User):
@@ -22,27 +22,22 @@ def create_default_categories(user: User):
     )
     for category in default_categories:
         try:
-            Category.objects.create(
-                name=category,
-                user=user
-            )
+            Category.objects.create(name=category, user=user)
         except Exception as err:
             logging.warning("Could not create default category: {}".format(category))
             logging.warning(str(err))
 
 
 class Command(BaseCommand):
-    help = 'Adds default categories for a specific user'
+    help = "Adds default categories for a specific user"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'user_id',
-            type=int,
-            help='Specify which user to create default categories'
+            "user_id", type=int, help="Specify which user to create default categories"
         )
 
     def handle(self, *args, **kwargs):
-        user = User.objects.filter(id=kwargs['user_id']).first()
+        user = User.objects.filter(id=kwargs["user_id"]).first()
         if user is None:
             raise Exception("Could not find user")
 

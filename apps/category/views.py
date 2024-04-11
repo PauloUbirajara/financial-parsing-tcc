@@ -1,11 +1,12 @@
-from rest_framework.exceptions import NotAuthenticated
-from apps.category.models import Category
-from apps.category import serializers
+from http import HTTPStatus
 
 from rest_framework import viewsets
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from http import HTTPStatus
+
+from apps.category import serializers
+from apps.category.models import Category
 
 
 class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
@@ -14,13 +15,15 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             raise NotAuthenticated()
 
         return Category.objects.filter(user=self.request.user)
-    
+
     def get_serializer_class(self):
         supported_serializers = {
             "create": serializers.CreateCategorySerializer,
             "update": serializers.UpdateCategorySerializer,
         }
-        serializer_class = supported_serializers.get(self.action, serializers.CategorySerializer)
+        serializer_class = supported_serializers.get(
+            self.action, serializers.CategorySerializer
+        )
 
         return serializer_class
 
@@ -53,7 +56,7 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if category is None:
             return Response(status=HTTPStatus.NOT_FOUND)
 
-        category.name = serializer.validated_data.get('name', category.name)
+        category.name = serializer.validated_data.get("name", category.name)
 
         category.save()
 
@@ -66,10 +69,7 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        category = {
-            **serializer.validated_data,
-            "user": request.user
-        }
+        category = {**serializer.validated_data, "user": request.user}
         self.get_queryset().create(**category)
 
         return Response(data=serializer.data)
