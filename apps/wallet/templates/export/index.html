@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Financial Parsing - Wallet Export</title>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css"
+        >
+  </head>
+  <body>
+    <div class="is-flex is-justify-content-space-between is-align-items-center p-5">
+      <div class="block">
+        <h1 class="title">{{wallet.name|title}}</h1>
+        {% if wallet.description %}
+          <h2 class="subtitle">{{wallet.description|title}}</h2>
+        {% else %}
+          <h2 class="subtitle">Sem descrição</h2>
+        {% endif %}
+      </div>
+
+      {{wallet.currency.name|title}} ({{wallet.currency.representation|upper}})
+    </div>
+
+    <div class="table-container block">
+      <table class="table">
+        <thead>
+          <tr>
+            {% for key in wallet.transactions.first %}
+              <th>{{key|upper}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+            <!-- {% for trx in transactions %} -->
+            <!-- <tr> -->
+            <!--   {% for key, val in trx.items %} -->
+            <!--     <td title={{key}}>{{val|title}}</td> -->
+            <!--   {% endfor %} -->
+            <!-- </tr> -->
+            <!-- {% endfor %} -->
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

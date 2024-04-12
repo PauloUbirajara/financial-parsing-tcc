@@ -1,7 +1,10 @@
 from http import HTTPStatus
 
 from django.apps import apps
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
@@ -10,6 +13,7 @@ from apps.wallet import serializers
 from apps.wallet.models import Wallet
 
 Currency = apps.get_model("currency", "Currency")
+Category = apps.get_model("category", "Category")
 
 
 class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
@@ -63,16 +67,12 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         wallet.description = serializer.validated_data.get(
             "description", wallet.description
         )
-
-        if not serializer.validated_data.get("currency_id"):
+        if not serializer.validated_data.get("currency"):
             wallet.save()
             return Response(data=serializer.data)
 
-        currency = Currency.objects.filter(
-            id=serializer.validated_data.get("currency_id")
-        ).first()
-
-        if currency is None:
+        currency = serializer.validated_data.get("currency")
+        if currency.user != request.user:
             return Response(status=HTTPStatus.BAD_REQUEST)
 
         wallet.currency = currency
@@ -88,18 +88,36 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
-        currency = Currency.objects.filter(
-            id=serializer.validated_data.get("currency_id")
-        ).first()
-
-        if currency is None:
-            return Response(status=HTTPStatus.BAD_REQUEST)
+        currency = serializer.validated_data.get("currency")
+        if currency.user != request.user:
+            error = {"error": "Could not find currency"}
+            return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
         wallet = {
             **serializer.validated_data,
-            "currency": currency,
             "user": request.user,
         }
         self.get_queryset().create(**wallet)
 
         return Response(data=serializer.data, status=HTTPStatus.CREATED)
+
+    @action(methods=["GET"], detail=True)
+    def export(self, request, pk=None, *args, **kwargs):
+        supported_formats = ("JSON", "HTML")
+        format = request.query_params.get("format")
+        import logging
+
+        logging.warning({"supported_formats": supported_formats, "format": format})
+        wallet = self.get_queryset().filter(id=pk).first()
+
+        if wallet is None:
+            return Response(status=HTTPStatus.NOT_FOUND)
+
+        context = {
+            "wallet": serializers.WalletSerializer(wallet).data,
+        }
+        import logging
+
+        logging.warning({"context": context})
+        data = render_to_string(context=context, template_name="export/index.html")
+        return HttpResponse(data)
