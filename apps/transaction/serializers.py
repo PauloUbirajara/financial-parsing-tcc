@@ -10,6 +10,8 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         exclude = ["user", "created_at", "updated_at"]
+        depth = 1
+        ordering = ["transaction_date"]
 
 
 class CreateTransactionSerializer(serializers.ModelSerializer):

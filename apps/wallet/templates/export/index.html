@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%;">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,39 +9,58 @@
         href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css"
         >
   </head>
-  <body>
-    <div class="is-flex is-justify-content-space-between is-align-items-center p-5">
-      <div class="block">
-        <h1 class="title">{{wallet.name|title}}</h1>
-        {% if wallet.description %}
-          <h2 class="subtitle">{{wallet.description|title}}</h2>
-        {% else %}
-          <h2 class="subtitle">Sem descrição</h2>
-        {% endif %}
+  <body style="height: 100%;">
+    <main style="display: grid; grid-template-rows: auto 1fr auto; gap: 1.5rem; height: 100%;">
+      <div class="is-flex is-justify-content-space-between is-align-items-center p-5">
+        <div class="block">
+          <h1 class="title">{{wallet.name|title}}</h1>
+          <h2 class="subtitle">{{wallet.description|title|default:"Sem descrição"}}</h2>
+        </div>
+
+        {{wallet.currency.name|title}} ({{wallet.currency.representation|upper}})
       </div>
 
-      {{wallet.currency.name|title}} ({{wallet.currency.representation|upper}})
-    </div>
-
-    <div class="table-container block">
-      <table class="table">
-        <thead>
-          <tr>
-            {% for key in wallet.transactions.first %}
-              <th>{{key|upper}}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-            <!-- {% for trx in transactions %} -->
-            <!-- <tr> -->
-            <!--   {% for key, val in trx.items %} -->
-            <!--     <td title={{key}}>{{val|title}}</td> -->
-            <!--   {% endfor %} -->
-            <!-- </tr> -->
-            <!-- {% endfor %} -->
-        </tbody>
-      </table>
-    </div>
+      <div class="p-5">
+        <div class="table-container">
+          <table class="table is-bordered is-fullwidth is-rounded">
+            <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Descrição</th>
+              <th>Data</th>
+              <th>Categorias</th>
+              <th>Valor</th>
+            </tr>
+            </thead>
+            <tbody>
+              {% if transactions %}
+                {% for trx in transactions %}
+                  <tr>
+                    <td title="Nome">{{trx.name|title}}</td>
+                    <td title="Descrição">{{trx.description|title}}</td>
+                    <td title="Data">{{trx.transaction_date}}</td>
+                    <td title="Categorias">
+                      <div class="tags">
+                        {% for category in trx.categories %}
+                          <span class="tag is-small">{{category.name}}</button>
+                        {% endfor %}
+                      </div>
+                    </td>
+                    <td title="Valor">{{trx.value|floatformat:2}}</td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <footer class="footer">
+        <div class="content">
+          <p>Financial Parsing - Todos os direitos reservados</p>
+          <p>Feito com Bulma CSS</p>
+          <p>Gerado em {% now "c" %}</p>
+        </div>
+      </footer>
+    </main>
   </body>
 </html>

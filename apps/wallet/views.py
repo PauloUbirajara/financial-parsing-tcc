@@ -1,8 +1,7 @@
 from http import HTTPStatus
+from typing import Any
 
 from django.apps import apps
-from django.http import HttpResponse
-from django.template.loader import render_to_string
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotAuthenticated
@@ -11,9 +10,12 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.wallet import serializers
 from apps.wallet.models import Wallet
+from data.usecases.export_model_to_format.export_wallet_to_html import (
+    ExportWalletToHTML,
+)
+from domain.usecases.export_model_to_format import ExportModelToFormat
 
 Currency = apps.get_model("currency", "Currency")
-Category = apps.get_model("category", "Category")
 
 
 class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
@@ -101,23 +103,23 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
         return Response(data=serializer.data, status=HTTPStatus.CREATED)
 
-    @action(methods=["GET"], detail=True)
+    @action(methods=["POST"], detail=True)
     def export(self, request, pk=None, *args, **kwargs):
-        supported_formats = ("JSON", "HTML")
-        format = request.query_params.get("format")
-        import logging
-
-        logging.warning({"supported_formats": supported_formats, "format": format})
         wallet = self.get_queryset().filter(id=pk).first()
+        export_format = request.data.get("format")
 
         if wallet is None:
-            return Response(status=HTTPStatus.NOT_FOUND)
+            error = {"error": "Could not find requested wallet to export"}
+            return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
-        context = {
-            "wallet": serializers.WalletSerializer(wallet).data,
+        supported_formats: dict[str, ExportModelToFormat] = {
+            "html": ExportWalletToHTML(),
         }
-        import logging
 
-        logging.warning({"context": context})
-        data = render_to_string(context=context, template_name="export/index.html")
-        return HttpResponse(data)
+        wallet_export_usecase = supported_formats.get(export_format)
+
+        if wallet_export_usecase is None:
+            error = {"error": "Invalid export format"}
+            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
+
+        return wallet_export_usecase.export(model=wallet)
