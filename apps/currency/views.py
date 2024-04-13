@@ -75,4 +75,4 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         currency = {**serializer.validated_data, "user": request.user}
         self.get_queryset().create(**currency)
 
-        return Response(data=serializer.data)
+        return Response(data=serializer.data, status=HTTPStatus.CREATED)

@@ -72,4 +72,4 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         category = {**serializer.validated_data, "user": request.user}
         self.get_queryset().create(**category)
 
-        return Response(data=serializer.data)
+        return Response(data=serializer.data, status=HTTPStatus.CREATED)

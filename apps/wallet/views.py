@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import Any
 
 from django.apps import apps
 from rest_framework import viewsets
