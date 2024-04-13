@@ -21,6 +21,12 @@ const config = {
           700: '#EB4F27',
           800: '#CC4522',
           900: '#A5371B'
+        },
+        custom: {
+          primary: '#E34234',
+          background: '#F2F1E8',
+          foreground: '#050533',
+          secondary: '#303841'
         }
       }
     }
