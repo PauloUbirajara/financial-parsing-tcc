@@ -10,6 +10,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.wallet import serializers
 from apps.wallet.models import Wallet
+from data.usecases.export_model_to_format.export_wallet_to_csv import ExportWalletToCSV
 from data.usecases.export_model_to_format.export_wallet_to_html import (
     ExportWalletToHTML,
 )
@@ -114,6 +115,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
         supported_formats: dict[str, ExportModelToFormat] = {
+            "csv": ExportWalletToCSV(csv_filename="wallet_{}".format(wallet.name)),
             "html": ExportWalletToHTML(template_name="export_html/index.html"),
             "pdf": ExportWalletToPDF(
                 template_name="export_pdf/index.html",
