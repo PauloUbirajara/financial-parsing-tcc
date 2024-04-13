@@ -13,6 +13,7 @@ from apps.wallet.models import Wallet
 from data.usecases.export_model_to_format.export_wallet_to_html import (
     ExportWalletToHTML,
 )
+from data.usecases.export_model_to_format.export_wallet_to_pdf import ExportWalletToPDF
 from domain.usecases.export_model_to_format import ExportModelToFormat
 
 Currency = apps.get_model("currency", "Currency")
@@ -113,7 +114,11 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
         supported_formats: dict[str, ExportModelToFormat] = {
-            "html": ExportWalletToHTML(),
+            "html": ExportWalletToHTML(template_name="export_html/index.html"),
+            "pdf": ExportWalletToPDF(
+                template_name="export_pdf/index.html",
+                pdf_filename="wallet_{}".format(wallet.name),
+            ),
         }
 
         wallet_export_usecase = supported_formats.get(export_format)
