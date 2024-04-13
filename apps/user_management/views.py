@@ -35,6 +35,8 @@ from data.usecases.send_password_reset.django_email_send_password_reset import (
 from domain.usecases.send_activate_account import SendActivateAccount
 from domain.usecases.send_delete_account import SendDeleteAccount
 from domain.usecases.send_password_reset import SendPasswordReset
+from protocols.send_email import SendEmail
+from utils.send_email.django_send_email import DjangoSendEmail
 
 
 def setup_account_activation(user: User, request: Request) -> Response:
@@ -44,13 +46,17 @@ def setup_account_activation(user: User, request: Request) -> Response:
     user_management.created_at = datetime.now(tz=timezone.utc)
     user_management.save()
 
+    # Send activation link to email
+    send_email: SendEmail = DjangoSendEmail(user=user)
+
     send_activate_account: SendActivateAccount = DjangoEmailSendActivateAccount(
         activation_link=urljoin(
             request.build_absolute_uri("/"),
             reverse("user-activate", kwargs={"token": user_management.token}),
-        )
+        ),
+        send_email=send_email,
     )
-    send_activate_account.send(user=user)
+    send_activate_account.send()
 
     return Response(status=HTTPStatus.OK)
 
@@ -62,13 +68,18 @@ def setup_account_deletion(user: User, request: Request) -> Response:
     user_management.created_at = datetime.now(tz=timezone.utc)
     user_management.save()
 
+    # Send deletion link to email
+    send_email: SendEmail = DjangoSendEmail(user=user)
+
     send_delete_account: SendDeleteAccount = DjangoEmailSendDeleteAccount(
         deletion_link=urljoin(
             request.build_absolute_uri("/"),
             reverse("user-delete-account", kwargs={"token": user_management.token}),
-        )
+        ),
+        send_email=send_email,
     )
-    send_delete_account.send(user=user)
+    send_delete_account.send()
+
     return Response(status=HTTPStatus.OK)
 
 
@@ -79,11 +90,13 @@ def setup_password_reset(user: User) -> Response:
     user.save()
 
     # Send password reset email
+    send_email: SendEmail = DjangoSendEmail(user=user)
     send_password_reset: SendPasswordReset = DjangoEmailSendPasswordReset(
         application_link=os.getenv("FRONTEND_LOGIN_URL"),
         temporary_password=temporary_password,
+        send_email=send_email,
     )
-    send_password_reset.send(user=user)
+    send_password_reset.send()
 
     return Response(status=HTTPStatus.OK)
 

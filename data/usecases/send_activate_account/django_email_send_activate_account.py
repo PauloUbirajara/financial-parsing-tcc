@@ -1,9 +1,7 @@
 from inspect import cleandoc
 
-from django.contrib.auth.models import User
-from django.core.mail import send_mail
-
 from domain.usecases.send_activate_account import SendActivateAccount
+from protocols.send_email import SendEmail
 
 
 class DjangoEmailSendActivateAccount(SendActivateAccount):
@@ -17,16 +15,12 @@ class DjangoEmailSendActivateAccount(SendActivateAccount):
     )
 
     activation_link: str
+    send_email: SendEmail
 
-    def __init__(self, activation_link: str) -> None:
+    def __init__(self, activation_link: str, send_email: SendEmail) -> None:
         self.activation_link = activation_link
+        self.send_email = send_email
 
-    def send(self, user: User):
+    def send(self):
         message = self.message_template.format(activation_link=self.activation_link)
-        send_mail(
-            subject=self.subject,
-            message=message,
-            from_email=None,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+        self.send_email.send(subject=self.subject, message=message)

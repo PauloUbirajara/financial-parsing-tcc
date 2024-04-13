@@ -1,10 +1,8 @@
 from inspect import cleandoc
 from typing import Optional
 
-from django.contrib.auth.models import User
-from django.core.mail import send_mail
-
 from domain.usecases.send_password_reset import SendPasswordReset
+from protocols.send_email import SendEmail
 
 
 class DjangoEmailSendPasswordReset(SendPasswordReset):
@@ -21,25 +19,24 @@ class DjangoEmailSendPasswordReset(SendPasswordReset):
     )
     application_link: str
     temporary_password: str
+    send_email: SendEmail
 
     def __init__(
-        self, application_link: Optional[str], temporary_password: str
+        self,
+        application_link: Optional[str],
+        temporary_password: str,
+        send_email: SendEmail,
     ) -> None:
         if application_link is None:
             raise ValueError("Missing application link")
 
         self.application_link = application_link
         self.temporary_password = temporary_password
+        self.send_email = send_email
 
-    def send(self, user: User):
+    def send(self):
         message = self.message_template.format(
             temporary_password=self.temporary_password,
             application_link=self.application_link,
         )
-        send_mail(
-            subject=self.subject,
-            message=message,
-            from_email=None,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+        self.send_email.send(subject=self.subject, message=message)
