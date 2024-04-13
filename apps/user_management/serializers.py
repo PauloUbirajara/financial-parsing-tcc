@@ -18,6 +18,10 @@ class UserManagementResendActivationSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
 
 
+class UserManagementResendDeletionSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+
+
 class UserManagementResetPasswordSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
 

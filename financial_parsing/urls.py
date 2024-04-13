@@ -31,8 +31,10 @@ from apps.user_management.views import (
     UserManagementChangeEmailView,
     UserManagementChangePasswordView,
     UserManagementConfirmView,
+    UserManagementDeleteView,
     UserManagementRegisterView,
     UserManagementResendActivationView,
+    UserManagementResendDeletionView,
     UserManagementResetPasswordView,
 )
 from apps.wallet.views import WalletViewSet
@@ -73,6 +75,16 @@ urlpatterns = [
         "auth/settings/change-password",
         UserManagementChangePasswordView.as_view(),
         name="user-change-password",
+    ),
+    path(
+        "auth/settings/delete-account",
+        UserManagementResendDeletionView.as_view(),
+        name="user-resend-deletion",
+    ),
+    path(
+        "auth/settings/delete-account/<uuid:token>",
+        UserManagementDeleteView.as_view(),
+        name="user-delete-account",
     ),
     # JWT
     path("auth/login", TokenObtainPairView.as_view(), name="token_obtain_pair"),

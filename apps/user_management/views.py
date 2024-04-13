@@ -5,8 +5,8 @@ from http import HTTPStatus
 from urllib.parse import urljoin
 
 from django.conf import settings
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.core.management import call_command
 from django.db.utils import IntegrityError
 from rest_framework.request import Request
@@ -20,15 +20,20 @@ from apps.user_management.serializers import (
     UserManagementChangePasswordSerializer,
     UserManagementRegisterSerializer,
     UserManagementResendActivationSerializer,
+    UserManagementResendDeletionSerializer,
     UserManagementResetPasswordSerializer,
 )
 from data.usecases.send_activate_account.django_email_send_activate_account import (
     DjangoEmailSendActivateAccount,
 )
+from data.usecases.send_delete_account.django_email_send_delete_account import (
+    DjangoEmailSendDeleteAccount,
+)
 from data.usecases.send_password_reset.django_email_send_password_reset import (
     DjangoEmailSendPasswordReset,
 )
 from domain.usecases.send_activate_account import SendActivateAccount
+from domain.usecases.send_delete_account import SendDeleteAccount
 from domain.usecases.send_password_reset import SendPasswordReset
 
 
@@ -47,6 +52,23 @@ def setup_account_activation(user: User, request: Request) -> Response:
     )
     send_activate_account.send(user=user)
 
+    return Response(status=HTTPStatus.OK)
+
+
+def setup_account_deletion(user: User, request: Request) -> Response:
+    # Create/Update user activation
+    user_management, _ = UserManagement.objects.get_or_create(user=user)
+    user_management.token = str(uuid.uuid4())
+    user_management.created_at = datetime.now(tz=timezone.utc)
+    user_management.save()
+
+    send_delete_account: SendDeleteAccount = DjangoEmailSendDeleteAccount(
+        deletion_link=urljoin(
+            request.build_absolute_uri("/"),
+            reverse("user-delete-account", kwargs={"token": user_management.token}),
+        )
+    )
+    send_delete_account.send(user=user)
     return Response(status=HTTPStatus.OK)
 
 
@@ -88,6 +110,22 @@ class UserManagementResendActivationView(APIView):
             return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
         return setup_account_activation(user=user, request=request)
+
+
+class UserManagementResendDeletionView(APIView):
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response(status=HTTPStatus.UNAUTHORIZED)
+
+        if request.user is None:
+            data = {"message": "User already deleted"}
+            return Response(status=HTTPStatus.OK, data=data)
+
+        serializer = UserManagementResendDeletionSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
+
+        return setup_account_deletion(user=request.user, request=request)
 
 
 class UserManagementRegisterView(APIView):
@@ -159,6 +197,42 @@ class UserManagementConfirmView(APIView):
         call_command("add_default_categories", pending_user.id)
 
         # Remove activation
+        pending_user_management.delete()
+
+        return Response(status=HTTPStatus.OK)
+
+
+class UserManagementDeleteView(APIView):
+    def get(self, request, token=None):
+        if not request.user.is_authenticated:
+            return Response(status=HTTPStatus.UNAUTHORIZED)
+
+        if token is None:
+            return Response(status=HTTPStatus.BAD_REQUEST)
+
+        pending_user_management = UserManagement.objects.filter(token=token).first()
+        if pending_user_management is None:
+            error = {"error": "There were no pending deletion requests"}
+            return Response(status=HTTPStatus.NOT_FOUND, data=error)
+
+        if pending_user_management.user is None:
+            error = {"error": "User already deleted"}
+            return Response(status=HTTPStatus.CONFLICT, data=error)
+
+        # Check if deletion is not expired
+        if datetime.now(
+            tz=timezone.utc
+        ) - pending_user_management.created_at > timedelta(
+            minutes=settings.DELETION_EXPIRATION_TIME_IN_MINUTES
+        ):
+            error = {"error": "Deletion link expired, please request a new one"}
+            return Response(status=HTTPStatus.GONE, data=error)
+
+        # Delete user
+        pending_user_management.user.delete()
+        logout(request)
+
+        # Remove deletion request
         pending_user_management.delete()
 
         return Response(status=HTTPStatus.OK)
