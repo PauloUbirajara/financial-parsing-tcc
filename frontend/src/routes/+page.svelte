@@ -1,14 +1,32 @@
 <script>
   import Navbar from "$components/Navbar.svelte";
+  import Footer from "$components/Footer.svelte";
 </script>
 
-<!-- Navbar -->
-<div class="p-8">
+<main>
+  <!-- Navbar -->
   <Navbar />
-</div>
 
-<!-- First Content -->
-<!-- Second Content -->
-<!-- Third Content -->
-<!-- Join Content -->
-<!-- Footer -->
+  <!-- First Content -->
+  <div class="" id="first-content"></div>
+
+  <!-- Second Content -->
+  <div class="" id="second-content"></div>
+
+  <!-- Third Content -->
+  <div class="" id="third-content"></div>
+
+  <!-- Join Content -->
+  <div class="" id="join-content"></div>
+
+  <!-- Footer -->
+  <Footer />
+</main>
+
+<style>
+  main {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto repeat(3, 1fr) auto;
+  }
+</style>
