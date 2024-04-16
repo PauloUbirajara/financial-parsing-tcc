@@ -10,22 +10,13 @@ from apps.currency.models import Currency
 
 
 class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
+    serializer_class = serializers.CurrencySerializer
+
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
         return Currency.objects.filter(user=self.request.user)
-
-    def get_serializer_class(self):
-        supported_serializers = {
-            "create": serializers.CreateCurrencySerializer,
-            "update": serializers.UpdateCurrencySerializer,
-        }
-        serializer_class = supported_serializers.get(
-            self.action, serializers.CurrencySerializer
-        )
-
-        return serializer_class
 
     def list(self, request):
         currencies = self.get_queryset()
