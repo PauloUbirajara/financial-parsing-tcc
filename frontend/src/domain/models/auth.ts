@@ -29,6 +29,10 @@ export interface RegisterResponse {
   confirmPassword?: string[];
 }
 
+export interface ForgotPasswordCredentials {
+  username: string;
+}
+
 export interface User {
   username: string;
   email: string;

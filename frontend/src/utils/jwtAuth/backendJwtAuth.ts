@@ -1,4 +1,5 @@
 import type {
+  ForgotPasswordCredentials,
   LoginCredentials,
   LoginResponse,
   RegisterCredentials,
@@ -48,6 +49,29 @@ class BackendJWTAuth implements IJWTAuth {
 
     const errorData: RegisterResponse = await response.json();
     return errorData;
+  }
+
+  async resetPassword(credentials: ForgotPasswordCredentials): Promise<void> {
+    const AUTH_RESET_PASSWORD_URL = import.meta.env
+      .VITE_AUTH_RESET_PASSWORD_URL;
+
+    if (AUTH_RESET_PASSWORD_URL === undefined) {
+      return Promise.reject("Password reset URL not set");
+    }
+
+    const response = await fetch(AUTH_RESET_PASSWORD_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      return Promise.reject("Failed to reset password");
+    }
+
+    return;
   }
 
   async validate(accessToken: string | undefined): Promise<void> {

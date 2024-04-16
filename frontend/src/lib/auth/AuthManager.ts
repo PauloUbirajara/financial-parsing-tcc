@@ -1,4 +1,5 @@
 import type {
+  ForgotPasswordCredentials as ResetPasswordCredentials,
   LoginCredentials,
   LoginResponse,
   RegisterCredentials,
@@ -22,12 +23,22 @@ class AuthManager {
     return this.jwtAuth.register(credentials);
   }
 
+  async resetPassword(credentials: ResetPasswordCredentials): Promise<boolean> {
+    try {
+      await this.jwtAuth.resetPassword(credentials);
+      return true;
+    } catch (e) {
+      console.warn("Error when resetting user password", e);
+    }
+    return false;
+  }
+
   async validate(accessToken: string): Promise<boolean> {
     try {
       await this.jwtAuth.validate(accessToken);
       return true;
     } catch (e) {
-      console.warn("Error when validating user in AuthManager", e);
+      console.warn("Error when validating user", e);
     }
     return false;
   }

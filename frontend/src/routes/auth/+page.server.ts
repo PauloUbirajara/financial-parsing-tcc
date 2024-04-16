@@ -1,5 +1,6 @@
 import AuthManager from "$lib/auth/AuthManager";
 import type {
+  ForgotPasswordCredentials,
   LoginCredentials,
   RegisterCredentials,
 } from "../../domain/models/auth";
@@ -11,17 +12,32 @@ export const actions: Actions = {
     const credentials: LoginCredentials = await event.request.json();
     const response = await AuthManager.login(credentials);
 
-    if (response.username || response.password || response.detail) {
+    if (response.username || response.password) {
       return fail(constants.HTTP_STATUS_BAD_REQUEST, {
-        username: response.username,
-        password: response.password,
-        detail: response.detail,
+        success: false,
+        errors: {
+          username: response.username,
+          password: response.password,
+        },
+      });
+    }
+
+    if (response.detail) {
+      console.warn(response.detail);
+      return fail(constants.HTTP_STATUS_BAD_REQUEST, {
+        success: false,
+        errors: {
+          detail: "Erro ao realizar login.",
+        },
       });
     }
 
     if (!(response.access && response.refresh)) {
       return fail(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR, {
-        detail: "Could not login",
+        success: false,
+        errors: {
+          detail: "Erro ao realizar login.",
+        },
       });
     }
 
@@ -43,23 +59,35 @@ export const actions: Actions = {
       });
     }
 
-    if (
-      response.username ||
-      response.password ||
-      response.confirmPassword ||
-      response.error
-    ) {
+    if (response.username || response.password || response.confirmPassword) {
       return fail(constants.HTTP_STATUS_BAD_REQUEST, {
         errors: {
           username: response.username,
           password: response.password,
           confirmPassword: response.confirmPassword,
-          detail: response.error,
         },
         success: false,
       });
     }
 
-    return { success: true, errors: {} };
+    if (response.error || response.non_field_errors) {
+      console.warn(response.error, response.non_field_errors);
+      return fail(constants.HTTP_STATUS_BAD_REQUEST, {
+        errors: {
+          detail: "Erro ao realizar cadastro.",
+        },
+        success: false,
+      });
+    }
+
+    return {
+      success: true,
+      errors: {},
+    };
+  },
+
+  forgotPassword: async (event) => {
+    const credentials: ForgotPasswordCredentials = await event.request.json();
+    const response = await AuthManager.resetPassword(credentials);
   },
 };
