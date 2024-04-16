@@ -1,14 +1,34 @@
-export interface User {
-  username: string;
-  email: string;
-}
-
 export interface LoginCredentials {
   username: string;
   password: string;
 }
 
 export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
+  access?: string;
+  refresh?: string;
+
+  detail?: string;
+  username?: string[];
+  password?: string[];
+}
+
+export interface RegisterCredentials {
+  username: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface RegisterResponse {
+  // Serializer errors
+  error?: string;
+  username?: string[];
+  email?: string[];
+  password?: string[];
+  confirmPassword?: string[];
+}
+
+export interface User {
+  username: string;
+  email: string;
 }

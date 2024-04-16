@@ -1,11 +1,15 @@
-<script>
+<script lang="ts">
   import Navbar from "$components/Navbar.svelte";
   import Footer from "$components/Footer.svelte";
+  import type { PageData } from "./$types";
+
+  export let data: PageData;
+  $: isLogged = data.isLogged;
 </script>
 
 <main>
   <!-- Navbar -->
-  <Navbar />
+  <Navbar {isLogged} />
 
   <!-- First Content -->
   <div class="" id="first-content"></div>

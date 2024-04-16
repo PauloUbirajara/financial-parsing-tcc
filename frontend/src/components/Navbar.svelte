@@ -1,3 +1,7 @@
+<script context="module" lang="ts">
+  export let data: PageData;
+</script>
+
 <script lang="ts">
   import {
     Navbar,
@@ -6,6 +10,7 @@
     NavUl,
     NavLi,
   } from "flowbite-svelte";
+  import type { PageData } from "../routes/$types";
 
   export let isLogged: boolean;
 </script>
@@ -21,11 +26,11 @@
   <NavHamburger />
   <NavUl>
     {#if isLogged}
-      <NavLi href="/dashboard">Dashboard</NavLi>
-      <NavLi href="/transactions">Transações</NavLi>
-      <NavLi href="/wallets">Carteiras</NavLi>
-      <NavLi href="/categories">Categorias</NavLi>
-      <NavLi href="/currencies">Moedas</NavLi>
+      <NavLi href="/api/dashboard">Dashboard</NavLi>
+      <NavLi href="/api/transactions">Transações</NavLi>
+      <NavLi href="/api/wallets">Carteiras</NavLi>
+      <NavLi href="/api/categories">Categorias</NavLi>
+      <NavLi href="/api/currencies">Moedas</NavLi>
     {:else}
       <NavLi href="/auth/login">Acessar conta</NavLi>
       <NavLi href="/auth/register">Criar conta</NavLi>

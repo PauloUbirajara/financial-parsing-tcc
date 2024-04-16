@@ -9,6 +9,7 @@ export default defineConfig({
       $components: path.resolve(__dirname, "src/components"),
       $public: path.resolve(__dirname, "src/public"),
       $domain: path.resolve(__dirname, "src/domain"),
+      $data: path.resolve(__dirname, "src/data"),
     },
   },
 });
