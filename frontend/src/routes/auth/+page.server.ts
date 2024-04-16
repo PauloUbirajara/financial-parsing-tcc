@@ -34,6 +34,15 @@ export const actions: Actions = {
     const credentials: RegisterCredentials = await event.request.json();
     const response = await AuthManager.register(credentials);
 
+    if (response.non_field_errors) {
+      return fail(constants.HTTP_STATUS_BAD_REQUEST, {
+        success: false,
+        errors: {
+          detail: response.non_field_errors,
+        },
+      });
+    }
+
     if (
       response.username ||
       response.password ||
@@ -41,10 +50,13 @@ export const actions: Actions = {
       response.error
     ) {
       return fail(constants.HTTP_STATUS_BAD_REQUEST, {
-        username: response.username,
-        password: response.password,
-        confirmPassword: response.confirmPassword,
-        error: response.error,
+        errors: {
+          username: response.username,
+          password: response.password,
+          confirmPassword: response.confirmPassword,
+          detail: response.error,
+        },
+        success: false,
       });
     }
 
