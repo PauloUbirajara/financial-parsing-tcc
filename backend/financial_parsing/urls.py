@@ -28,16 +28,7 @@ from rest_framework_simplejwt.views import (
 from apps.category.views import CategoryViewSet
 from apps.currency.views import CurrencyViewSet
 from apps.transaction.views import TransactionViewSet
-from apps.user_management.views import (
-    UserManagementChangeEmailView,
-    UserManagementChangePasswordView,
-    UserManagementConfirmView,
-    UserManagementDeleteView,
-    UserManagementRegisterView,
-    UserManagementResendActivationView,
-    UserManagementResendDeletionView,
-    UserManagementResetPasswordView,
-)
+from apps.user_management.views import UserActivationView, UserRegistrationView
 from apps.wallet.views import WalletViewSet
 
 user_language = "pt"
@@ -54,41 +45,11 @@ urlpatterns = [
     # API endpoints
     path("api/", include(router.urls)),
     # User Management
-    path("auth/register", UserManagementRegisterView.as_view(), name="user-register"),
+    path("auth/register", UserRegistrationView.as_view(), name="user-register"),
     path(
-        "auth/reset-password",
-        UserManagementResetPasswordView.as_view(),
-        name="user-reset-password",
-    ),
-    path(
-        "auth/activate/resend",
-        UserManagementResendActivationView.as_view(),
-        name="user-resend-activation",
-    ),
-    path(
-        "auth/activate/<uuid:token>",
-        UserManagementConfirmView.as_view(),
+        "auth/activate/<uuid:activation_token>",
+        UserActivationView.as_view(),
         name="user-activate",
-    ),
-    path(
-        "auth/settings/change-email",
-        UserManagementChangeEmailView.as_view(),
-        name="user-change-email",
-    ),
-    path(
-        "auth/settings/change-password",
-        UserManagementChangePasswordView.as_view(),
-        name="user-change-password",
-    ),
-    path(
-        "auth/settings/delete-account",
-        UserManagementResendDeletionView.as_view(),
-        name="user-resend-deletion",
-    ),
-    path(
-        "auth/settings/delete-account/<uuid:token>",
-        UserManagementDeleteView.as_view(),
-        name="user-delete-account",
     ),
     # JWT
     path("auth/login", TokenObtainPairView.as_view(), name="token_obtain_pair"),

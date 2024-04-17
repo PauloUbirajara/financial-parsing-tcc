@@ -1,316 +1,103 @@
-import os
-import uuid
 from datetime import datetime, timedelta, timezone
-from http import HTTPStatus
-from urllib.parse import urljoin
 
 from django.conf import settings
-from django.contrib.auth import logout
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.management import call_command
-from django.db.utils import IntegrityError
-from django.utils.translation import gettext as _
-from rest_framework.request import Request
+from django.utils import timezone
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from apps.user_management.models import UserManagement
-from apps.user_management.serializers import (
-    UserManagementChangeEmailSerializer,
-    UserManagementChangePasswordSerializer,
-    UserManagementRegisterSerializer,
-    UserManagementResendActivationSerializer,
-    UserManagementResendDeletionSerializer,
-    UserManagementResetPasswordSerializer,
-)
+from apps.user_management.serializers import UserRegistrationSerializer
 from data.usecases.send_activate_account.django_email_send_activate_account import (
     DjangoEmailSendActivateAccount,
 )
-from data.usecases.send_delete_account.django_email_send_delete_account import (
-    DjangoEmailSendDeleteAccount,
-)
-from data.usecases.send_password_reset.django_email_send_password_reset import (
-    DjangoEmailSendPasswordReset,
-)
 from domain.usecases.send_activate_account import SendActivateAccount
-from domain.usecases.send_delete_account import SendDeleteAccount
-from domain.usecases.send_password_reset import SendPasswordReset
 from protocols.send_email import SendEmail
 from utils.send_email.django_send_email import DjangoSendEmail
 
-
-def setup_account_activation(user: User, request: Request) -> Response:
-    # Create/Update user activation
-    user_management, _ = UserManagement.objects.get_or_create(user=user)
-    user_management.token = str(uuid.uuid4())
-    user_management.created_at = datetime.now(tz=timezone.utc)
-    user_management.save()
-
-    # Send activation link to email
-    send_email: SendEmail = DjangoSendEmail(user=user)
-
-    send_activate_account: SendActivateAccount = DjangoEmailSendActivateAccount(
-        activation_link=urljoin(
-            request.build_absolute_uri("/"),
-            reverse("user-activate", kwargs={"token": user_management.token}),
-        ),
-        send_email=send_email,
-    )
-    send_activate_account.send()
-
-    return Response(status=HTTPStatus.OK)
+User = get_user_model()
 
 
-def setup_account_deletion(user: User, request: Request) -> Response:
-    # Create/Update user activation
-    user_management, _ = UserManagement.objects.get_or_create(user=user)
-    user_management.token = str(uuid.uuid4())
-    user_management.created_at = datetime.now(tz=timezone.utc)
-    user_management.save()
-
-    # Send deletion link to email
-    send_email: SendEmail = DjangoSendEmail(user=user)
-
-    send_delete_account: SendDeleteAccount = DjangoEmailSendDeleteAccount(
-        deletion_link=urljoin(
-            request.build_absolute_uri("/"),
-            reverse("user-delete-account", kwargs={"token": user_management.token}),
-        ),
-        send_email=send_email,
-    )
-    send_delete_account.send()
-
-    return Response(status=HTTPStatus.OK)
-
-
-def setup_password_reset(user: User) -> Response:
-    # Change user password
-    temporary_password = str(uuid.uuid4())
-    user.set_password(temporary_password)
-    user.save()
-
-    # Send password reset email
-    send_email: SendEmail = DjangoSendEmail(user=user)
-    send_password_reset: SendPasswordReset = DjangoEmailSendPasswordReset(
-        application_link=os.getenv("FRONTEND_LOGIN_URL"),
-        temporary_password=temporary_password,
-        send_email=send_email,
-    )
-    send_password_reset.send()
-
-    return Response(status=HTTPStatus.OK)
-
-
-class UserManagementResendActivationView(APIView):
-    def post(self, request):
-        if request.user.is_authenticated:
-            return Response(status=HTTPStatus.UNAUTHORIZED)
-
-        if request.user.is_active:
-            data = {"message": _("Usuário já ativo.")}
-            return Response(status=HTTPStatus.OK, data=data)
-
-        serializer = UserManagementResendActivationSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
-
-        user = User.objects.filter(
-            username=serializer.validated_data["username"]
-        ).first()
-
-        if user is None:
-            error = {"error": _("Não foi possível encontrar usuário cadastrado.")}
-            return Response(status=HTTPStatus.NOT_FOUND, data=error)
-
-        return setup_account_activation(user=user, request=request)
-
-
-class UserManagementResendDeletionView(APIView):
-    def post(self, request):
-        if not request.user.is_authenticated:
-            return Response(status=HTTPStatus.UNAUTHORIZED)
-
-        if request.user is None:
-            data = {"message": _("Usuário já removido.")}
-            return Response(status=HTTPStatus.OK, data=data)
-
-        serializer = UserManagementResendDeletionSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
-
-        return setup_account_deletion(user=request.user, request=request)
-
-
-class UserManagementRegisterView(APIView):
-    def post(self, request):
-        if request.user.is_authenticated:
-            return Response(status=HTTPStatus.UNAUTHORIZED)
-
-        serializer = UserManagementRegisterSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
-
-        try:
-            User.objects.create_user(
-                username=serializer.validated_data["username"],
-                email=serializer.validated_data["email"],
-                password=serializer.validated_data["password"],
-                is_active=False,
+class UserActivationView(APIView):
+    def get(self, request, activation_token: str = None):
+        user_management = UserManagement.objects.filter(token=activation_token).first()
+        if user_management is None:
+            return Response(
+                {"error": "Token de ativação de conta inválido."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        except IntegrityError as e:
-            error = {
-                "error": e.__str__(),
-            }
-            return Response(status=HTTPStatus.CONFLICT, data=error)
-
-        except Exception as e:
-            error = {
-                "error": e.__str__(),
-            }
-            return Response(status=HTTPStatus.INTERNAL_SERVER_ERROR, data=error)
-
-        return Response(status=HTTPStatus.OK)
-
-
-class UserManagementConfirmView(APIView):
-    def get(self, request, token=None):
-        if request.user.is_authenticated:
-            return Response(status=HTTPStatus.UNAUTHORIZED)
-
-        if token is None:
-            return Response(status=HTTPStatus.BAD_REQUEST)
-
-        pending_user_management = UserManagement.objects.filter(token=token).first()
-        if pending_user_management is None:
-            error = {"error": _("Solicitação de ativação de conta inválida.")}
-            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
-
-        if pending_user_management.user.is_active:
-            error = {"error": _("Usuário já ativo.")}
-            return Response(status=HTTPStatus.CONFLICT, data=error)
-
-        # Check if activation is not expired
-        if datetime.now(
-            tz=timezone.utc
-        ) - pending_user_management.created_at > timedelta(
+        time_elapsed = (
+            datetime.now(tz=timezone.timezone.utc) - user_management.created_at
+        )
+        if time_elapsed > timedelta(
             minutes=settings.ACTIVATION_EXPIRATION_TIME_IN_MINUTES
         ):
-            error = {
-                "error": _(
-                    "Link de ativação expirado, por favor solicite um novo link."
-                )
-            }
-            return Response(status=HTTPStatus.GONE, data=error)
+            return Response(
+                {"error": "Token de ativação de conta expirado."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        # Activate user
-        pending_user = pending_user_management.user
-        pending_user.is_active = True
-        pending_user.save()
+        # Activate user account and remove token
+        user = user_management.user
+        user.is_active = True
+        user.save()
+        user_management.delete()
 
-        # Create default models
-        # TODO ADD TRANSACTION TO AVOID ISSUES ON SOME POINTS AND HAVING IT DOING CHANGES
-        call_command("add_default_currencies", pending_user.id)
-        call_command("add_default_wallet", pending_user.id)
-        call_command("add_default_categories", pending_user.id)
+        # Create default categories and wallet per user
+        call_command("add_default_categories", user.id)
+        call_command("add_default_wallet", user.id)
 
-        # Remove activation
-        pending_user_management.delete()
-
-        return Response(status=HTTPStatus.OK)
+        return Response(
+            {"detail": "Ativação de conta realizada com sucesso."},
+            status=status.HTTP_200_OK,
+        )
 
 
-class UserManagementDeleteView(APIView):
-    def get(self, request, token=None):
-        if not request.user.is_authenticated:
-            return Response(status=HTTPStatus.UNAUTHORIZED)
-
-        if token is None:
-            return Response(status=HTTPStatus.BAD_REQUEST)
-
-        pending_user_management = UserManagement.objects.filter(token=token).first()
-        if pending_user_management is None:
-            error = {"error": _("Solicitação de remoção de conta inválida.")}
-            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
-
-        if pending_user_management.user is None:
-            error = {"error": _("Usuário já removido.")}
-            return Response(status=HTTPStatus.CONFLICT, data=error)
-
-        # Check if deletion is not expired
-        if datetime.now(
-            tz=timezone.utc
-        ) - pending_user_management.created_at > timedelta(
-            minutes=settings.DELETION_EXPIRATION_TIME_IN_MINUTES
-        ):
-            error = {
-                "error": _("Link de remoção expirado, por favor solicite um novo link.")
-            }
-            return Response(status=HTTPStatus.GONE, data=error)
-
-        # Delete user
-        pending_user_management.user.delete()
-        logout(request)
-
-        # Remove deletion request
-        pending_user_management.delete()
-
-        return Response(status=HTTPStatus.OK)
-
-
-class UserManagementChangeEmailView(APIView):
+class UserRegistrationView(APIView):
     def post(self, request):
-        if not request.user.is_authenticated:
-            return Response(status=HTTPStatus.UNAUTHORIZED)
-
-        serializer = UserManagementChangeEmailSerializer(data=request.data)
+        serializer = UserRegistrationSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if request.user.email != serializer.validated_data["old_email"]:
-            error = {"error": _("E-mail inválido.")}
-            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
+        username = serializer.validated_data.get("username")
+        email = serializer.validated_data.get("email")
+        # Check if username or email already exists
+        if User.objects.filter(username=username).exists():
+            return Response(
+                {"error": "Apelido já cadastrado."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        request.user.email = serializer.validated_data["new_email"]
-        request.user.save()
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {"error": "E-mail já cadastrado."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        return Response(status=HTTPStatus.OK)
+        # Create the user
+        password = make_password(serializer.validated_data.get("password"))
+        user = User.objects.create(username=username, email=email, password=password)
 
+        # Send activation email
+        user_management = UserManagement.objects.create(user=user)
+        activation_token = user_management.token
+        activation_link = request.build_absolute_uri(
+            reverse("user-activate", kwargs={"activation_token": activation_token})
+        )
 
-class UserManagementChangePasswordView(APIView):
-    def post(self, request):
-        if not request.user.is_authenticated:
-            return Response(status=HTTPStatus.UNAUTHORIZED)
+        send_email: SendEmail = DjangoSendEmail(user=user)
+        send_activate_account: SendActivateAccount = DjangoEmailSendActivateAccount(
+            activation_link=activation_link, send_email=send_email
+        )
+        send_activate_account.send()
 
-        serializer = UserManagementChangePasswordSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
-
-        if not request.user.check_password(serializer.validated_data["old_password"]):
-            error = {"error": _("Senha inválida.")}
-            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
-
-        request.user.set_password(serializer.validated_data["new_password"])
-        request.user.save()
-
-        return Response(status=HTTPStatus.OK)
-
-
-class UserManagementResetPasswordView(APIView):
-    def post(self, request):
-        if request.user.is_authenticated:
-            return Response(status=HTTPStatus.UNAUTHORIZED)
-
-        serializer = UserManagementResetPasswordSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
-
-        user = User.objects.filter(
-            username=serializer.validated_data["username"], is_active=True
-        ).first()
-
-        if user is None:
-            error = {"error": _("Usuário inválido.")}
-            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
-
-        return setup_password_reset(user=user)
+        return Response(
+            {
+                "detail": "Usuário cadastrado com sucesso. Confirme a sua conta através do link que enviamos para o seu e-mail."
+            },
+            status=status.HTTP_201_CREATED,
+        )
