@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from django.utils import translation
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -38,6 +39,9 @@ from apps.user_management.views import (
     UserManagementResetPasswordView,
 )
 from apps.wallet.views import WalletViewSet
+
+user_language = "pt"
+translation.activate(user_language)
 
 router = ExtendedSimpleRouter()
 router.register(r"currencies", CurrencyViewSet, basename="currency")

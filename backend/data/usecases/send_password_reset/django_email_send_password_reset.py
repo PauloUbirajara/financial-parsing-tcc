@@ -6,37 +6,34 @@ from protocols.send_email import SendEmail
 
 
 class DjangoEmailSendPasswordReset(SendPasswordReset):
-    subject = "Financial Parsing - Reset Password"
+    subject = "Financial Parsing - Redefinição de senha"
     message_template = cleandoc(
         """
-        Your account password was reset.
+        Uma solicitação de redefinição de senha foi solicitada.
 
-        New password:  {temporary_password}
+        Caso não tenha sido você quem solicitou, favor ignorar o e-mail.
 
-        To access the Financial Parsing application, use the following link:
+        Entre no link a seguir para redefinir a sua senha:
+
         {application_link}
     """
     )
     application_link: str
-    temporary_password: str
     send_email: SendEmail
 
     def __init__(
         self,
         application_link: Optional[str],
-        temporary_password: str,
         send_email: SendEmail,
     ) -> None:
         if application_link is None:
             raise ValueError("Missing application link")
 
         self.application_link = application_link
-        self.temporary_password = temporary_password
         self.send_email = send_email
 
     def send(self):
         message = self.message_template.format(
-            temporary_password=self.temporary_password,
             application_link=self.application_link,
         )
         self.send_email.send(subject=self.subject, message=message)

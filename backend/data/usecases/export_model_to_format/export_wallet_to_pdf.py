@@ -40,7 +40,7 @@ class ExportWalletToPDF(ExportModelToFormat):
         )
         pdf_status = pisa.CreatePDF(html, dest=response)
         if pdf_status.err:
-            error = {"error": "Error when generating PDF report from wallet"}
+            error = {"error": "Erro ao gerar relatório PDF de carteira."}
             logging.warning(error, pdf_status.err)
             return HttpResponse(data=error)
 

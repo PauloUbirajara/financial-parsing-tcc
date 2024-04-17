@@ -9,16 +9,16 @@ from apps.currency.models import Currency
 def create_default_currencies(user: User):
     # Values from py-money python package
     default_currencies_dict = {
-        "ARS": "Argentine Peso",
-        "AUD": "Australian Dollar",
-        "BRL": "Brazilian Real",
-        "CAD": "Canadian Dollar",
+        "ARS": "Peso Argentino",
+        "AUD": "Dólar Australiano",
+        "BRL": "Real Brasileiro",
+        "CAD": "Dólar Canadense",
         "EUR": "Euro",
-        "GBP": "Pound Sterling",
-        "JPY": "Yen",
-        "MXN": "Mexican Peso",
-        "RUB": "Russian Ruble",
-        "USD": "US Dollar",
+        "GBP": "Libra Esterlina",
+        "JPY": "Iene",
+        "MXN": "Peso Mexicano",
+        "RUB": "Rublo Russo",
+        "USD": "Dólar Americano",
     }
 
     for representation, name in default_currencies_dict.items():

@@ -11,14 +11,14 @@ Currency = apps.get_model("currency", "Currency")
 
 def create_default_categories(user: User):
     default_categories = (
-        "Income",
-        "Expense",
-        "Budget",
-        "Investment",
-        "Debt",
-        "Recurrent",
-        "Transfer",
-        "Miscellaneous",
+        "Renda",
+        "Despesa",
+        "Orçamento",
+        "Investimento",
+        "Dívida",
+        "Recorrente",
+        "Transferência",
+        "Diversos",
     )
     for category in default_categories:
         try:

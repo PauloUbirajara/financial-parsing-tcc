@@ -13,8 +13,8 @@ def create_default_wallet(user: User):
     default_currency = Currency.objects.filter(representation="USD").first()
     try:
         Wallet.objects.create(
-            name="General",
-            description="This wallet serves for any transaction",
+            name="Geral",
+            description="Esta carteira serve para qualquer transação",
             currency=default_currency,
             user=user,
         )

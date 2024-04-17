@@ -93,7 +93,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
         currency = serializer.validated_data.get("currency")
         if currency.user != request.user:
-            error = {"error": "Could not find currency"}
+            error = {"error": "Não foi possível encontrar moeda."}
             return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
         wallet = {
@@ -110,7 +110,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         export_format = request.data.get("format")
 
         if wallet is None:
-            error = {"error": "Could not find requested wallet to export"}
+            error = {"error": "Não foi possível exportar carteira."}
             return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
         supported_formats: dict[str, ExportModelToFormat] = {
@@ -125,7 +125,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         wallet_export_usecase = supported_formats.get(export_format)
 
         if wallet_export_usecase is None:
-            error = {"error": "Invalid export format"}
+            error = {"error": "Formato inválido de exportação"}
             return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
         return wallet_export_usecase.export(model=wallet)

@@ -9,6 +9,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.db.utils import IntegrityError
+from django.utils.translation import gettext as _
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -107,7 +108,7 @@ class UserManagementResendActivationView(APIView):
             return Response(status=HTTPStatus.UNAUTHORIZED)
 
         if request.user.is_active:
-            data = {"message": "User already active"}
+            data = {"message": _("Usuário já ativo.")}
             return Response(status=HTTPStatus.OK, data=data)
 
         serializer = UserManagementResendActivationSerializer(data=request.data)
@@ -119,7 +120,7 @@ class UserManagementResendActivationView(APIView):
         ).first()
 
         if user is None:
-            error = {"error": "Could not find registered user"}
+            error = {"error": _("Não foi possível encontrar usuário cadastrado.")}
             return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
         return setup_account_activation(user=user, request=request)
@@ -131,7 +132,7 @@ class UserManagementResendDeletionView(APIView):
             return Response(status=HTTPStatus.UNAUTHORIZED)
 
         if request.user is None:
-            data = {"message": "User already deleted"}
+            data = {"message": _("Usuário já removido.")}
             return Response(status=HTTPStatus.OK, data=data)
 
         serializer = UserManagementResendDeletionSerializer(data=request.data)
@@ -182,11 +183,11 @@ class UserManagementConfirmView(APIView):
 
         pending_user_management = UserManagement.objects.filter(token=token).first()
         if pending_user_management is None:
-            error = {"error": "There were no pending account activation requests"}
-            return Response(status=HTTPStatus.NOT_FOUND, data=error)
+            error = {"error": _("Solicitação de ativação de conta inválida.")}
+            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
         if pending_user_management.user.is_active:
-            error = {"error": "User already active"}
+            error = {"error": _("Usuário já ativo.")}
             return Response(status=HTTPStatus.CONFLICT, data=error)
 
         # Check if activation is not expired
@@ -195,7 +196,11 @@ class UserManagementConfirmView(APIView):
         ) - pending_user_management.created_at > timedelta(
             minutes=settings.ACTIVATION_EXPIRATION_TIME_IN_MINUTES
         ):
-            error = {"error": "Activation link expired, please request a new one"}
+            error = {
+                "error": _(
+                    "Link de ativação expirado, por favor solicite um novo link."
+                )
+            }
             return Response(status=HTTPStatus.GONE, data=error)
 
         # Activate user
@@ -225,11 +230,11 @@ class UserManagementDeleteView(APIView):
 
         pending_user_management = UserManagement.objects.filter(token=token).first()
         if pending_user_management is None:
-            error = {"error": "There were no pending deletion requests"}
-            return Response(status=HTTPStatus.NOT_FOUND, data=error)
+            error = {"error": _("Solicitação de remoção de conta inválida.")}
+            return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
         if pending_user_management.user is None:
-            error = {"error": "User already deleted"}
+            error = {"error": _("Usuário já removido.")}
             return Response(status=HTTPStatus.CONFLICT, data=error)
 
         # Check if deletion is not expired
@@ -238,7 +243,9 @@ class UserManagementDeleteView(APIView):
         ) - pending_user_management.created_at > timedelta(
             minutes=settings.DELETION_EXPIRATION_TIME_IN_MINUTES
         ):
-            error = {"error": "Deletion link expired, please request a new one"}
+            error = {
+                "error": _("Link de remoção expirado, por favor solicite um novo link.")
+            }
             return Response(status=HTTPStatus.GONE, data=error)
 
         # Delete user
@@ -261,7 +268,7 @@ class UserManagementChangeEmailView(APIView):
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
         if request.user.email != serializer.validated_data["old_email"]:
-            error = {"error": "Invalid email"}
+            error = {"error": _("E-mail inválido.")}
             return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
         request.user.email = serializer.validated_data["new_email"]
@@ -280,7 +287,7 @@ class UserManagementChangePasswordView(APIView):
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
         if not request.user.check_password(serializer.validated_data["old_password"]):
-            error = {"error": "Invalid password"}
+            error = {"error": _("Senha inválida.")}
             return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
         request.user.set_password(serializer.validated_data["new_password"])
@@ -299,11 +306,11 @@ class UserManagementResetPasswordView(APIView):
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
         user = User.objects.filter(
-            username=serializer.validated_data["username"]
+            username=serializer.validated_data["username"], is_active=True
         ).first()
 
         if user is None:
-            error = {"error": "Invalid username"}
+            error = {"error": _("Usuário inválido.")}
             return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
         return setup_password_reset(user=user)

@@ -5,10 +5,10 @@ from protocols.send_email import SendEmail
 
 
 class DjangoEmailSendDeleteAccount(SendDeleteAccount):
-    subject = "Financial Parsing - Account Deletion"
+    subject = "Financial Parsing - Remoção definitiva de conta"
     message_template = cleandoc(
         """
-        To permanently delete your account from our Financial Parsing application, you just need to confirm through the following link:
+        Para apagar permanentemente a sua conta de nossa plataforma Financial Parsing, basta que você confirme através do link a seguir:
 
         {deletion_link}
     """

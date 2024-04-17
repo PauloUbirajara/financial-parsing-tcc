@@ -5,10 +5,10 @@ from protocols.send_email import SendEmail
 
 
 class DjangoEmailSendActivateAccount(SendActivateAccount):
-    subject = "Financial Parsing - Account Activation"
+    subject = "Financial Parsing - Ativação de conta"
     message_template = cleandoc(
         """
-        To activate your account in our Financial Parsing application, you just need to confirm through the following link:
+        Para ativar a sua conta em nossa plataforma Financial Parsing, basta que você confirme através do link a seguir:
 
         {activation_link}
     """
