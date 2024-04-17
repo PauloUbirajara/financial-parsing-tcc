@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
+from apps.user_management.helpers import is_active
 from apps.user_management.models import UserManagement
 from apps.user_management.serializers import UserRegistrationSerializer
 from data.usecases.send_activate_account.django_email_send_activate_account import (
@@ -31,12 +32,7 @@ class UserActivationView(APIView):
                 {"error": "Token de ativação de conta inválido."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        time_elapsed = (
-            datetime.now(tz=timezone.timezone.utc) - user_management.created_at
-        )
-        if time_elapsed > timedelta(
-            minutes=settings.ACTIVATION_EXPIRATION_TIME_IN_MINUTES
-        ):
+        if not is_active(user_management):
             return Response(
                 {"error": "Token de ativação de conta expirado."},
                 status=status.HTTP_400_BAD_REQUEST,
