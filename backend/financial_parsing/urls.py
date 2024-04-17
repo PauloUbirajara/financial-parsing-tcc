@@ -28,7 +28,12 @@ from rest_framework_simplejwt.views import (
 from apps.category.views import CategoryViewSet
 from apps.currency.views import CurrencyViewSet
 from apps.transaction.views import TransactionViewSet
-from apps.user_management.views import UserActivationView, UserRegistrationView
+from apps.user_management.views import (
+    PasswordResetView,
+    SendPasswordResetEmailView,
+    UserActivationView,
+    UserRegistrationView,
+)
 from apps.wallet.views import WalletViewSet
 
 user_language = "pt"
@@ -46,6 +51,16 @@ urlpatterns = [
     path("api/", include(router.urls)),
     # User Management
     path("auth/register", UserRegistrationView.as_view(), name="user-register"),
+    path(
+        "auth/password-reset/send",
+        SendPasswordResetEmailView.as_view(),
+        name="send-password-reset",
+    ),
+    path(
+        "auth/password-reset/<uuid:token>",
+        PasswordResetView.as_view(),
+        name="password-reset",
+    ),
     path(
         "auth/activate/<uuid:activation_token>",
         UserActivationView.as_view(),

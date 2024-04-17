@@ -1,7 +1,6 @@
 import re
 
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 
@@ -24,9 +23,17 @@ class UserRegistrationSerializer(serializers.Serializer):
             )
 
         # Validate password
-        try:
-            validate_password(password)
-        except ValidationError as e:
-            raise e
+        validate_password(password)
+
+        return attrs
+
+
+class UserPasswordResetSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True)
+
+    def validate(self, attrs):
+        password = attrs.get("password")
+
+        validate_password(password)
 
         return attrs

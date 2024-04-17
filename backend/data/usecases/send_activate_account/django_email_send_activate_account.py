@@ -8,7 +8,7 @@ class DjangoEmailSendActivateAccount(SendActivateAccount):
     subject = "Financial Parsing - Ativação de conta"
     message_template = cleandoc(
         """
-        Para ativar a sua conta em nossa plataforma Financial Parsing, basta que você confirme através do link a seguir:
+        Para ativar a sua conta em nossa plataforma, basta que você confirme através do link a seguir:
 
         {activation_link}
     """
