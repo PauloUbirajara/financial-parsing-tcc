@@ -1,7 +1,3 @@
-export interface SendResetPasswordCredentials {
-  email: string;
-}
-
 export interface ResetPasswordCredentials {
   password: string;
   token: string;
@@ -12,9 +8,4 @@ export interface ResetPasswordResponse {
   password?: string[];
   detail?: string;
   non_field_errors?: string[];
-}
-
-export interface User {
-  username: string;
-  email: string;
 }

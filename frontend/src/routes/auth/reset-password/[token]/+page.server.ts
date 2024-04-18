@@ -1,6 +1,6 @@
 import AuthManager from "$lib/auth/AuthManager";
 import { constants } from "http2";
-import type { ResetPasswordCredentials } from "../../../../domain/models/auth";
+import type { ResetPasswordCredentials } from "../../../../domain/models/resetPasswordDto";
 import { fail } from "@sveltejs/kit";
 import type { Actions } from "@sveltejs/kit";
 

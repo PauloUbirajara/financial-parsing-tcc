@@ -1,10 +1,10 @@
 import AuthManager from "$lib/auth/AuthManager";
-import type { SendResetPasswordCredentials } from "../../domain/models/auth";
 import { constants } from "http2";
 import { fail } from "@sveltejs/kit";
 import type { Actions } from "@sveltejs/kit";
 import type { LoginCredentials } from "../../domain/models/loginDto";
 import type { RegisterCredentials } from "../../domain/models/registerDto";
+import type { SendResetPasswordCredentials } from "../../domain/models/sendResetPasswordDto";
 
 export const actions: Actions = {
   login: async (event) => {
