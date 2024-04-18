@@ -1,14 +1,16 @@
 import type {
   SendResetPasswordCredentials,
   ResetPasswordCredentials,
-  RegisterCredentials,
-  RegisterResponse,
   ResetPasswordResponse,
 } from "../../domain/models/auth";
 import type {
   LoginCredentials,
   LoginResponse,
 } from "../../domain/models/loginDto";
+import type {
+  RegisterCredentials,
+  RegisterResponse,
+} from "../../domain/models/registerDto";
 import type { IJWTAuth } from "../../protocols/jwtAuth";
 
 class BackendJWTAuth implements IJWTAuth {
