@@ -126,8 +126,8 @@ class BackendJWTAuth implements IJWTAuth {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
+      body: JSON.stringify({ token: accessToken }),
     });
 
     if (!response.ok) {
