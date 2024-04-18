@@ -1,22 +1,7 @@
-export interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  access?: string;
-  refresh?: string;
-
-  detail?: string;
-  username?: string[];
-  password?: string[];
-}
-
 export interface RegisterCredentials {
   username: string;
   email: string;
   password: string;
-  confirm_password: string;
 }
 
 export interface RegisterResponse {
@@ -26,11 +11,22 @@ export interface RegisterResponse {
   username?: string[];
   email?: string[];
   password?: string[];
-  confirmPassword?: string[];
 }
 
-export interface ForgotPasswordCredentials {
-  username: string;
+export interface SendResetPasswordCredentials {
+  email: string;
+}
+
+export interface ResetPasswordCredentials {
+  password: string;
+  token: string;
+}
+
+export interface ResetPasswordResponse {
+  error?: string;
+  password?: string[];
+  detail?: string;
+  non_field_errors?: string[];
 }
 
 export interface User {

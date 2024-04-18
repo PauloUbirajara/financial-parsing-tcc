@@ -3,12 +3,17 @@ import type {
   LoginResponse,
   RegisterCredentials,
   RegisterResponse,
-  ForgotPasswordCredentials,
+  ResetPasswordCredentials,
+  ResetPasswordResponse,
+  SendResetPasswordCredentials,
 } from "../domain/models/auth";
 
 export interface IJWTAuth {
   login(credentials: LoginCredentials): Promise<LoginResponse>;
   register(credentials: RegisterCredentials): Promise<RegisterResponse>;
-  resetPassword(credentials: ForgotPasswordCredentials): Promise<void>;
+  sendResetPassword(credentials: SendResetPasswordCredentials): Promise<void>;
+  resetPassword(
+    credentials: ResetPasswordCredentials,
+  ): Promise<ResetPasswordResponse>;
   validate(accessToken: string): Promise<void>;
 }

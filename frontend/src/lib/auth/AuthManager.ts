@@ -1,10 +1,14 @@
 import type {
-  ForgotPasswordCredentials as ResetPasswordCredentials,
-  LoginCredentials,
-  LoginResponse,
+  ResetPasswordCredentials,
+  ResetPasswordResponse,
   RegisterCredentials,
   RegisterResponse,
+  SendResetPasswordCredentials,
 } from "../../domain/models/auth";
+import type {
+  LoginCredentials,
+  LoginResponse,
+} from "../../domain/models/loginDto";
 import type { IJWTAuth } from "../../protocols/jwtAuth";
 import backendJwtAuth from "../../utils/jwtAuth/backendJwtAuth";
 
@@ -23,14 +27,22 @@ class AuthManager {
     return this.jwtAuth.register(credentials);
   }
 
-  async resetPassword(credentials: ResetPasswordCredentials): Promise<boolean> {
+  async sendResetPassword(
+    credentials: SendResetPasswordCredentials,
+  ): Promise<boolean> {
     try {
-      await this.jwtAuth.resetPassword(credentials);
+      await this.jwtAuth.sendResetPassword(credentials);
       return true;
     } catch (e) {
-      console.warn("Error when resetting user password", e);
+      console.warn("Error when requesting password reset", e);
     }
     return false;
+  }
+
+  async resetPassword(
+    credentials: ResetPasswordCredentials,
+  ): Promise<ResetPasswordResponse> {
+    return this.jwtAuth.resetPassword(credentials);
   }
 
   async validate(accessToken: string): Promise<boolean> {

@@ -1,87 +1,80 @@
 <script lang="ts">
   import {
-    Spinner,
-    Heading,
-    A,
     Input,
-    Label,
     Button,
+    Heading,
+    Label,
+    Spinner,
     Helper,
     Alert,
   } from "flowbite-svelte";
+  import { fly } from "svelte/transition";
   import {
-    EyeOutline,
     EyeSlashOutline,
+    EyeOutline,
     InfoCircleSolid,
   } from "flowbite-svelte-icons";
   import { deserialize } from "$app/forms";
-  import { fly } from "svelte/transition";
+
+  export let token: string;
+  export let onResetPasswordSuccess: Function;
 
   type FormMessages = {
     errors: {
       error?: string;
-      detail?: string;
-      email?: string[];
-      username?: string[];
-      password?: string[];
+      non_field_errors?: string;
+      password?: string;
     };
     success: string;
   };
   let formMessages: FormMessages = { success: "", errors: {} };
+
   let credentials = {
-    username: "",
     password: "",
-    email: "",
     confirmPassword: "",
   };
 
-  let loading: boolean = false;
   let showPassword: boolean = false;
-  export let onSubmitSuccess: Function;
+  let loading: boolean = false;
 
   $: hasConfirmedPassword =
     credentials.password === credentials.confirmPassword;
-  $: isValid =
-    credentials.username && credentials.email && hasConfirmedPassword;
+  $: isValid = credentials.password && hasConfirmedPassword;
 
   async function handleSubmit() {
-    loading = true;
     formMessages = {
       success: "",
       errors: {},
     };
 
     try {
-      const response = await fetch("/auth?/register", {
-        body: JSON.stringify(credentials),
+      loading = true;
+      const response = await fetch("?", {
         method: "POST",
+        body: JSON.stringify({ password: credentials.password, token }),
       });
 
-      let registerResponse = deserialize(await response.text());
-      console.log({ registerResponse });
-      formMessages.errors = registerResponse.data.errors;
+      const resetPasswordResponse = deserialize(await response.text());
 
-      if (response.ok && registerResponse.data.success) {
-        formMessages.success = "Cadastro realizado com sucesso.";
+      if (resetPasswordResponse.type === "success") {
+        formMessages.success = "Redefinição de senha realizada com sucesso.";
+        onResetPasswordSuccess();
       }
-    } catch (e: any) {
+      formMessages.errors = resetPasswordResponse.data.errors;
+      console.log({ formMessages });
+    } catch (e) {
       console.warn(e);
-      formMessages.errors.detail = "Houve um erro ao tentar realizar cadastro.";
+      formMessages.errors.detail = "Erro ao redefinir senha.";
     } finally {
       loading = false;
-    }
-
-    if (formMessages.success) {
-      formMessages.success = "Cadastro realizado com sucesso.";
-      onSubmitSuccess();
     }
   }
 </script>
 
-{#if formMessages.errors.detail}
+{#if formMessages.errors.error}
   <Alert dismissable>
     <InfoCircleSolid slot="icon" class="w-4 h-4" />
-    {formMessages.errors.detail}
+    {formMessages.errors.error}
   </Alert>
 {/if}
 
@@ -92,62 +85,33 @@
   </Alert>
 {/if}
 
-<form class="p-4" on:submit|preventDefault={handleSubmit} in:fly={{ x: "-20" }}>
+<form
+  in:fly={{ x: "-20" }}
+  method="POST"
+  class="grid gap-4 p-4"
+  on:submit|preventDefault={handleSubmit}
+>
   <div
     class="flex align-center flex-col sm:flex-row"
-    id="register-form-heading"
+    id="reset-password-form-heading"
   >
-    <Heading tag="h3" class="text-custom-foreground">Crie Sua Conta</Heading>
-    <A href="/auth/login" class="text-custom-primary font-bold"
-      >Já sou usuário</A
+    <Heading tag="h3" class="text-custom-foreground"
+      >Redefinição de senha</Heading
     >
   </div>
   <div class="flex flex-col gap-5">
     <div>
-      <Label for="username">Apelido</Label>
-      <Input
-        type="text"
-        id="username"
-        name="username"
-        placeholder="Digite seu apelido (ex.: JohnDoe)"
-        class="mt-2"
-        color={formMessages.errors.username ? "red" : "base"}
-        bind:value={credentials.username}
-        required
-      />
-      {#if formMessages.errors.username}
-        <Helper class="mt-2" color="red"
-          >{formMessages.errors.username.join(", ")}</Helper
-        >
-      {/if}
-    </div>
-    <div>
-      <Label for="email">E-mail</Label>
-      <Input
-        type="text"
-        id="email"
-        name="email"
-        placeholder="Digite seu e-mail (ex.: johndoe@email.com)"
-        class="mt-2"
-        color={formMessages.errors.email ? "red" : "base"}
-        bind:value={credentials.email}
-        required
-      />
-      {#if formMessages.errors.email}
-        <Helper class="mt-2" color="red"
-          >{formMessages.errors.email.join(", ")}</Helper
-        >
-      {/if}
-    </div>
-    <div>
-      <Label for="password">Senha</Label>
+      <Label for="password">Nova senha</Label>
       <Input
         type={showPassword ? "text" : "password"}
         id="password"
         name="password"
-        placeholder="Digite sua senha"
+        placeholder="Digite sua nova senha"
         class="mt-2"
-        color={formMessages.errors.password ? "red" : "base"}
+        color={formMessages.errors.password ||
+        formMessages.errors.non_field_errors
+          ? "red"
+          : "base"}
         bind:value={credentials.password}
         required
       >
@@ -164,8 +128,11 @@
         </button>
       </Input>
       {#if formMessages.errors.password}
+        <Helper class="mt-2" color="red">{formMessages.errors.password}</Helper>
+      {/if}
+      {#if formMessages.errors.non_field_errors}
         <Helper class="mt-2" color="red"
-          >{formMessages.errors.password.join(", ")}</Helper
+          >{formMessages.errors.non_field_errors.join(", ")}</Helper
         >
       {/if}
       {#if credentials.password.length && !hasConfirmedPassword}
@@ -173,12 +140,12 @@
       {/if}
     </div>
     <div>
-      <Label for="confirmPassword">Confirmar Senha</Label>
+      <Label for="confirmPassword">Confirmar Nova Senha</Label>
       <Input
         type={showPassword ? "text" : "password"}
         id="confirmPassword"
         name="confirmPassword"
-        placeholder="Digite sua senha novamente"
+        placeholder="Digite sua nova senha novamente"
         class="mt-2"
         bind:value={credentials.confirmPassword}
         required
@@ -211,14 +178,8 @@
 
 <style>
   form {
-    display: grid;
-    grid-template-rows: auto 1fr auto;
     height: 100%;
-    gap: 50px;
+    grid-template-rows: auto 1fr auto;
     overflow-y: auto;
-  }
-
-  #register-form-heading {
-    text-wrap: nowrap;
   }
 </style>

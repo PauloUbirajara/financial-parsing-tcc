@@ -1,11 +1,12 @@
 import AuthManager from "$lib/auth/AuthManager";
 import type {
-  ForgotPasswordCredentials,
-  LoginCredentials,
+  SendResetPasswordCredentials,
   RegisterCredentials,
 } from "../../domain/models/auth";
 import { constants } from "http2";
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
+import type { Actions } from "@sveltejs/kit";
+import type { LoginCredentials } from "../../domain/models/loginDto";
 
 export const actions: Actions = {
   login: async (event) => {
@@ -23,11 +24,10 @@ export const actions: Actions = {
     }
 
     if (response.detail) {
-      console.warn(response.detail);
       return fail(constants.HTTP_STATUS_BAD_REQUEST, {
         success: false,
         errors: {
-          detail: "Erro ao realizar login.",
+          detail: response.detail,
         },
       });
     }
@@ -59,19 +59,18 @@ export const actions: Actions = {
       });
     }
 
-    if (response.username || response.password || response.confirmPassword) {
+    if (response.username || response.password || response.email) {
       return fail(constants.HTTP_STATUS_BAD_REQUEST, {
         errors: {
           username: response.username,
+          email: response.email,
           password: response.password,
-          confirmPassword: response.confirmPassword,
         },
         success: false,
       });
     }
 
     if (response.error || response.non_field_errors) {
-      console.warn(response.error, response.non_field_errors);
       return fail(constants.HTTP_STATUS_BAD_REQUEST, {
         errors: {
           detail: "Erro ao realizar cadastro.",
@@ -86,8 +85,10 @@ export const actions: Actions = {
     };
   },
 
-  forgotPassword: async (event) => {
-    const credentials: ForgotPasswordCredentials = await event.request.json();
-    const response = await AuthManager.resetPassword(credentials);
+  "reset-password": async (event) => {
+    const credentials: SendResetPasswordCredentials =
+      await event.request.json();
+    const response = await AuthManager.sendResetPassword(credentials);
+    return { success: response, errors: {} };
   },
 };
