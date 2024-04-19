@@ -23,7 +23,7 @@
     PlusOutline,
     ExclamationCircleOutline,
   } from "flowbite-svelte-icons";
-  import { deserialize } from "$app/forms";
+  import { goto } from "$app/navigation";
 
   export let onAdd: Function;
   export let onDelete: Function;
@@ -44,11 +44,12 @@
       method: "POST",
       body: JSON.stringify({}),
     });
-    const data = deserialize(await response.text());
-    console.log({ response, data });
+    if (response.ok) {
+      goto("/api/wallets", { invalidateAll: true });
+    }
   }
 
-  let wallets = $page.data.wallets as Wallet[];
+  $: wallets = $page.data.wallets as Wallet[];
   let selectedWallet: Wallet | null;
   let searchTerm: string = "";
   $: filteredItems = wallets.filter(

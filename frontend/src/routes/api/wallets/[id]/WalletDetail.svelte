@@ -9,7 +9,7 @@
 
   export let onEdit: Function;
 
-  let wallet = $page.data.wallet;
+  $: wallet = $page.data.wallet;
 
   let fields = {
     Nome: wallet.name,

@@ -50,7 +50,7 @@ export class WalletService implements IModelService<Wallet> {
   }
 
   async deleteById(id: string): Promise<void> {
-    const url = `${this.walletsEndpoint}/${id}/delete`;
+    const url = `${this.walletsEndpoint}/${id}`;
 
     try {
       await fetch(url, {
