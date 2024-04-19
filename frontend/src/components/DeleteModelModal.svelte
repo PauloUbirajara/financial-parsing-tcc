@@ -7,7 +7,7 @@
   export let onDelete: Function;
 </script>
 
-<Modal open={showDeleteModal} size="xs" autoclose>
+<Modal open={showDeleteModal} size="xs" autoclose dismissable={false}>
   <div class="text-center">
     <ExclamationCircleOutline
       class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
