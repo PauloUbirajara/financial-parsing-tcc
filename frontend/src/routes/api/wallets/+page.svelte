@@ -1,5 +1,13 @@
 <script lang="ts">
-  import { P } from "flowbite-svelte";
+  import WalletAddDrawer from "./WalletAddDrawer.svelte";
+  import WalletList from "./WalletList.svelte";
+
+  let hideAddDrawer = true;
+  function onAdd() {
+    hideAddDrawer = false;
+  }
+  function onDelete() {}
 </script>
 
-<P>Wallets</P>
+<WalletAddDrawer bind:hideAddDrawer />
+<WalletList {onAdd} {onDelete} />

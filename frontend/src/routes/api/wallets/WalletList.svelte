@@ -16,7 +16,7 @@
     Modal,
     TextPlaceholder,
   } from "flowbite-svelte";
-  import type { Category } from "../../../domain/models/category";
+  import type { Wallet } from "../../../domain/models/wallet";
   import {
     DotsHorizontalOutline,
     TrashBinSolid,
@@ -25,30 +25,33 @@
   } from "flowbite-svelte-icons";
   import { deserialize } from "$app/forms";
 
-  let showDeleteCategoryModal = false;
+  export let onAdd: Function;
+  export let onDelete: Function;
 
-  function selectCategory(c: Category) {
-    selectedCategory = selectedCategory === c ? null : c;
+  let showDeleteWalletModal = false;
+
+  function selectWallet(w: Wallet) {
+    selectedWallet = selectedWallet === w ? null : w;
   }
 
-  async function deleteCategory() {
-    if (selectedCategory === null) {
-      console.warn("Cannot delete null category");
+  async function deleteWallet() {
+    if (selectedWallet === null) {
+      console.warn("Cannot delete null wallet");
       return;
     }
 
-    const response = await fetch(
-      `/api/categories/${selectedCategory?.id}?/delete`,
-      { method: "POST" },
-    );
+    const response = await fetch(`/api/wallets/${selectedWallet?.id}?/delete`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
     const data = deserialize(await response.text());
     console.log({ response, data });
   }
 
-  let categories = $page.data.categories as Category[];
-  let selectedCategory: Category | null;
+  let wallets = $page.data.wallets as Wallet[];
+  let selectedWallet: Wallet | null;
   let searchTerm: string = "";
-  $: filteredItems = categories.filter(
+  $: filteredItems = wallets.filter(
     (item) => item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1,
   );
 </script>
@@ -62,67 +65,67 @@
     <div class="flex items-center justify-between">
       <Input
         class="w-80"
-        placeholder="Buscar categoria por nome"
+        placeholder="Buscar carteira por nome"
         bind:value={searchTerm}
       ></Input>
       <ButtonGroup>
-        <Button color="primary">
-          <PlusOutline class="w-4 h-4 me-2" />Adicionar
+        <Button color="primary" on:click={() => onAdd()}>
+          <PlusOutline class="w-4 h-4 me-2" />
+          Adicionar
         </Button>
-        <Button color="red" class="!p-2">
-          <TrashBinSolid class="w-4 h-4 me-2" />Deletar
+        <Button disabled color="red" class="!p-2" on:click={() => onDelete()}>
+          <TrashBinSolid class="w-4 h-4 me-2" />
+          Deletar
         </Button>
       </ButtonGroup>
     </div>
     <Table divClass="relative overflow-x-auto rounded dark" hoverable={true}>
       <TableHead>
         <TableHeadCell>Nome</TableHeadCell>
+        <TableHeadCell>Descrição</TableHeadCell>
+        <TableHeadCell>Moeda</TableHeadCell>
         <TableHeadCell>Ações</TableHeadCell>
       </TableHead>
       <TableBody>
         {#each filteredItems as item}
           <TableBodyRow>
-            <TableBodyCell
-              tdClass="px-6 py-4 whitespace-nowrap font-medium w-full"
-              >{item.name}</TableBodyCell
-            >
+            <TableBodyCell>{item.name}</TableBodyCell>
+            <TableBodyCell>{item.description}</TableBodyCell>
+            <TableBodyCell>{item.currency.representation}</TableBodyCell>
             <TableBodyCell>
               <Button
                 class="!p-2 dots-menu"
                 color="alternative"
-                on:click={() => selectCategory(item)}
+                on:click={() => selectWallet(item)}
               >
                 <DotsHorizontalOutline />
               </Button>
             </TableBodyCell>
           </TableBodyRow>
         {/each}
-        <Dropdown triggeredBy=".dots-menu">
-          <DropdownItem href={`/api/categories/${selectedCategory?.id}`}
-            >Ver</DropdownItem
-          >
-          <DropdownItem href={`/api/categories/${selectedCategory?.id}/edit`}
-            >Editar</DropdownItem
-          >
-          <DropdownItem
-            slot="footer"
-            on:click={() => (showDeleteCategoryModal = true)}
-            >Apagar</DropdownItem
-          >
-        </Dropdown>
       </TableBody>
     </Table>
   </div>
 
-  <Modal open={showDeleteCategoryModal} size="xs" autoclose>
+  <Dropdown triggeredBy=".dots-menu">
+    <DropdownItem href={`/api/wallets/${selectedWallet?.id}`}>Ver</DropdownItem>
+    <DropdownItem href={`/api/wallets/${selectedWallet?.id}/edit`}>
+      Editar
+    </DropdownItem>
+    <DropdownItem slot="footer" on:click={() => (showDeleteWalletModal = true)}
+      >Apagar</DropdownItem
+    >
+  </Dropdown>
+
+  <Modal open={showDeleteWalletModal} size="xs" autoclose>
     <div class="text-center">
       <ExclamationCircleOutline
         class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
       />
       <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-        Deseja apagar a categoria "<Span>{selectedCategory?.name}</Span>"?
+        Deseja apagar a carteira "<Span>{selectedWallet?.name}</Span>"?
       </h3>
-      <Button color="red" class="me-2" on:click={() => deleteCategory()}
+      <Button color="red" class="me-2" on:click={() => deleteWallet()}
         >Sim, apagar</Button
       >
       <Button color="alternative">Não, cancelar</Button>

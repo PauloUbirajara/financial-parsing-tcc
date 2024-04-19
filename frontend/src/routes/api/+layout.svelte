@@ -3,14 +3,7 @@
   import { ListPlaceholder, P } from "flowbite-svelte";
   import Sidebar from "../../components/Sidebar.svelte";
   import { fade } from "svelte/transition";
-
-  const routes = {
-    "/api/categories": "Categorias",
-    "/api/categories/[id]": "Ver Categoria",
-    "/api/dashboard": "Dashboard",
-    "/api/wallets": "Carteiras",
-    "/api/transactions": "Transações",
-  };
+  import { routes } from "../../domain/models/routes";
 </script>
 
 <div

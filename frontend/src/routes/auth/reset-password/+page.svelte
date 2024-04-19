@@ -3,7 +3,6 @@
     Alert,
     Button,
     Heading,
-    Helper,
     Input,
     Label,
     Spinner,
@@ -112,6 +111,7 @@
   form {
     height: 100%;
     grid-template-rows: auto 1fr auto;
+    gap: 50px;
     overflow-y: auto;
   }
 </style>

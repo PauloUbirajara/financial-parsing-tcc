@@ -17,7 +17,11 @@
 
 <Navbar>
   <NavBrand href="/">
-    <img src="logo.png" class="me-3 h-6 sm:h-9" alt="Financial Parsing Logo" />
+    <img
+      src="logo.png"
+      class="me-3 h-6 sm:h-9 rounded"
+      alt="Financial Parsing Logo"
+    />
     <span
       class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
       >Financial Parsing</span

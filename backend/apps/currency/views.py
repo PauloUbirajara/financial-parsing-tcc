@@ -18,7 +18,7 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        queryset = Currency.objects.filter(user=self.request.user)
+        queryset = Currency.objects.filter()
         return queryset
 
     def list(self, request):

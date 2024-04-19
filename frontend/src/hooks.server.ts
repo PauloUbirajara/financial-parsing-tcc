@@ -1,12 +1,14 @@
 import { redirect } from "@sveltejs/kit";
-import type { LayoutServerLoad } from "./$types";
-import { constants } from "http2";
+import type { Handle, RequestEvent } from "@sveltejs/kit";
 import AuthManager from "$lib/auth/AuthManager";
+import { constants } from "http2";
 
-export const load: LayoutServerLoad = async (event) => {
+async function handleJwtAuthorization(
+  event: RequestEvent<Partial<Record<string, string>>, string | null>,
+) {
   let isAuthorized = false;
 
-  const access = event.cookies.get("accessToken");
+  let access = event.cookies.get("accessToken");
   if (access !== undefined) {
     isAuthorized = await AuthManager.validate(access);
   }
@@ -16,7 +18,8 @@ export const load: LayoutServerLoad = async (event) => {
     const newAccess = await AuthManager.refresh(refresh);
 
     if (newAccess !== null) {
-      event.cookies.set("accessToken", newAccess, { path: "/" });
+      access = newAccess;
+      event.cookies.set("accessToken", access, { path: "/" });
       isAuthorized = true;
     }
   }
@@ -33,4 +36,11 @@ export const load: LayoutServerLoad = async (event) => {
   if (isAuthorized && event.url.pathname.startsWith("/auth")) {
     redirect(constants.HTTP_STATUS_TEMPORARY_REDIRECT, "/api/dashboard");
   }
+}
+
+export const handle: Handle = async ({ event, resolve }) => {
+  await handleJwtAuthorization(event);
+
+  const response = await resolve(event);
+  return response;
 };

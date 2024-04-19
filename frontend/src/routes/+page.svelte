@@ -1,13 +1,12 @@
 <script lang="ts">
-  import Navbar from "$components/Navbar.svelte";
-  import Footer from "$components/Footer.svelte";
-  import type { PageData } from "./$types";
+  import { page } from "$app/stores";
+  import Footer from "../components/Footer.svelte";
+  import Navbar from "../components/Navbar.svelte";
 
-  export let data: PageData;
-  $: isLogged = data.isLogged;
+  $: isLogged = $page.data.isLogged;
 </script>
 
-<main>
+<main class="min-h-screen">
   <!-- Navbar -->
   <Navbar {isLogged} />
 
@@ -29,7 +28,6 @@
 
 <style>
   main {
-    height: 100%;
     display: grid;
     grid-template-rows: auto repeat(3, 1fr) auto;
   }

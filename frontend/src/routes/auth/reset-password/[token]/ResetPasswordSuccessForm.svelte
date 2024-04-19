@@ -19,6 +19,7 @@
 <style>
   #reset-password-success-container {
     height: 100%;
+    gap: 50px;
     grid-template-rows: auto 1fr auto;
   }
 </style>

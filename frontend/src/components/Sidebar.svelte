@@ -4,21 +4,12 @@
     Button,
     CloseButton,
     Sidebar,
-    SidebarDropdownItem,
-    SidebarDropdownWrapper,
     SidebarGroup,
     SidebarItem,
     SidebarWrapper,
   } from "flowbite-svelte";
   import {
     ChartPieSolid,
-    CartSolid,
-    GridSolid,
-    MailBoxSolid,
-    UsersSolid,
-    ShoppingBagSolid,
-    ArrowRightToBracketOutline,
-    EditOutline,
     BarsOutline,
     WalletSolid,
     FileChartBarSolid,
@@ -34,7 +25,10 @@
   };
 </script>
 
-<Button class="!p-2" on:click={() => (hideSidebar = false)}>
+<Button
+  class="!p-2 bg-custom-foreground"
+  on:click={() => (hideSidebar = false)}
+>
   <BarsOutline class="w-6 h-6" /></Button
 >
 <Drawer

@@ -2,7 +2,10 @@
   import { Card } from "flowbite-svelte";
 </script>
 
-<div class="h-full p-5 flex flex-col justify-center" id="reset-password-layout">
+<div
+  class="min-h-screen p-5 flex flex-col justify-center"
+  id="reset-password-layout"
+>
   <Card size="lg" class="max-h-[700px] h-full">
     <slot />
   </Card>

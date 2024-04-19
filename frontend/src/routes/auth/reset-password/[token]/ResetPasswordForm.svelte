@@ -140,7 +140,7 @@
       {/if}
     </div>
     <div>
-      <Label for="confirmPassword">Confirmar Nova Senha</Label>
+      <Label for="confirmPassword">Confirme a nova senha</Label>
       <Input
         type={showPassword ? "text" : "password"}
         id="confirmPassword"
@@ -180,6 +180,7 @@
   form {
     height: 100%;
     grid-template-rows: auto 1fr auto;
+    gap: 50px;
     overflow-y: auto;
   }
 </style>

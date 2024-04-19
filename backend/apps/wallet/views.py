@@ -27,7 +27,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        queryset = Wallet.objects.filter(user=self.request.user)
+        queryset = Wallet.objects.filter()
         return queryset
 
     def get_serializer_class(self):
@@ -80,8 +80,6 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             return Response(data=serializer.data)
 
         currency = serializer.validated_data.get("currency")
-        if currency.user != request.user:
-            return Response(status=HTTPStatus.BAD_REQUEST)
 
         wallet.currency = currency
 
@@ -95,11 +93,6 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
         if not serializer.is_valid():
             return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
-
-        currency = serializer.validated_data.get("currency")
-        if currency.user != request.user:
-            error = {"error": "Não foi possível encontrar moeda."}
-            return Response(status=HTTPStatus.NOT_FOUND, data=error)
 
         wallet = {
             **serializer.validated_data,
