@@ -2,4 +2,12 @@
   import "../app.pcss";
 </script>
 
-<slot />
+<div class="bg-custom-background" id="main-layout">
+  <slot />
+</div>
+
+<style>
+  #main-layout {
+    min-height: 100%;
+  }
+</style>

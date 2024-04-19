@@ -10,7 +10,8 @@
 
 <style>
   #register-layout {
-    background-image: url("/auth/register.jpg");
-    background-size: cover;
+    background:
+      linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+      url("/auth/register.jpg") fixed no-repeat center/cover;
   }
 </style>
