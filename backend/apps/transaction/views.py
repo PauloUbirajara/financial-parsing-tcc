@@ -22,8 +22,7 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             raise NotAuthenticated()
 
         queryset = Transaction.objects.filter(user=self.request.user)
-        paginated_queryset = self.paginate_queryset(queryset)
-        return paginated_queryset or queryset
+        return queryset
 
     def get_serializer_class(self):
         supported_serializers = {
@@ -38,8 +37,9 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
     def list(self, request):
         transactions = self.get_queryset()
+        paginated_queryset = self.paginate_queryset(transactions)
         serializer_class = self.get_serializer_class()
-        serializer = serializer_class(transactions, many=True)
+        serializer = serializer_class(paginated_queryset, many=True)
         return Response(data=serializer.data)
 
     def retrieve(self, request, pk):

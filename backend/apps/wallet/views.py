@@ -28,8 +28,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             raise NotAuthenticated()
 
         queryset = Wallet.objects.filter(user=self.request.user)
-        paginated_queryset = self.paginate_queryset(queryset)
-        return paginated_queryset or queryset
+        return queryset
 
     def get_serializer_class(self):
         supported_serializers = {
@@ -44,8 +43,9 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
     def list(self, request):
         wallets = self.get_queryset()
+        paginated_queryset = self.paginate_queryset(wallets)
         serializer_class = self.get_serializer_class()
-        serializer = serializer_class(wallets, many=True)
+        serializer = serializer_class(paginated_queryset, many=True)
         return Response(data=serializer.data)
 
     def retrieve(self, request, pk):
