@@ -6,8 +6,7 @@
   function onAdd() {
     hideAddDrawer = false;
   }
-  function onDelete() {}
 </script>
 
 <WalletAddDrawer bind:hideAddDrawer />
-<WalletList {onAdd} {onDelete} />
+<WalletList {onAdd} />
