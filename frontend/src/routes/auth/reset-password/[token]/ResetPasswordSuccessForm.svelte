@@ -12,7 +12,6 @@
   >
   <div class="flex flex-col gap-4">
     <P>Sua senha foi redefinida com sucesso!</P>
-    <P>Você já pode a sua nova senha para acessar nossa plataforma.</P>
   </div>
   <Button href="/auth/login">Ir à tela de login</Button>
 </div>

@@ -19,5 +19,6 @@ export interface IJWTAuth {
   resetPassword(
     credentials: ResetPasswordCredentials,
   ): Promise<ResetPasswordResponse>;
-  validate(accessToken: string): Promise<void>;
+  validate(accessToken: string): Promise<boolean>;
+  refresh(refreshToken: string): Promise<string | null>;
 }

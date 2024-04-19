@@ -11,6 +11,16 @@ export const load: LayoutServerLoad = async (event) => {
     isAuthorized = await AuthManager.validate(access);
   }
 
+  const refresh = event.cookies.get("refreshToken");
+  if (refresh !== undefined && !isAuthorized) {
+    const newAccess = await AuthManager.refresh(refresh);
+
+    if (newAccess !== null) {
+      event.cookies.set("accessToken", newAccess, { path: "/" });
+      isAuthorized = true;
+    }
+  }
+
   if (!isAuthorized) {
     event.cookies.delete("accessToken", { path: "/" });
     event.cookies.delete("refreshToken", { path: "/" });

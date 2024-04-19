@@ -49,12 +49,20 @@ class AuthManager {
 
   async validate(accessToken: string): Promise<boolean> {
     try {
-      await this.jwtAuth.validate(accessToken);
-      return true;
+      return await this.jwtAuth.validate(accessToken);
     } catch (e) {
       console.warn("Error when validating user", e);
     }
     return false;
+  }
+
+  async refresh(refreshToken: string): Promise<string | null> {
+    try {
+      return await this.jwtAuth.refresh(refreshToken);
+    } catch (e) {
+      console.warn("Error when refreshing user", e);
+    }
+    return null;
   }
 }
 

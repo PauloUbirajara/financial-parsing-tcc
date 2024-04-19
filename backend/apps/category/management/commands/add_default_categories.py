@@ -1,24 +1,19 @@
 import logging
 
-from django.apps import apps
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
 from apps.category.models import Category
-
-Currency = apps.get_model("currency", "Currency")
 
 
 def create_default_categories(user: User):
     default_categories = (
         "Renda",
         "Despesa",
-        "Orçamento",
-        "Investimento",
-        "Dívida",
-        "Recorrente",
-        "Transferência",
-        "Diversos",
+        "Alimentação",
+        "Lazer",
+        "Compras",
+        "Outros",
     )
     for category in default_categories:
         try:

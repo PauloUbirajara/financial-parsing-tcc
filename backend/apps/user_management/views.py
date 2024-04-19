@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -45,18 +46,28 @@ class UserActivationView(APIView):
             )
 
         # Activate user account and remove token
-        user = user_management.user
-        user.is_active = True
-        user.save()
-        user_management.delete()
+        try:
+            with transaction.atomic():
+                user = user_management.user
+                user.is_active = True
+                user.save()
+                user_management.delete()
 
-        # Create default categories and wallet per user
-        call_command("add_default_categories", user.id)
-        call_command("add_default_wallet", user.id)
+                # Create default categories and wallet per user
+                call_command("add_default_categories", user.id)
+                call_command("add_default_wallet", user.id)
+
+            return Response(
+                {"detail": "Ativação de conta realizada com sucesso."},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            print("Error when activating account", e)
+            transaction.set_rollback(True)
 
         return Response(
-            {"detail": "Ativação de conta realizada com sucesso."},
-            status=status.HTTP_200_OK,
+            {"detail": "Erro durante a ativação da conta."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
@@ -120,17 +131,27 @@ class PasswordResetView(APIView):
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Reset password
-        user = user_management.user
-        new_password = serializer.validated_data.get("password")
-        user.set_password(new_password)
-        user.save()
+        try:
+            with transaction.atomic():
+                user = user_management.user
+                new_password = serializer.validated_data.get("password")
+                user.set_password(new_password)
+                user.save()
 
-        # Delete the used token
-        user_management.delete()
+                # Delete the used token
+                user_management.delete()
+
+            return Response(
+                {"detail": "Redefinição de senha realizada com sucesso."},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            print("Error when resetting password", e)
+            transaction.set_rollback(True)
 
         return Response(
-            {"detail": "Redefinição de senha realizada com sucesso."},
-            status=status.HTTP_200_OK,
+            {"detail": "Erro durante a redefinição de senha."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
@@ -154,26 +175,40 @@ class UserRegistrationView(APIView):
                 {"error": "E-mail já cadastrado."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Create the user
-        password = make_password(serializer.validated_data.get("password"))
-        user = User.objects.create(username=username, email=email, password=password)
+        try:
+            with transaction.atomic():
+                # Create the user
+                password = make_password(serializer.validated_data.get("password"))
+                user = User.objects.create(
+                    username=username, email=email, password=password, is_active=False
+                )
 
-        # Send activation email
-        user_management = UserManagement.objects.create(user=user)
-        activation_token = user_management.token
-        activation_link = request.build_absolute_uri(
-            reverse("user-activate", kwargs={"activation_token": activation_token})
-        )
+                # Send activation email
+                user_management = UserManagement.objects.create(user=user)
+                activation_token = user_management.token
+                activation_link = request.build_absolute_uri(
+                    reverse(
+                        "user-activate", kwargs={"activation_token": activation_token}
+                    )
+                )
 
-        send_email: SendEmail = DjangoSendEmail(user=user)
-        send_activate_account: SendActivateAccount = DjangoEmailSendActivateAccount(
-            activation_link=activation_link, send_email=send_email
-        )
-        send_activate_account.send()
+            send_email: SendEmail = DjangoSendEmail(user=user)
+            send_activate_account: SendActivateAccount = DjangoEmailSendActivateAccount(
+                activation_link=activation_link, send_email=send_email
+            )
+            send_activate_account.send()
+
+            return Response(
+                {
+                    "detail": "Usuário cadastrado com sucesso. Confirme a sua conta através do link que enviamos para o seu e-mail."
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except Exception as e:
+            print("Error when registering user", e)
+            transaction.set_rollback(True)
 
         return Response(
-            {
-                "detail": "Usuário cadastrado com sucesso. Confirme a sua conta através do link que enviamos para o seu e-mail."
-            },
-            status=status.HTTP_201_CREATED,
+            {"detail": "Erro durante o cadastro do usuário."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

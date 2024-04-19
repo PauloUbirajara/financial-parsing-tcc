@@ -35,3 +35,5 @@ class UserPasswordResetSerializer(serializers.Serializer):
         password = attrs.get("password")
 
         validate_password(password)
+
+        return attrs

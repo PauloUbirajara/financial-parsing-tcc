@@ -12,6 +12,7 @@ import type {
 } from "../../domain/models/registerDto";
 import type { SendResetPasswordCredentials } from "../../domain/models/sendResetPasswordDto";
 import type { IJWTAuth } from "../../protocols/jwtAuth";
+import { constants } from "http2";
 
 class BackendJWTAuth implements IJWTAuth {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
@@ -111,15 +112,11 @@ class BackendJWTAuth implements IJWTAuth {
     return {};
   }
 
-  async validate(accessToken: string | undefined): Promise<void> {
+  async validate(accessToken: string): Promise<boolean> {
     const url = import.meta.env.VITE_AUTH_VALIDATION_URL;
 
     if (url === undefined) {
       return Promise.reject("URL para validação de usuário não definida.");
-    }
-
-    if (accessToken === undefined) {
-      return Promise.reject("Token de acesso não definido.");
     }
 
     const response = await fetch(url, {
@@ -130,11 +127,32 @@ class BackendJWTAuth implements IJWTAuth {
       body: JSON.stringify({ token: accessToken }),
     });
 
-    if (!response.ok) {
-      return Promise.reject("Usuário não autorizado.");
+    if (response.status === constants.HTTP_STATUS_UNAUTHORIZED) {
+      return false;
     }
 
-    return;
+    return response.status === constants.HTTP_STATUS_OK;
+  }
+
+  async refresh(refreshToken: string): Promise<string | null> {
+    const url = import.meta.env.VITE_AUTH_REFRESH_TOKEN_URL;
+
+    if (url === undefined) {
+      return Promise.reject("URL para validação de usuário não definida.");
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    const json = await response.json();
+    const newAccess = json["access"] || null;
+
+    return newAccess;
   }
 }
 
