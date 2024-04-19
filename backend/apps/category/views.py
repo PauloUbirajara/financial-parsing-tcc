@@ -7,14 +7,19 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.category import serializers
 from apps.category.models import Category
+from domain.models.model_pagination import ModelPagination
 
 
 class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
+    pagination_class = ModelPagination
+
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        return Category.objects.filter(user=self.request.user)
+        queryset = Category.objects.filter(user=self.request.user)
+        paginated_queryset = self.paginate_queryset(queryset)
+        return paginated_queryset or queryset
 
     def get_serializer_class(self):
         supported_serializers = {

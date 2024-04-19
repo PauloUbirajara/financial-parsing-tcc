@@ -9,16 +9,21 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.transaction import serializers
 from apps.transaction.models import Transaction
+from domain.models.model_pagination import ModelPagination
 
 Wallet = apps.get_model("wallet", "wallet")
 
 
 class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
+    pagination_class = ModelPagination
+
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        return Transaction.objects.filter(user=self.request.user)
+        queryset = Transaction.objects.filter(user=self.request.user)
+        paginated_queryset = self.paginate_queryset(queryset)
+        return paginated_queryset or queryset
 
     def get_serializer_class(self):
         supported_serializers = {

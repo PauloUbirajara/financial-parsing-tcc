@@ -14,17 +14,22 @@ from data.usecases.export_model_to_format.export_wallet_to_html import (
     ExportWalletToHTML,
 )
 from data.usecases.export_model_to_format.export_wallet_to_pdf import ExportWalletToPDF
+from domain.models.model_pagination import ModelPagination
 from domain.usecases.export_model_to_format import ExportModelToFormat
 
 Currency = apps.get_model("currency", "Currency")
 
 
 class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
+    pagination_class = ModelPagination
+
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        return Wallet.objects.filter(user=self.request.user)
+        queryset = Wallet.objects.filter(user=self.request.user)
+        paginated_queryset = self.paginate_queryset(queryset)
+        return paginated_queryset or queryset
 
     def get_serializer_class(self):
         supported_serializers = {

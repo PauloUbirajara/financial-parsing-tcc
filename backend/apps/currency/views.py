@@ -7,16 +7,20 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.currency import serializers
 from apps.currency.models import Currency
+from domain.models.model_pagination import ModelPagination
 
 
 class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
     serializer_class = serializers.CurrencySerializer
+    pagination_class = ModelPagination
 
     def get_queryset(self):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        return Currency.objects.filter(user=self.request.user)
+        queryset = Currency.objects.filter(user=self.request.user)
+        paginated_queryset = self.paginate_queryset(queryset)
+        return paginated_queryset or queryset
 
     def list(self, request):
         currencies = self.get_queryset()
