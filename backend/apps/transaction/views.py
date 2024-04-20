@@ -9,6 +9,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.transaction import serializers
 from apps.transaction.models import Transaction
+from domain.models.bulk_delete_serializer import BulkDeleteSerializer
 from domain.models.model_pagination import ModelPagination
 
 Wallet = apps.get_model("wallet", "wallet")
@@ -27,6 +28,7 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
     def get_serializer_class(self):
         supported_serializers = {
             "list": serializers.ListTransactionSerializer,
+            "bulk_delete": BulkDeleteSerializer,
         }
         serializer_class = supported_serializers.get(
             self.action, serializers.get_transaction_serializer(user=self.request.user)
@@ -106,6 +108,16 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
         return Response(data=serializer.data, status=HTTPStatus.CREATED)
 
-    @action(methods=["POST"], detail=True)
-    def set_categories(self, request, pk=None, *args, **kwargs):
+    @action(methods=["POST"], detail=False)
+    def bulk_delete(self, request, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
+
+        self.get_queryset().filter(
+            id__in=serializer.validated_data.get("ids", [])
+        ).delete()
+
         return Response(status=HTTPStatus.OK)

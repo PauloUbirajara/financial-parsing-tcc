@@ -8,6 +8,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.category import serializers
 from apps.category.models import Category
+from domain.models.bulk_delete_serializer import BulkDeleteSerializer
 from domain.models.model_pagination import ModelPagination
 
 
@@ -22,9 +23,7 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         return queryset
 
     def get_serializer_class(self):
-        supported_serializers = {
-            "bulk_delete": serializers.BulkDeleteCategorySerializer
-        }
+        supported_serializers = {"bulk_delete": BulkDeleteSerializer}
         serializer_class = supported_serializers.get(
             self.action, serializers.CategorySerializer
         )
