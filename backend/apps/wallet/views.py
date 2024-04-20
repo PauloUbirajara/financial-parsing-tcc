@@ -21,6 +21,7 @@ Currency = apps.get_model("currency", "Currency")
 
 
 class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
+    serializer_class = serializers.WalletSerializer
     pagination_class = ModelPagination
 
     def get_queryset(self):
@@ -32,21 +33,19 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
     def get_serializer_class(self):
         supported_serializers = {
-            "create": serializers.CreateWalletSerializer,
-            "update": serializers.UpdateWalletSerializer,
+            "list": serializers.ListWalletSerializer,
         }
         serializer_class = supported_serializers.get(
             self.action, serializers.WalletSerializer
         )
-
         return serializer_class
 
-    def list(self, request):
-        wallets = self.get_queryset()
-        paginated_queryset = self.paginate_queryset(wallets)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        paginated_queryset = self.paginate_queryset(queryset)
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(paginated_queryset, many=True)
-        return Response(data=serializer.data)
+        return self.paginator.get_paginated_response(serializer.data)
 
     def retrieve(self, request, pk):
         wallet = self.get_queryset().filter(id=pk).first()
