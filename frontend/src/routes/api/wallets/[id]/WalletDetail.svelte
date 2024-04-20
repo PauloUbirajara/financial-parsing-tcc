@@ -9,14 +9,16 @@
   import DeleteModelModal from "../../../../components/DeleteModelModal.svelte";
   import { goto } from "$app/navigation";
 
-  export let onEdit: Function;
+  function onEdit() {
+    goto(`/api/wallets/${wallet.id}/edit`);
+  }
 
   let wallet = $page.data.wallet;
   let showDeleteWalletModal: boolean = false;
 
   let fields = {
     Nome: wallet.name,
-    Descrição: wallet.description,
+    Descrição: wallet.description || "-",
     Moeda: `${wallet.currency.name} (${wallet.currency.representation})`,
   };
 

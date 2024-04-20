@@ -45,8 +45,32 @@ export class WalletService implements IModelService<Wallet> {
     return null;
   }
 
-  updateById(id: string, updated: Record<any, any>): Promise<Wallet> {
-    throw new Error("Method not implemented.");
+  async updateById(id: string, updated: Record<any, any>): Promise<Wallet> {
+    const url = `${this.walletsEndpoint}/${id}/`;
+
+    try {
+      const updatedWallet = {
+        name: updated["name"],
+        description: updated["description"],
+        currency: updated["currency"],
+      };
+      const response = await fetch(url, {
+        headers: this.headers,
+        method: "PUT",
+        body: JSON.stringify(updatedWallet),
+      });
+      if (!response.ok) {
+        return Promise.reject(
+          "Não foi possível editar carteira por fornecer campos inválidos.",
+        );
+      }
+      const data = await response.json();
+      return data;
+    } catch (e) {
+      console.warn("Error when updating wallet by id", e);
+    }
+
+    return Promise.reject("Não foi possível editar carteira.");
   }
 
   async deleteById(id: string): Promise<void> {

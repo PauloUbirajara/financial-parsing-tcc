@@ -4,6 +4,7 @@ export const routes = {
   "/api/dashboard": "Dashboard",
   "/api/wallets": "Carteiras",
   "/api/wallets/[id]": "Ver Carteira",
+  "/api/wallets/[id]/edit": "Editar Carteira",
   "/api/transactions": "Transações",
   "/api/transactions/[id]": "Ver Transação",
 };
