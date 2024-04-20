@@ -7,8 +7,8 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 
-from apps.transaction.serializers import TransactionSerializer
-from apps.wallet.serializers import WalletSerializer
+from apps.transaction.serializers import ListTransactionSerializer
+from apps.wallet.serializers import ListWalletSerializer
 from domain.usecases.export_model_to_format import ExportModelToFormat
 
 Transaction = apps.get_model("transaction", "Transaction")
@@ -27,8 +27,8 @@ class ExportWalletToPDF(ExportModelToFormat):
         transactions = Transaction.objects.filter(wallet=model)
 
         context = {
-            "wallet": WalletSerializer(model).data,
-            "transactions": TransactionSerializer(transactions, many=True).data,
+            "wallet": ListWalletSerializer(model).data,
+            "transactions": ListTransactionSerializer(transactions, many=True).data,
             "total": sum(t.value for t in transactions),
         }
         html = template.render(context)

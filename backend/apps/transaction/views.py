@@ -26,21 +26,19 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
     def get_serializer_class(self):
         supported_serializers = {
-            "create": serializers.CreateTransactionSerializer,
-            "update": serializers.UpdateTransactionSerializer,
+            "list": serializers.ListTransactionSerializer,
         }
         serializer_class = supported_serializers.get(
-            self.action, serializers.TransactionSerializer
+            self.action, serializers.get_transaction_serializer(user=self.request.user)
         )
-
         return serializer_class
 
-    def list(self, request):
-        transactions = self.get_queryset()
-        paginated_queryset = self.paginate_queryset(transactions)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        paginated_queryset = self.paginate_queryset(queryset)
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(paginated_queryset, many=True)
-        return Response(data=serializer.data)
+        return self.paginator.get_paginated_response(serializer.data)
 
     def retrieve(self, request, pk):
         transaction = self.get_queryset().filter(id=pk).first()
@@ -76,10 +74,7 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         transaction.categories.set(
             serializer.validated_data.get("categories", transaction.categories)
         )
-
-        transaction.wallet = Wallet.objects.get_or_404(
-            id=serializer.validated_data.get("wallet_id")
-        )
+        transaction.wallet = serializer.validated_data.get("wallet", transaction.wallet)
 
         transaction.save()
 

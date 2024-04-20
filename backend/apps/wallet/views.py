@@ -9,11 +9,12 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.wallet import serializers
 from apps.wallet.models import Wallet
-from data.usecases.export_model_to_format.export_wallet_to_csv import ExportWalletToCSV
-from data.usecases.export_model_to_format.export_wallet_to_html import (
-    ExportWalletToHTML,
-)
-from data.usecases.export_model_to_format.export_wallet_to_pdf import ExportWalletToPDF
+from data.usecases.export_model_to_format.export_wallet_to_csv import \
+    ExportWalletToCSV
+from data.usecases.export_model_to_format.export_wallet_to_html import \
+    ExportWalletToHTML
+from data.usecases.export_model_to_format.export_wallet_to_pdf import \
+    ExportWalletToPDF
 from domain.models.model_pagination import ModelPagination
 from domain.usecases.export_model_to_format import ExportModelToFormat
 
@@ -21,7 +22,6 @@ Currency = apps.get_model("currency", "Currency")
 
 
 class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
-    serializer_class = serializers.WalletSerializer
     pagination_class = ModelPagination
 
     def get_queryset(self):
