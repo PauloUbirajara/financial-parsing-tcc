@@ -12,6 +12,7 @@ from domain.models.model_pagination import ModelPagination
 
 class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
     pagination_class = ModelPagination
+    serializer_class = serializers.CategorySerializer
 
     def get_queryset(self):
         if not self.request.user.is_authenticated:
@@ -20,25 +21,15 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         queryset = Category.objects.filter(user=self.request.user)
         return queryset
 
-    def get_serializer_class(self):
-        supported_serializers = {
-            "create": serializers.CreateCategorySerializer,
-            "update": serializers.UpdateCategorySerializer,
-        }
-        serializer_class = supported_serializers.get(
-            self.action, serializers.CategorySerializer
-        )
-
-        return serializer_class
-
-    def list(self, request):
-        categories = self.get_queryset()
-        paginated_queryset = self.paginate_queryset(categories)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        paginated_queryset = self.paginate_queryset(queryset)
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(paginated_queryset, many=True)
-        return Response(data=serializer.data)
+        return self.paginator.get_paginated_response(serializer.data)
 
-    def retrieve(self, request, pk):
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
         category = self.get_queryset().filter(id=pk).first()
 
         if category is None:
@@ -49,7 +40,8 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
         return Response(data=serializer.data)
 
-    def update(self, request, pk, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
         category: Category = self.get_queryset().filter(id=pk).first()
 
         if category is None:
