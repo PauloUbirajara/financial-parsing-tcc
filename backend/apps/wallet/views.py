@@ -9,12 +9,12 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from apps.wallet import serializers
 from apps.wallet.models import Wallet
-from data.usecases.export_model_to_format.export_wallet_to_csv import \
-    ExportWalletToCSV
-from data.usecases.export_model_to_format.export_wallet_to_html import \
-    ExportWalletToHTML
-from data.usecases.export_model_to_format.export_wallet_to_pdf import \
-    ExportWalletToPDF
+from data.usecases.export_model_to_format.export_wallet_to_csv import ExportWalletToCSV
+from data.usecases.export_model_to_format.export_wallet_to_html import (
+    ExportWalletToHTML,
+)
+from data.usecases.export_model_to_format.export_wallet_to_pdf import ExportWalletToPDF
+from domain.models.bulk_delete_serializer import BulkDeleteSerializer
 from domain.models.model_pagination import ModelPagination
 from domain.usecases.export_model_to_format import ExportModelToFormat
 
@@ -34,6 +34,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
     def get_serializer_class(self):
         supported_serializers = {
             "list": serializers.ListWalletSerializer,
+            "bulk_delete": BulkDeleteSerializer,
         }
         serializer_class = supported_serializers.get(
             self.action, serializers.WalletSerializer
@@ -120,3 +121,17 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             return Response(status=HTTPStatus.BAD_REQUEST, data=error)
 
         return wallet_export_usecase.export(model=wallet)
+
+    @action(methods=["POST"], detail=False)
+    def bulk_delete(self, request, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
+
+        self.get_queryset().filter(
+            id__in=serializer.validated_data.get("ids", [])
+        ).delete()
+
+        return Response(status=HTTPStatus.OK)
