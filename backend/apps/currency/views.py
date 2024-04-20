@@ -21,14 +21,15 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         queryset = Currency.objects.filter()
         return queryset
 
-    def list(self, request):
-        currencies = self.get_queryset()
-        paginated_queryset = self.paginate_queryset(currencies)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        paginated_queryset = self.paginate_queryset(queryset)
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(paginated_queryset, many=True)
-        return Response(data=serializer.data)
+        return self.paginator.get_paginated_response(serializer.data)
 
-    def retrieve(self, request, pk):
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
         currency = self.get_queryset().filter(id=pk).first()
 
         if currency is None:
