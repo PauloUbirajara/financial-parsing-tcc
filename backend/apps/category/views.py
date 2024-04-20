@@ -50,16 +50,16 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         return Response(data=serializer.data)
 
     def update(self, request, pk, *args, **kwargs):
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(data=request.data)
-
-        if not serializer.is_valid():
-            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
-
         category: Category = self.get_queryset().filter(id=pk).first()
 
         if category is None:
             return Response(status=HTTPStatus.NOT_FOUND)
+
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(category, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
         category.name = serializer.validated_data.get("name", category.name)
 

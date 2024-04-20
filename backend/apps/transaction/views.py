@@ -54,16 +54,16 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         return Response(data=serializer.data)
 
     def update(self, request, pk, *args, **kwargs):
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(data=request.data)
-
-        if not serializer.is_valid():
-            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
-
         transaction: Transaction = self.get_queryset().filter(id=pk).first()
 
         if transaction is None:
             return Response(status=HTTPStatus.NOT_FOUND)
+
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(transaction, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
 
         transaction.name = serializer.validated_data.get("name", transaction.name)
         transaction.description = serializer.validated_data.get(
@@ -77,18 +77,9 @@ class TransactionViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
             serializer.validated_data.get("categories", transaction.categories)
         )
 
-        if not serializer.validated_data.get("wallet_id"):
-            transaction.save()
-            return Response(data=serializer.data)
-
-        wallet = Wallet.objects.filter(
+        transaction.wallet = Wallet.objects.get_or_404(
             id=serializer.validated_data.get("wallet_id")
-        ).first()
-
-        if wallet is None:
-            return Response(status=HTTPStatus.BAD_REQUEST)
-
-        transaction.wallet = wallet
+        )
 
         transaction.save()
 
