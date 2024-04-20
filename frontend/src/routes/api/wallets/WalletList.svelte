@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { navigating, page } from "$app/stores";
-  import { Dropdown, DropdownItem, TextPlaceholder } from "flowbite-svelte";
-  import type { Wallet } from "../../../domain/models/wallet";
+  import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import DeleteModelModal from "../../../components/DeleteModelModal.svelte";
-  import ModelList from "../../../components/ModelList.svelte";
+
+  import type { IModelListInfo } from "../../../domain/usecases/modelListInfo";
+  import type { Wallet } from "../../../domain/models/wallet";
+  import ModelList from "../../../components/model/ModelList.svelte";
+  import walletModelListInfo from "../../../data/usecases/modelListInfo/wallet";
 
   export let onAdd: Function;
-
-  let showDeleteWalletModal = false;
 
   async function onDelete() {
     if (selectedWallet === null) {
@@ -25,48 +24,28 @@
     }
   }
 
-  $: wallets = $page.data.wallets as Wallet[];
+  // $: wallets = $page.data.wallets.results;
+  let wallets = $page.data.wallets.results;
   let selectedWallet: Wallet | null;
   let searchTerm: string = "";
   $: filteredItems = wallets.filter(
-    (item) => item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1,
+    (item: Wallet) =>
+      item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1,
   );
   let fields = {
     Nome: (w: Wallet) => w.name,
     Descrição: (w: Wallet) => w.description,
     Moeda: (w: Wallet) => w.currency.representation,
   };
+  let modelListInfo: IModelListInfo = walletModelListInfo;
 </script>
 
-{#if $navigating}
-  <TextPlaceholder
-    divClass="space-y-2.5 animate-pulse w-full mx-auto container"
-  />
-{:else}
-  <ModelList
-    {onAdd}
-    {onDelete}
-    {fields}
-    bind:searchTerm
-    bind:selectedModel={selectedWallet}
-    bind:filteredItems
-  />
-
-  <Dropdown triggeredBy=".dots-menu">
-    <DropdownItem href={`/api/wallets/${selectedWallet?.id}`}>Ver</DropdownItem>
-    <DropdownItem href={`/api/wallets/${selectedWallet?.id}/edit`}>
-      Editar
-    </DropdownItem>
-    <DropdownItem slot="footer" on:click={() => (showDeleteWalletModal = true)}>
-      Apagar
-    </DropdownItem>
-  </Dropdown>
-
-  {#if selectedWallet !== null}
-    <DeleteModelModal
-      bind:showDeleteModal={showDeleteWalletModal}
-      title={`Deseja apagar a carteira "${selectedWallet?.name}"?`}
-      {onDelete}
-    />
-  {/if}
-{/if}
+<ModelList
+  {onAdd}
+  {onDelete}
+  {searchTerm}
+  {fields}
+  {filteredItems}
+  {modelListInfo}
+  selectedModel={selectedWallet}
+/>

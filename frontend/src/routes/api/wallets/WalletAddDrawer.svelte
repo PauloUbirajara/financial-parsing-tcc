@@ -1,20 +1,21 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import {
-    Drawer,
     Button,
     CloseButton,
-    Label,
+    Drawer,
     Input,
-    Textarea,
+    Label,
     Select,
+    Textarea,
   } from "flowbite-svelte";
   import { InfoCircleSolid, PlusOutline } from "flowbite-svelte-icons";
   import { sineIn } from "svelte/easing";
+  import type { Currency } from "../../../domain/models/currency";
 
   export let hideAddDrawer: boolean = true;
 
-  let currencies = $page.data.currencies;
+  let currencies = $page.data.currencies.results as Currency[];
   let transitionParams = {
     x: 320,
     duration: 200,

@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { navigating, page } from "$app/stores";
-  import { ListPlaceholder, P } from "flowbite-svelte";
-  import Sidebar from "../../components/Sidebar.svelte";
   import { fade } from "svelte/transition";
-  import { routes } from "../../domain/models/routes";
+  import { ListPlaceholder, P } from "flowbite-svelte";
+  import { navigating, page } from "$app/stores";
+
+  import Sidebar from "../../components/Sidebar.svelte";
+  import { routes } from "../../constants/routes";
 </script>
 
 <div

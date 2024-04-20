@@ -1,16 +1,26 @@
-import { CurrencyService } from "../../../services/currencyService";
-import { WalletService } from "../../../services/walletService";
+import type { Currency } from "../../../domain/models/currency";
+import type { Wallet } from "../../../domain/models/wallet";
+import { CurrencyRepository } from "../../../repositories/currencyRepository";
+import { WalletRepository } from "../../../repositories/walletRepository";
 
 import type { PageServerLoad } from "./$types";
 import type { Actions } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async (event) => {
-  const walletService = new WalletService(event.cookies);
-  const currencyService = new CurrencyService(event.cookies);
+  const walletRepository = new WalletRepository(event.cookies);
+  const currencyRepository = new CurrencyRepository(event.cookies);
+
+  let page: number = Number(event.url.searchParams.get("page") || 1);
+  if (isNaN(page)) {
+    page = 1;
+  }
+
+  const currencies = await currencyRepository.getAll({ page: null });
+  const wallets = await walletRepository.getAll({ page });
 
   return {
-    currencies: await currencyService.getAll(),
-    wallets: await walletService.getAll(),
+    currencies: currencies,
+    wallets: wallets,
   };
 };
 
@@ -23,7 +33,8 @@ export const actions: Actions = {
       description: data["description"],
       currency: data["currency"],
     };
-    const response = await new WalletService(event.cookies).create(wallet);
+    const walletRepository = new WalletRepository(event.cookies);
+    const response = await walletRepository.create(wallet);
     return response;
   },
 };
