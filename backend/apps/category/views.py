@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
@@ -12,7 +13,6 @@ from domain.models.model_pagination import ModelPagination
 
 class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
     pagination_class = ModelPagination
-    serializer_class = serializers.CategorySerializer
 
     def get_queryset(self):
         if not self.request.user.is_authenticated:
@@ -20,6 +20,15 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
         queryset = Category.objects.filter(user=self.request.user)
         return queryset
+
+    def get_serializer_class(self):
+        supported_serializers = {
+            "bulk_delete": serializers.BulkDeleteCategorySerializer
+        }
+        serializer_class = supported_serializers.get(
+            self.action, serializers.CategorySerializer
+        )
+        return serializer_class
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -70,3 +79,17 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         self.get_queryset().create(**category)
 
         return Response(data=serializer.data, status=HTTPStatus.CREATED)
+
+    @action(methods=["POST"], detail=False)
+    def bulk_delete(self, request, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(status=HTTPStatus.BAD_REQUEST, data=serializer.errors)
+
+        self.get_queryset().filter(
+            id__in=serializer.validated_data.get("ids", [])
+        ).delete()
+
+        return Response(status=HTTPStatus.OK)
