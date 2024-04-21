@@ -1,20 +1,24 @@
 import type { Currency } from "../../../../../domain/models/currency";
 import type { Wallet } from "../../../../../domain/models/wallet";
-import { CurrencyService } from "../../../../../services/currencyService";
-import { WalletService } from "../../../../../services/walletService";
 
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { constants } from "http2";
 import { fail, redirect } from "@sveltejs/kit";
+import { WalletRepository } from "../../../../../repositories/walletRepository";
+import { CurrencyRepository } from "../../../../../repositories/currencyRepository";
 
 export const load: PageServerLoad = async (event) => {
-  let wallet: Wallet | null = null;
-  let currencies: Currency[] | null = null;
+  let wallet;
+  let currencies;
 
   try {
-    wallet = await new WalletService(event.cookies).getById(event.params.id);
-    currencies = await new CurrencyService(event.cookies).getAll();
+    wallet = await new WalletRepository(event.cookies).getById({
+      id: event.params.id,
+    });
+    currencies = await new CurrencyRepository(event.cookies).getAll({
+      page: null,
+    });
   } catch (e) {
     console.warn("loading", wallet, e);
   }
@@ -44,6 +48,6 @@ export const actions: Actions = {
       description: data["description"],
       currency: data["currency"],
     };
-    await new WalletService(event.cookies).updateById(id, updated);
+    await new WalletRepository(event.cookies).updateById({ id, updated });
   },
 };

@@ -25,6 +25,7 @@
   } from "flowbite-svelte-icons";
   import DeleteModelModal from "./DeleteModelModal.svelte";
   import type { IModelListInfo } from "../../domain/usecases/modelListInfo";
+  import type { IModelSerializer } from "../../domain/usecases/modelSerializer";
 
   // List actions
   export let onAdd: Function;
@@ -33,7 +34,7 @@
   // List input
   export let selectedModel: Record<any, any> | null;
   export let searchTerm: string;
-  export let fields: Record<string, Function>;
+  export let serializer: IModelSerializer;
   export let filteredItems: any[];
 
   // Actions
@@ -68,7 +69,7 @@
         <TableHeadCell class="!p-4">
           <Checkbox />
         </TableHeadCell>
-        {#each Object.keys(fields) as key}
+        {#each serializer.getFields() as key}
           <TableHeadCell>{key}</TableHeadCell>
         {/each}
         <TableHeadCell>Ações</TableHeadCell>
@@ -79,16 +80,19 @@
             <TableBodyCell class="!p-4">
               <Checkbox />
             </TableBodyCell>
-            {#each Object.values(fields) as keyFn}
+            {#each Object.values(serializer.serialize(item)) as val}
               <TableBodyCell>
-                {keyFn(item)}
+                {val}
               </TableBodyCell>
             {/each}
             <TableBodyCell>
               <Button
                 class="!p-2 dots-menu"
                 color="alternative"
-                on:click={() => (selectedModel = item)}
+                on:click={() => {
+                  selectedModel = item;
+                  console.log({ selectedModel });
+                }}
               >
                 <DotsHorizontalOutline />
               </Button>
@@ -122,15 +126,20 @@
   </div>
 
   <Dropdown triggeredBy=".dots-menu">
-    <DropdownItem href={modelListInfo.getDetailUrl(selectedModel)}
-      >Ver</DropdownItem
-    >
-    <DropdownItem href={modelListInfo.getEditUrl(selectedModel)}
-      >Editar</DropdownItem
-    >
-    <DropdownItem slot="footer" on:click={() => (showDeleteModelModal = true)}>
-      Apagar
-    </DropdownItem>
+    {#if selectedModel !== null}
+      <DropdownItem href={modelListInfo.getDetailUrl(selectedModel)}>
+        Ver
+      </DropdownItem>
+      <DropdownItem href={modelListInfo.getEditUrl(selectedModel)}>
+        Editar
+      </DropdownItem>
+      <DropdownItem
+        slot="footer"
+        on:click={() => (showDeleteModelModal = true)}
+      >
+        Apagar
+      </DropdownItem>
+    {/if}
   </Dropdown>
 
   {#if selectedModel !== null}

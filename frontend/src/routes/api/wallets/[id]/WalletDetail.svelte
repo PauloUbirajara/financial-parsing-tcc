@@ -8,20 +8,17 @@
   } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
   import DeleteModelModal from "../../../../components/model/DeleteModelModal.svelte";
+  import walletSerializer from "../../../../data/usecases/modelSerializer/wallet";
+  import type { IModelSerializer } from "../../../../domain/usecases/modelSerializer";
 
   function onEdit() {
     goto(`/api/wallets/${wallet.id}/edit`);
   }
 
   let wallet = $page.data.wallet;
-  console.log({ wallet });
   let showDeleteWalletModal: boolean = false;
 
-  let fields = {
-    Nome: wallet.name,
-    Descrição: wallet.description || "-",
-    Moeda: `${wallet.currency.name} (${wallet.currency.representation})`,
-  };
+  let serializer: IModelSerializer = walletSerializer;
 
   async function onDelete() {
     const response = await fetch(`/api/wallets/${wallet.id}?/delete`, {
@@ -58,7 +55,7 @@
       </Button>
     </div>
   </div>
-  {#each Object.entries(fields) as [key, value]}
+  {#each Object.entries(serializer.serialize(wallet)) as [key, value]}
     <div class="content">
       <P>{key}</P>
       <P size="3xl" weight="semibold">{value}</P>

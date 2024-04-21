@@ -13,12 +13,12 @@
   import type { Currency } from "../../../../../domain/models/currency";
 
   let wallet: Wallet = $page.data.wallet;
+  let currencies: Currency[] = $page.data.currencies.results;
   let updated: Wallet = {
     name: wallet.name,
     currency: wallet.currency,
     description: wallet.description || "",
   };
-  let currencies: Currency[] = $page.data.currencies;
 </script>
 
 <div class="container mx-auto flex flex-col gap-4">

@@ -18,8 +18,8 @@
     <Button color="red" class="me-2" on:click={() => onDelete()}
       >Sim, apagar</Button
     >
-    <Button color="alternative" on:click={() => (showDeleteModal = false)}
-      >Não, cancelar</Button
-    >
+    <Button color="alternative" on:click={() => (showDeleteModal = false)}>
+      Não, cancelar
+    </Button>
   </div>
 </Modal>

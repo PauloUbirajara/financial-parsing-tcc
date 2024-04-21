@@ -73,16 +73,36 @@ export class WalletRepository implements IModelRepository {
     return data;
   }
 
-  updateById(
+  async updateById(
     input: UpdateModelByIdRepositoryInput,
   ): Promise<UpdateModelByIdRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/${input.id}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "PUT",
+      body: JSON.stringify(input.updated),
+    });
+
+    const data: UpdateModelByIdRepositoryResponse = await response.json();
+    return data;
   }
 
-  deleteById(
+  async deleteById(
     input: DeleteModelByIdRepositoryInput,
   ): Promise<DeleteModelByIdRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/${input.id}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      return Promise.reject(await response.json());
+    }
+
+    return;
   }
 
   bulkDelete(

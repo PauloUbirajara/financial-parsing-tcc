@@ -13,7 +13,6 @@ export const load: PageServerLoad = async (event) => {
   let wallet: any;
   try {
     wallet = await walletRepository.getById({ id: event.params.id });
-    console.log({ wallet });
   } catch (e) {
     console.warn("loading", wallet, e);
   }

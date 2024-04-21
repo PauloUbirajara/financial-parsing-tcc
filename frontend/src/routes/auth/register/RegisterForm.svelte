@@ -58,7 +58,6 @@
       });
 
       let registerResponse = deserialize(await response.text());
-      console.log({ registerResponse });
       formMessages.errors = registerResponse.data.errors;
 
       if (response.ok && registerResponse.data.success) {

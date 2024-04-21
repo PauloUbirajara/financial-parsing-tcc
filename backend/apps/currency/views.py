@@ -39,3 +39,9 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         serializer = serializer_class(currency)
 
         return Response(data=serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        return Response(status=HTTPStatus.UNAUTHORIZED)
+
+    def delete(self, request, *args, **kwargs):
+        return Response(status=HTTPStatus.UNAUTHORIZED)

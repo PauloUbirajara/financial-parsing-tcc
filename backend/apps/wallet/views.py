@@ -34,6 +34,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
     def get_serializer_class(self):
         supported_serializers = {
             "list": serializers.ListWalletSerializer,
+            "retrieve": serializers.ListWalletSerializer,
             "bulk_delete": BulkDeleteSerializer,
         }
         serializer_class = supported_serializers.get(
