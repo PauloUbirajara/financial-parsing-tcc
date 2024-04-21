@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigating } from "$app/stores";
+  import { navigating, page } from "$app/stores";
   import {
     TextPlaceholder,
     ButtonGroup,
@@ -26,6 +26,7 @@
   import DeleteModelModal from "./DeleteModelModal.svelte";
   import type { IModelListInfo } from "../../domain/usecases/modelListInfo";
   import type { IModelSerializer } from "../../domain/usecases/modelSerializer";
+  import { goto } from "$app/navigation";
 
   // List actions
   export let onAdd: Function;
@@ -42,6 +43,21 @@
 
   // Deletion modal
   let showDeleteModelModal: boolean = false;
+
+  // Pagination
+  let currentPage: number = Number($page.url.searchParams.get("page") || 1);
+  if (isNaN(currentPage) || currentPage < 0) {
+    currentPage = 1;
+  }
+  let previousLink = `/api/wallets?page=${currentPage - 1}`;
+  let nextLink = `/api/wallets?page=${currentPage + 1}`;
+
+  function goToPreviousPage() {
+    goto(previousLink);
+  }
+  function goToNextPage() {
+    goto(nextLink);
+  }
 </script>
 
 {#if $navigating}
@@ -91,7 +107,6 @@
                 color="alternative"
                 on:click={() => {
                   selectedModel = item;
-                  console.log({ selectedModel });
                 }}
               >
                 <DotsHorizontalOutline />
@@ -112,7 +127,12 @@
         resultados.
       </div>
 
-      <Pagination table large>
+      <Pagination
+        table
+        large
+        on:previous={goToPreviousPage}
+        on:next={goToNextPage}
+      >
         <span slot="prev" class="flex items-center">
           <ArrowLeftOutline class="me-2 w-5 h-5" />
           Anterior
