@@ -57,7 +57,7 @@
       }
     } catch (e: any) {
       console.warn(e);
-      formMessages.errors.detail = e.toString();
+      formMessages.errors.detail = "Houve um erro ao tentar realizar login.";
     } finally {
       loading = false;
     }
