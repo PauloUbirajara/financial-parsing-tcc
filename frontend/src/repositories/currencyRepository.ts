@@ -45,10 +45,17 @@ export class CurrencyRepository implements IModelRepository {
     return data;
   }
 
-  getById(
+  async getById(
     input: GetModelByIdRepositoryInput,
   ): Promise<GetModelByIdRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/${input.id}`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+    });
+
+    const data: GetModelByIdRepositoryResponse = await response.json();
+    return data;
   }
 
   create(

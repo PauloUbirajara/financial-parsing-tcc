@@ -1,5 +1,6 @@
 import type { Wallet } from "../../../../domain/models/wallet";
-import { WalletService } from "../../../../services/walletService";
+import { WalletRepository } from "../../../../repositories/walletRepository";
+import { CurrencyRepository } from "../../../../repositories/currencyRepository";
 
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
@@ -7,10 +8,12 @@ import { constants } from "http2";
 import { fail, redirect } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async (event) => {
-  let wallet: Wallet | null = null;
+  const walletRepository = new WalletRepository(event.cookies);
 
+  let wallet: any;
   try {
-    wallet = await new WalletService(event.cookies).getById(event.params.id);
+    wallet = await walletRepository.getById({ id: event.params.id });
+    console.log({ wallet });
   } catch (e) {
     console.warn("loading", wallet, e);
   }
@@ -32,7 +35,7 @@ export const actions: Actions = {
     }
 
     try {
-      await new WalletService(event.cookies).deleteById(id);
+      await new WalletRepository(event.cookies).deleteById({ id });
     } catch (e) {
       console.warn(e);
       return fail(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR, {

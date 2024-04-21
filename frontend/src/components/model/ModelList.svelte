@@ -14,6 +14,7 @@
     Dropdown,
     DropdownItem,
     Pagination,
+    Checkbox,
   } from "flowbite-svelte";
   import {
     ArrowLeftOutline,
@@ -64,6 +65,9 @@
     </div>
     <Table divClass="relative overflow-x-auto rounded dark" hoverable={true}>
       <TableHead>
+        <TableHeadCell class="!p-4">
+          <Checkbox />
+        </TableHeadCell>
         {#each Object.keys(fields) as key}
           <TableHeadCell>{key}</TableHeadCell>
         {/each}
@@ -72,6 +76,9 @@
       <TableBody>
         {#each filteredItems as item}
           <TableBodyRow>
+            <TableBodyCell class="!p-4">
+              <Checkbox />
+            </TableBodyCell>
             {#each Object.values(fields) as keyFn}
               <TableBodyCell>
                 {keyFn(item)}

@@ -6,14 +6,15 @@
     EditSolid,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
-  import DeleteModelModal from "../../../../components/DeleteModelModal.svelte";
   import { goto } from "$app/navigation";
+  import DeleteModelModal from "../../../../components/model/DeleteModelModal.svelte";
 
   function onEdit() {
     goto(`/api/wallets/${wallet.id}/edit`);
   }
 
   let wallet = $page.data.wallet;
+  console.log({ wallet });
   let showDeleteWalletModal: boolean = false;
 
   let fields = {

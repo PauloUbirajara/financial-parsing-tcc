@@ -45,16 +45,32 @@ export class WalletRepository implements IModelRepository {
     return data;
   }
 
-  getById(
+  async getById(
     input: GetModelByIdRepositoryInput,
   ): Promise<GetModelByIdRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/${input.id}`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+    });
+
+    const data: GetModelByIdRepositoryResponse = await response.json();
+    return data;
   }
 
-  create(
+  async create(
     input: CreateModelsRepositoryInput,
   ): Promise<CreateModelsRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+
+    const data: CreateModelsRepositoryResponse = await response.json();
+    return data;
   }
 
   updateById(
