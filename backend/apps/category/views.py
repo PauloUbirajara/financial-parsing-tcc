@@ -31,6 +31,11 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+
+        search_term = self.request.query_params.get("search")
+        if search_term:
+            queryset = queryset.filter(name__icontains=search_term)
+
         paginated_queryset = self.paginate_queryset(queryset)
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(paginated_queryset, many=True)
