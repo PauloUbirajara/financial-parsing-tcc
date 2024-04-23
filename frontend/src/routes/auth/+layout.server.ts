@@ -1,6 +1,6 @@
-import { redirect } from "@sveltejs/kit";
 import type { LayoutServerLoad } from "./$types";
 import { constants } from "http2";
+import { redirect } from "@sveltejs/kit";
 
 export const load: LayoutServerLoad = async (event) => {
   const access = event.cookies.get("accessToken");

@@ -1,7 +1,8 @@
-import { redirect } from "@sveltejs/kit";
-import type { Handle, RequestEvent } from "@sveltejs/kit";
 import AuthManager from "$lib/auth/AuthManager";
+
+import type { Handle, RequestEvent } from "@sveltejs/kit";
 import { constants } from "http2";
+import { redirect } from "@sveltejs/kit";
 
 async function handleJwtAuthorization(
   event: RequestEvent<Partial<Record<string, string>>, string | null>,

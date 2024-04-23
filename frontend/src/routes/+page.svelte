@@ -3,7 +3,7 @@
   import Footer from "../components/Footer.svelte";
   import Navbar from "../components/Navbar.svelte";
 
-  $: isLogged = $page.data.isLogged;
+  $: isLogged = Boolean($page.data.accessToken);
 </script>
 
 <main class="min-h-screen">

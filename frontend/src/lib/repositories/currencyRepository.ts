@@ -1,4 +1,3 @@
-import type { Cookies } from "@sveltejs/kit";
 import type {
   BulkDeleteModelRepositoryInput,
   BulkDeleteModelRepositoryResponse,
@@ -12,20 +11,28 @@ import type {
   GetModelByIdRepositoryResponse,
   UpdateModelByIdRepositoryInput,
   UpdateModelByIdRepositoryResponse,
-} from "../domain/models/modelRepositoryDto";
-import type { IModelRepository } from "../protocols/modelRepository";
+} from "../../domain/models/modelRepositoryDto";
+import type { IModelRepository } from "../../protocols/modelRepository";
+
+type CurrencyRepositoryDTO = {
+  accessToken: string | undefined;
+};
 
 export class CurrencyRepository implements IModelRepository {
   private headers: Record<string, any>;
   private url: string;
 
-  constructor(cookies: Cookies) {
-    const accessToken = cookies.get("accessToken");
+  constructor(input: CurrencyRepositoryDTO) {
+    if (input.accessToken === undefined) {
+      throw new Error(
+        "Could not setup currency repository due to undefined access token",
+      );
+    }
     this.url = import.meta.env.VITE_API_CURRENCIES_ENDPOINT;
 
     this.headers = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${input.accessToken}`,
     };
   }
 
@@ -33,13 +40,26 @@ export class CurrencyRepository implements IModelRepository {
     input: GetAllModelsRepositoryInput,
   ): Promise<GetAllModelsRepositoryResponse> {
     let url = this.url;
-    if (input.page !== null && input.page > 0) {
-      url = `${this.url}?page=${input.page}`;
+
+    // Filtering
+    let searchQuery = Object.fromEntries(
+      Object.entries({
+        page: input.page,
+        search: input.search,
+      }).filter((o) => o[1] !== null),
+    );
+    let queryUrl = new URLSearchParams(searchQuery);
+    if (queryUrl.toString()) {
+      url = `${this.url}?${queryUrl.toString()}`;
     }
 
     const response = await fetch(url, {
       headers: this.headers,
     });
+
+    if (!response.ok) {
+      throw new Error("Could not get currencies using url search params");
+    }
 
     const data: GetAllModelsRepositoryResponse = await response.json();
     return data;
@@ -58,22 +78,51 @@ export class CurrencyRepository implements IModelRepository {
     return data;
   }
 
-  create(
+  async create(
     input: CreateModelsRepositoryInput,
   ): Promise<CreateModelsRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+
+    const data: CreateModelsRepositoryResponse = await response.json();
+    return data;
   }
 
-  updateById(
+  async updateById(
     input: UpdateModelByIdRepositoryInput,
   ): Promise<UpdateModelByIdRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/${input.id}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "PUT",
+      body: JSON.stringify(input.updated),
+    });
+
+    const data: UpdateModelByIdRepositoryResponse = await response.json();
+    return data;
   }
 
-  deleteById(
+  async deleteById(
     input: DeleteModelByIdRepositoryInput,
   ): Promise<DeleteModelByIdRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/${input.id}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      return Promise.reject(await response.json());
+    }
+
+    return;
   }
 
   bulkDelete(

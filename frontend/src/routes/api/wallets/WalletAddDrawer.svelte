@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/stores";
   import {
     Button,
     CloseButton,
@@ -12,10 +11,12 @@
   import { InfoCircleSolid, PlusOutline } from "flowbite-svelte-icons";
   import { sineIn } from "svelte/easing";
   import type { Currency } from "../../../domain/models/currency";
+  import type { GetAllModelsRepositoryResponse } from "../../../domain/models/modelRepositoryDto";
 
   export let hideAddDrawer: boolean = true;
+  export let currencyResponse: GetAllModelsRepositoryResponse;
+  let currencies = currencyResponse.results as Currency[];
 
-  let currencies = $page.data.currencies.results as Currency[];
   let transitionParams = {
     x: 320,
     duration: 200,

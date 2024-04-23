@@ -1,20 +1,19 @@
-import type { Wallet } from "../../../../domain/models/wallet";
-import { WalletRepository } from "../../../../repositories/walletRepository";
-import { CurrencyRepository } from "../../../../repositories/currencyRepository";
-
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { constants } from "http2";
 import { fail, redirect } from "@sveltejs/kit";
+import { WalletRepository } from "$lib/repositories/walletRepository";
+import type { GetModelByIdRepositoryResponse } from "../../../../domain/models/modelRepositoryDto";
 
 export const load: PageServerLoad = async (event) => {
-  const walletRepository = new WalletRepository(event.cookies);
+  const accessToken = event.cookies.get("accessToken");
+  const walletRepository = new WalletRepository({ accessToken });
 
-  let wallet: any;
+  let wallet: GetModelByIdRepositoryResponse | null = null;
   try {
     wallet = await walletRepository.getById({ id: event.params.id });
   } catch (e) {
-    console.warn("loading", wallet, e);
+    console.warn("loading", e);
   }
 
   if (wallet === null) {
@@ -27,6 +26,7 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
   delete: async (event) => {
+    const accessToken = event.cookies.get("accessToken");
     const id = event.params.id;
 
     if (id === undefined) {
@@ -34,7 +34,7 @@ export const actions: Actions = {
     }
 
     try {
-      await new WalletRepository(event.cookies).deleteById({ id });
+      await new WalletRepository({ accessToken }).deleteById({ id });
     } catch (e) {
       console.warn(e);
       return fail(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR, {

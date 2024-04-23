@@ -10,17 +10,38 @@
   } from "flowbite-svelte";
   import { ArrowLeftOutline, CheckOutline } from "flowbite-svelte-icons";
   import type { Wallet } from "../../../../../domain/models/wallet";
-  import type { Currency } from "../../../../../domain/models/currency";
+  import Sidebar from "../../../../../components/Sidebar.svelte";
+  import Breadcrumb from "../../../../../components/Breadcrumb.svelte";
+  import type {
+    GetAllModelsRepositoryResponse,
+    GetModelByIdRepositoryResponse,
+  } from "../../../../../domain/models/modelRepositoryDto";
+  import { ToastType } from "../../../../../domain/models/toastMessage";
+  import { showToast } from "$lib/toast";
 
-  let wallet: Wallet = $page.data.wallet;
-  let currencies: Currency[] = $page.data.currencies.results;
+  let walletResponse: GetModelByIdRepositoryResponse =
+    $page.data.walletResponse;
+  let currencyResponse: GetAllModelsRepositoryResponse =
+    $page.data.currencyResponse;
+  let wallet: Record<string, any> = walletResponse as Record<string, any>;
+  let currencies = currencyResponse.results;
   let updated: Wallet = {
     name: wallet.name,
     currency: wallet.currency,
     description: wallet.description || "",
   };
+
+  const breadcrumbs = [
+    { label: "Carteiras", href: "/api/wallets" },
+    { label: wallet.name, href: `/api/wallets/${wallet.id}` },
+    { label: "Editar", href: `/api/wallets/${wallet.id}/edit` },
+  ];
 </script>
 
+<div class="flex items-center gap-4">
+  <Sidebar />
+  <Breadcrumb {breadcrumbs} />
+</div>
 <div class="container mx-auto flex flex-col gap-4">
   {#if $navigating}
     <TextPlaceholder divClass="space-y-2.5 animate-pulse mx-auto w-full" />
@@ -29,11 +50,12 @@
       <Button
         outline={true}
         class="!p-2"
-        size="lg"
+        size="md"
         color="primary"
         href={`/api/wallets/${wallet.id}`}
       >
-        <ArrowLeftOutline class="w-6" />
+        <ArrowLeftOutline class="me-2" />
+        Detalhes
       </Button>
     </div>
 

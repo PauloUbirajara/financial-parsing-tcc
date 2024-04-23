@@ -1,4 +1,3 @@
-import type { Cookies } from "@sveltejs/kit";
 import type {
   BulkDeleteModelRepositoryInput,
   BulkDeleteModelRepositoryResponse,
@@ -12,20 +11,29 @@ import type {
   GetModelByIdRepositoryResponse,
   UpdateModelByIdRepositoryInput,
   UpdateModelByIdRepositoryResponse,
-} from "../domain/models/modelRepositoryDto";
-import type { IModelRepository } from "../protocols/modelRepository";
+} from "../../domain/models/modelRepositoryDto";
+import type { IModelRepository } from "../../protocols/modelRepository";
+
+type WalletRepositoryDTO = {
+  accessToken: string | undefined;
+};
 
 export class WalletRepository implements IModelRepository {
   private headers: Record<string, any>;
   private url: string;
 
-  constructor(cookies: Cookies) {
-    const accessToken = cookies.get("accessToken");
+  constructor(input: WalletRepositoryDTO) {
+    if (input.accessToken === undefined) {
+      throw new Error(
+        "Could not setup wallet repository due to undefined access token",
+      );
+    }
+
     this.url = import.meta.env.VITE_API_WALLETS_ENDPOINT;
 
     this.headers = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${input.accessToken}`,
     };
   }
 
@@ -33,13 +41,26 @@ export class WalletRepository implements IModelRepository {
     input: GetAllModelsRepositoryInput,
   ): Promise<GetAllModelsRepositoryResponse> {
     let url = this.url;
-    if (input.page !== null && input.page > 0) {
-      url = `${this.url}?page=${input.page}`;
+
+    // Filtering
+    let searchQuery = Object.fromEntries(
+      Object.entries({
+        page: input.page,
+        search: input.search,
+      }).filter((o) => o[1] !== null),
+    );
+    let queryUrl = new URLSearchParams(searchQuery);
+    if (queryUrl.toString()) {
+      url = `${this.url}?${queryUrl.toString()}`;
     }
 
     const response = await fetch(url, {
       headers: this.headers,
     });
+
+    if (!response.ok) {
+      throw new Error("Could not get wallets using url search params");
+    }
 
     const data: GetAllModelsRepositoryResponse = await response.json();
     return data;

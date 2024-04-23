@@ -1,10 +1,7 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
-  import { ListPlaceholder, P } from "flowbite-svelte";
-  import { navigating, page } from "$app/stores";
-
-  import Sidebar from "../../components/Sidebar.svelte";
-  import { routes } from "../../constants/routes";
+  import { ListPlaceholder } from "flowbite-svelte";
+  import { navigating } from "$app/stores";
 </script>
 
 <div
@@ -19,10 +16,6 @@
       />
     </div>
   {:else}
-    <div class="flex items-center gap-4">
-      <Sidebar />
-      <P>{routes[$page.route.id]}</P>
-    </div>
     <slot />
   {/if}
 </div>

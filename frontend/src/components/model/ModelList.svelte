@@ -8,56 +8,58 @@
     TableHead,
     TableHeadCell,
     TableBody,
-    Input,
     TableBodyCell,
     TableBodyRow,
     Dropdown,
     DropdownItem,
-    Pagination,
     Checkbox,
+    P,
+    Search,
   } from "flowbite-svelte";
+  import { getFilteredUrlSearchParams } from "../../helpers/url";
   import {
-    ArrowLeftOutline,
-    ArrowRightOutline,
     DotsHorizontalOutline,
     PlusOutline,
+    SearchOutline,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
   import DeleteModelModal from "./DeleteModelModal.svelte";
   import type { IModelListInfo } from "../../domain/usecases/modelListInfo";
   import type { IModelSerializer } from "../../domain/usecases/modelSerializer";
+  import type { GetAllModelsRepositoryResponse } from "../../domain/models/modelRepositoryDto";
   import { goto } from "$app/navigation";
+  import ModelListPagination from "./ModelListPagination.svelte";
 
   // List actions
   export let onAdd: Function;
   export let onDelete: Function;
 
   // List input
-  export let selectedModel: Record<any, any> | null;
-  export let searchTerm: string;
   export let serializer: IModelSerializer;
-  export let filteredItems: any[];
+  export let response: GetAllModelsRepositoryResponse;
+  export let selectedModel: Record<any, any> | null;
+  let searchTerm = "";
+
+  $: urlQuery = getFilteredUrlSearchParams({
+    page: $page.url.searchParams.get("page") || null,
+    search: searchTerm,
+  });
+
+  // List
+  async function updateResults() {
+    let url = "/api/wallets";
+
+    url = `/api/wallets?${urlQuery.toString()}`;
+    goto(url, { invalidateAll: true });
+  }
+
+  let currentQuery = $page.url.searchParams.get("search");
 
   // Actions
   export let modelListInfo: IModelListInfo;
 
   // Deletion modal
   let showDeleteModelModal: boolean = false;
-
-  // Pagination
-  let currentPage: number = Number($page.url.searchParams.get("page") || 1);
-  if (isNaN(currentPage) || currentPage < 0) {
-    currentPage = 1;
-  }
-  let previousLink = `/api/wallets?page=${currentPage - 1}`;
-  let nextLink = `/api/wallets?page=${currentPage + 1}`;
-
-  function goToPreviousPage() {
-    goto(previousLink);
-  }
-  function goToNextPage() {
-    goto(nextLink);
-  }
 </script>
 
 {#if $navigating}
@@ -66,9 +68,26 @@
   />
 {:else}
   <div class="container mx-auto flex flex-col gap-4">
+    {#if currentQuery}
+      <P class="w-full">
+        Você buscou por: {currentQuery}
+      </P>
+    {/if}
     <div class="flex items-center justify-between">
-      <Input class="w-80" placeholder="Buscar por nome" bind:value={searchTerm}
-      ></Input>
+      <form
+        class="flex gap-2 items-center min-w-80"
+        on:submit|preventDefault={updateResults}
+      >
+        <Search
+          size="md"
+          class="w-full"
+          placeholder="Buscar carteira por nome"
+          bind:value={searchTerm}
+        />
+        <Button type="submit" class="!p-2">
+          <SearchOutline class="w-6 h-6" />
+        </Button>
+      </form>
       <ButtonGroup>
         <Button color="primary" on:click={() => onAdd()}>
           <PlusOutline class="w-4 h-4 me-2" />
@@ -80,69 +99,48 @@
         </Button>
       </ButtonGroup>
     </div>
-    <Table divClass="relative overflow-x-auto rounded dark" hoverable={true}>
-      <TableHead>
-        <TableHeadCell class="!p-4">
-          <Checkbox />
-        </TableHeadCell>
-        {#each serializer.getFields() as key}
-          <TableHeadCell>{key}</TableHeadCell>
-        {/each}
-        <TableHeadCell>Ações</TableHeadCell>
-      </TableHead>
-      <TableBody>
-        {#each filteredItems as item}
-          <TableBodyRow>
-            <TableBodyCell class="!p-4">
-              <Checkbox />
-            </TableBodyCell>
-            {#each Object.values(serializer.serialize(item)) as val}
-              <TableBodyCell>
-                {val}
+    {#if !response.count}
+      <P align="center">Sem resultados.</P>
+    {:else}
+      <Table divClass="relative overflow-x-auto rounded dark" hoverable={true}>
+        <TableHead>
+          <TableHeadCell class="!p-4">
+            <Checkbox />
+          </TableHeadCell>
+          {#each serializer.getFields() as key}
+            <TableHeadCell>{key}</TableHeadCell>
+          {/each}
+          <TableHeadCell>Ações</TableHeadCell>
+        </TableHead>
+        <TableBody>
+          {#each response.results as item}
+            <TableBodyRow>
+              <TableBodyCell class="!p-4">
+                <Checkbox />
               </TableBodyCell>
-            {/each}
-            <TableBodyCell>
-              <Button
-                class="!p-2 dots-menu"
-                color="alternative"
-                on:click={() => {
-                  selectedModel = item;
-                }}
-              >
-                <DotsHorizontalOutline />
-              </Button>
-            </TableBodyCell>
-          </TableBodyRow>
-        {/each}
-      </TableBody>
-    </Table>
+              {#each Object.values(serializer.serialize(item)) as val}
+                <TableBodyCell>
+                  {val}
+                </TableBodyCell>
+              {/each}
+              <TableBodyCell>
+                <Button
+                  class="!p-2 dots-menu"
+                  color="alternative"
+                  on:click={() => {
+                    selectedModel = item;
+                  }}
+                >
+                  <DotsHorizontalOutline />
+                </Button>
+              </TableBodyCell>
+            </TableBodyRow>
+          {/each}
+        </TableBody>
+      </Table>
+    {/if}
 
-    <div class="flex flex-col items-center justify-center gap-2">
-      <div class="text-sm text-gray-700 dark:text-gray-400">
-        <span class="font-semibold text-gray-900 dark:text-white">{0}</span>
-        ~
-        <span class="font-semibold text-gray-900 dark:text-white">{10}</span>
-        de
-        <span class="font-semibold text-gray-900 dark:text-white">{9999}</span>
-        resultados.
-      </div>
-
-      <Pagination
-        table
-        large
-        on:previous={goToPreviousPage}
-        on:next={goToNextPage}
-      >
-        <span slot="prev" class="flex items-center">
-          <ArrowLeftOutline class="me-2 w-5 h-5" />
-          Anterior
-        </span>
-        <span slot="next" class="flex items-center">
-          Próximo
-          <ArrowRightOutline class="ms-2 w-5 h-5" />
-        </span>
-      </Pagination>
-    </div>
+    <ModelListPagination {response} />
   </div>
 
   <Dropdown triggeredBy=".dots-menu">

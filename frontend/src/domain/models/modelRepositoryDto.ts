@@ -6,6 +6,7 @@ export type CreateModelsRepositoryResponse = Record<string, any>;
 // Get All
 export type GetAllModelsRepositoryInput = {
   page: number | null;
+  search: string | null;
 };
 
 export type GetAllModelsRepositoryResponse = {
@@ -13,6 +14,7 @@ export type GetAllModelsRepositoryResponse = {
     next: string;
     previous: string;
   };
+  num_pages: number;
   count: number;
   results: Record<string, any>[];
 };

@@ -10,12 +10,13 @@
   import DeleteModelModal from "../../../../components/model/DeleteModelModal.svelte";
   import walletSerializer from "../../../../data/usecases/modelSerializer/wallet";
   import type { IModelSerializer } from "../../../../domain/usecases/modelSerializer";
+  import type { Wallet } from "../../../../domain/models/wallet";
 
   function onEdit() {
     goto(`/api/wallets/${wallet.id}/edit`);
   }
 
-  let wallet = $page.data.wallet;
+  export let wallet: Wallet;
   let showDeleteWalletModal: boolean = false;
 
   let serializer: IModelSerializer = walletSerializer;
