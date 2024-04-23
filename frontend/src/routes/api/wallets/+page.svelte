@@ -71,6 +71,28 @@
   let modelListInfo: IModelListInfo = walletModelListInfo;
 
   const breadcrumbs = [{ label: "Carteiras", href: "/api/wallets" }];
+
+  async function onBulkDelete(ids: string[]) {
+    const response = await fetch("/api/wallets?/bulk-delete", {
+      method: "POST",
+      body: JSON.stringify(ids),
+    });
+
+    if (response.ok) {
+      showToast({
+        title: "Remover carteiras",
+        message: "Carteiras removidas com sucesso!",
+        type: ToastType.SUCCESS,
+      });
+      goto("/api/wallets", { invalidateAll: true });
+      return;
+    }
+    showToast({
+      title: "Remover carteiras",
+      message: "Não foi possível remover as carteiras selecionadas.",
+      type: ToastType.ERROR,
+    });
+  }
 </script>
 
 <div class="flex items-center gap-4">
@@ -91,6 +113,7 @@
     {onDelete}
     {serializer}
     {modelListInfo}
+    {onBulkDelete}
     response={walletResponse}
   />
 {/if}

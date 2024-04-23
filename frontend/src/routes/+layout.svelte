@@ -20,5 +20,6 @@
     position: fixed;
     top: 1.5rem;
     right: 1.5rem;
+    z-index: 10;
   }
 </style>

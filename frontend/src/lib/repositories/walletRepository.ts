@@ -57,7 +57,13 @@ export class WalletRepository implements IModelRepository {
     });
 
     if (!response.ok) {
-      throw new Error("Could not get wallets using url search params");
+      console.warn("Could not get wallets using url search params");
+      return {
+        links: { next: "", previous: "" },
+        num_pages: 0,
+        count: 0,
+        results: [],
+      };
     }
 
     const data: GetAllModelsRepositoryResponse = await response.json();
@@ -124,9 +130,21 @@ export class WalletRepository implements IModelRepository {
     return;
   }
 
-  bulkDelete(
+  async bulkDelete(
     input: BulkDeleteModelRepositoryInput,
   ): Promise<BulkDeleteModelRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/bulk_delete/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "POST",
+      body: JSON.stringify({ ids: input.id }),
+    });
+
+    if (!response.ok) {
+      return Promise.reject(await response.json());
+    }
+
+    return;
   }
 }

@@ -5,6 +5,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
 import { showToast } from "$lib/toast";
 import { ToastType } from "../../../domain/models/toastMessage";
+import wallet from "../../../data/usecases/modelListInfo/wallet";
 
 export const load: PageServerLoad = async (event) => {
   try {
@@ -50,5 +51,14 @@ export const actions: Actions = {
     const walletRepository = new WalletRepository({ accessToken });
     const response = await walletRepository.create(wallet);
     return response;
+  },
+
+  "bulk-delete": async (event) => {
+    const accessToken: string =
+      (event.cookies.get("accessToken") as string) || "";
+    const walletRepository = new WalletRepository({ accessToken });
+
+    const data = await event.request.json();
+    await walletRepository.bulkDelete({ id: data });
   },
 };

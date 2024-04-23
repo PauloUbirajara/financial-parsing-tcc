@@ -14,11 +14,14 @@
     DropdownItem,
     Checkbox,
     P,
-    Search,
+    Badge,
+    Input,
+    Modal,
   } from "flowbite-svelte";
   import { getFilteredUrlSearchParams } from "../../helpers/url";
   import {
     DotsHorizontalOutline,
+    ExclamationCircleOutline,
     PlusOutline,
     SearchOutline,
     TrashBinSolid,
@@ -38,6 +41,18 @@
   export let serializer: IModelSerializer;
   export let response: GetAllModelsRepositoryResponse;
   export let selectedModel: Record<any, any> | null;
+
+  // Bulk delete
+  let showBulkDeleteModal: boolean = false;
+  let checked: Record<string, boolean> = {};
+  let idsToDelete: string[] = [];
+  $: {
+    idsToDelete = Object.entries(checked)
+      .filter((c) => c[1])
+      .map((c) => c[0]);
+  }
+
+  // Search
   let searchTerm = "";
 
   $: urlQuery = getFilteredUrlSearchParams({
@@ -47,11 +62,25 @@
 
   // List
   async function updateResults() {
-    let url = "/api/wallets";
+    if (!urlQuery.get("search")) return;
 
-    url = `/api/wallets?${urlQuery.toString()}`;
+    let url = `/api/wallets?search=${urlQuery.get("search")}`;
     goto(url, { invalidateAll: true });
   }
+
+  function removeQuery() {
+    goto("/api/wallets", { invalidateAll: true });
+  }
+
+  function onBulkCheck() {
+    if (idsToDelete.length === response.results.length) {
+      checked = {};
+      return;
+    }
+    checked = Object.fromEntries(response.results.map((r) => [r.id, true]));
+  }
+
+  export let onBulkDelete: (ids: string[]) => Promise<any>;
 
   let currentQuery = $page.url.searchParams.get("search");
 
@@ -69,19 +98,19 @@
 {:else}
   <div class="container mx-auto flex flex-col gap-4">
     {#if currentQuery}
-      <P class="w-full">
-        Você buscou por: {currentQuery}
-      </P>
+      <Badge dismissable large color="dark" on:close={() => removeQuery()}>
+        Filtrando por "{currentQuery}"
+      </Badge>
     {/if}
     <div class="flex items-center justify-between">
       <form
         class="flex gap-2 items-center min-w-80"
         on:submit|preventDefault={updateResults}
       >
-        <Search
-          size="md"
-          class="w-full"
+        <Input
           placeholder="Buscar carteira por nome"
+          type="text"
+          required
           bind:value={searchTerm}
         />
         <Button type="submit" class="!p-2">
@@ -93,7 +122,12 @@
           <PlusOutline class="w-4 h-4 me-2" />
           Adicionar
         </Button>
-        <Button disabled color="red" class="!p-2" on:click={() => onDelete()}>
+        <Button
+          disabled={idsToDelete.length === 0}
+          color="red"
+          class="!p-2"
+          on:click={() => (showBulkDeleteModal = true)}
+        >
           <TrashBinSolid class="w-4 h-4 me-2" />
           Deletar
         </Button>
@@ -105,7 +139,13 @@
       <Table divClass="relative overflow-x-auto rounded dark" hoverable={true}>
         <TableHead>
           <TableHeadCell class="!p-4">
-            <Checkbox />
+            <Checkbox
+              on:click={() => onBulkCheck()}
+              indeterminate={![0, response.results.length].includes(
+                idsToDelete.length,
+              )}
+              checked={idsToDelete.length === response.results.length}
+            />
           </TableHeadCell>
           {#each serializer.getFields() as key}
             <TableHeadCell>{key}</TableHeadCell>
@@ -116,7 +156,7 @@
           {#each response.results as item}
             <TableBodyRow>
               <TableBodyCell class="!p-4">
-                <Checkbox />
+                <Checkbox bind:checked={checked[item.id]} />
               </TableBodyCell>
               {#each Object.values(serializer.serialize(item)) as val}
                 <TableBodyCell>
@@ -159,6 +199,28 @@
       </DropdownItem>
     {/if}
   </Dropdown>
+
+  <Modal open={showBulkDeleteModal} size="xs" autoclose dismissable={false}>
+    <div class="text-center">
+      <ExclamationCircleOutline
+        class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+      />
+      <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+        Deseja apagar os itens selecionados?
+      </h3>
+      <Button
+        color="red"
+        class="me-2"
+        on:click={() => onBulkDelete(idsToDelete)}>Sim, apagar</Button
+      >
+      <Button
+        color="alternative"
+        on:click={() => (showBulkDeleteModal = false)}
+      >
+        Não, cancelar
+      </Button>
+    </div>
+  </Modal>
 
   {#if selectedModel !== null}
     <DeleteModelModal
