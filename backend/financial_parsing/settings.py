@@ -163,7 +163,10 @@ REST_FRAMEWORK = {
 }
 
 # JWT
-SIMPLE_JWT = {"SIGNING_KEY": getenv("JWT_SECRET")}
+SIMPLE_JWT = {
+    "SIGNING_KEY": getenv("JWT_SECRET"),
+    "TOKEN_OBTAIN_SERIALIZER": "apps.user_management.serializers.CustomTokenSerializer",
+}
 
 # Django Password Validators
 AUTH_PASSWORD_VALIDATORS = [

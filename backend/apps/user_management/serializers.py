@@ -3,6 +3,7 @@ import re
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext as _
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class UserRegistrationSerializer(serializers.Serializer):
@@ -37,3 +38,14 @@ class UserPasswordResetSerializer(serializers.Serializer):
         validate_password(password)
 
         return attrs
+
+
+class CustomTokenSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        if "user_id" in token:
+            del token["user_id"]
+        token["username"] = user.username
+        token["email"] = user.email
+        return token
