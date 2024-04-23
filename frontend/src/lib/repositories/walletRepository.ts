@@ -12,6 +12,7 @@ import type {
   UpdateModelByIdRepositoryInput,
   UpdateModelByIdRepositoryResponse,
 } from "../../domain/models/modelRepositoryDto";
+import { getFilteredUrlSearchParams } from "../../helpers/url";
 import type { IModelRepository } from "../../protocols/modelRepository";
 
 type WalletRepositoryDTO = {
@@ -43,13 +44,10 @@ export class WalletRepository implements IModelRepository {
     let url = this.url;
 
     // Filtering
-    let searchQuery = Object.fromEntries(
-      Object.entries({
-        page: input.page,
-        search: input.search,
-      }).filter((o) => o[1] !== null),
-    );
-    let queryUrl = new URLSearchParams(searchQuery);
+    let queryUrl = getFilteredUrlSearchParams({
+      page: input.page,
+      search: input.search,
+    });
     if (queryUrl.toString()) {
       url = `${this.url}?${queryUrl.toString()}`;
     }

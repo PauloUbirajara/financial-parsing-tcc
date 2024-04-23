@@ -26,7 +26,7 @@ def get_transaction_serializer(user: User):
             model = Transaction
             exclude = ["user", "updated_at"]
             depth = 1
-            ordering = ["transaction_date"]
+            ordering = ["-transaction_date"]
 
     return TransactionSerializer
 
@@ -40,4 +40,4 @@ class ListTransactionSerializer(serializers.ModelSerializer):
         model = Transaction
         exclude = ["user", "updated_at"]
         depth = 1
-        ordering = ["transaction_date"]
+        ordering = ["-transaction_date"]

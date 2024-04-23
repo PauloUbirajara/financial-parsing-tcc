@@ -10,11 +10,12 @@ async function handleJwtAuthorization(
   let isAuthorized = false;
 
   let access = event.cookies.get("accessToken");
+  const refresh = event.cookies.get("refreshToken");
+
   if (access !== undefined) {
     isAuthorized = await AuthManager.validate(access);
   }
 
-  const refresh = event.cookies.get("refreshToken");
   if (refresh !== undefined && !isAuthorized) {
     const newAccess = await AuthManager.refresh(refresh);
 

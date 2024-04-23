@@ -15,5 +15,8 @@ class Transaction(models.Model):
     transaction_date = models.DateField()
     value = models.DecimalField(max_digits=10, decimal_places=2)
 
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]

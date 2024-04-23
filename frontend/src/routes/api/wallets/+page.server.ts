@@ -7,14 +7,14 @@ import { showToast } from "$lib/toast";
 import { ToastType } from "../../../domain/models/toastMessage";
 
 export const load: PageServerLoad = async (event) => {
-  const accessToken = event.cookies.get("accessToken");
-  let search: string | null = event.url.searchParams.get("search");
-  let page: number | null = Number(event.url.searchParams.get("page")) || 1;
-  if (isNaN(page) || page <= 0) {
-    page = null;
-  }
-
   try {
+    const accessToken = event.cookies.get("accessToken");
+    let search: string | null = event.url.searchParams.get("search");
+    let page: number | null = Number(event.url.searchParams.get("page")) || 1;
+    if (isNaN(page) || page <= 0) {
+      page = null;
+    }
+
     const walletResponse = await new WalletRepository({ accessToken }).getAll({
       page,
       search,
@@ -32,8 +32,6 @@ export const load: PageServerLoad = async (event) => {
     };
   } catch (e) {
     console.warn(e);
-    showToast({ title: "", message: "", type: ToastType.WARNING });
-    redirect(constants.HTTP_STATUS_TEMPORARY_REDIRECT, "/api/wallets");
   }
 };
 

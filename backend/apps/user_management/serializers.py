@@ -43,9 +43,10 @@ class UserPasswordResetSerializer(serializers.Serializer):
 class CustomTokenSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
+        import logging
+
+        logging.warning({"user": user})
         token = super().get_token(user)
-        if "user_id" in token:
-            del token["user_id"]
         token["username"] = user.username
         token["email"] = user.email
         return token

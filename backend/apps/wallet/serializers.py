@@ -1,8 +1,6 @@
 from django.apps import apps
 from rest_framework import serializers
 
-from apps.currency.serializers import CurrencySerializer
-
 Wallet = apps.get_model("wallet", "Wallet")
 Currency = apps.get_model("currency", "Currency")
 

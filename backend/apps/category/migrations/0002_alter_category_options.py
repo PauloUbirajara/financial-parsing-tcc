@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('currency', '0002_auto_20240423_0111'),
+        ('category', '0001_initial'),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='currency',
+            name='category',
             options={'ordering': ['-updated_at']},
         ),
     ]

@@ -9,8 +9,8 @@ class Currency(models.Model):
     name = models.TextField(unique=True)
     representation = models.TextField(unique=True)
 
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["representation", "name"]
+        ordering = ["-updated_at"]

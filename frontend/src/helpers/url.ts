@@ -1,9 +1,12 @@
 export function getFilteredUrlSearchParams(
   object: Record<any, any>,
 ): URLSearchParams {
-  return new URLSearchParams(
+  const urlParams = new URLSearchParams(
     Object.fromEntries(
-      Object.entries(object).filter((o) => ![null, undefined].includes(o[1])),
+      Object.entries(object).filter(
+        (o) => ![null, undefined, "null", "undefined"].includes(o[1]),
+      ),
     ),
   );
+  return urlParams;
 }

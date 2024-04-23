@@ -62,11 +62,8 @@
   }
 
   // model list
-  let walletResponse: GetAllModelsRepositoryResponse;
-  $: {
-    walletResponse = $page.data.walletResponse;
-  }
-
+  let walletResponse: GetAllModelsRepositoryResponse =
+    $page.data.walletResponse;
   let currencyResponse: GetAllModelsRepositoryResponse =
     $page.data.currencyResponse;
 
