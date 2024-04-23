@@ -8,10 +8,10 @@
   import ModelList from "../../../components/model/ModelList.svelte";
   import type { GetAllModelsRepositoryResponse } from "../../../domain/models/modelRepositoryDto";
   import type { IModelListInfo } from "../../../domain/usecases/modelListInfo";
+  import categoryModelListInfo from "../../../data/usecases/modelListInfo/category";
   import type { IModelSerializer } from "../../../domain/usecases/modelSerializer";
-  import WalletAddDrawer from "./WalletAddDrawer.svelte";
-  import walletModelListInfo from "../../../data/usecases/modelListInfo/wallet";
-  import walletSerializer from "../../../data/usecases/modelSerializer/wallet";
+  import categorySerializer from "../../../data/usecases/modelSerializer/category";
+  import CategoryAddDrawer from "./CategoryAddDrawer.svelte";
   import { ToastType } from "../../../domain/models/toastMessage";
   import { page } from "$app/stores";
   import Sidebar from "../../../components/Sidebar.svelte";
@@ -30,13 +30,13 @@
 
   async function onDelete() {
     if (selectedModel === null) {
-      console.warn("Cannot delete null wallet!");
+      console.warn("Cannot delete null category!");
       return;
     }
 
     try {
       const response = await fetch(
-        `/api/wallets/${selectedModel?.id}?/delete`,
+        `/api/categories/${selectedModel?.id}?/delete`,
         {
           method: "POST",
           body: JSON.stringify({}),
@@ -46,62 +46,60 @@
       if (response.ok) {
         goto($page.url.toString(), { invalidateAll: true });
         showToast({
-          title: "Remover Carteira",
-          message: `Carteira "${selectedModel.name}" removida com sucesso`,
+          title: "Remover Categoria",
+          message: `Categoria "${selectedModel.name}" removida com sucesso`,
           type: ToastType.SUCCESS,
         });
         return;
       }
     } catch (e) {
       showToast({
-        title: "Remover Carteira",
-        message: `Houve um erro ao remover a carteira "${selectedModel.name}"`,
+        title: "Remover Categoria",
+        message: `Houve um erro ao remover a categoria "${selectedModel.name}"`,
         type: ToastType.ERROR,
       });
     }
   }
 
   // model list
-  let walletResponse: GetAllModelsRepositoryResponse =
-    $page.data.walletResponse;
-  let currencyResponse: GetAllModelsRepositoryResponse =
-    $page.data.currencyResponse;
+  let categoryResponse: GetAllModelsRepositoryResponse =
+    $page.data.categoryResponse;
 
-  let serializer: IModelSerializer = walletSerializer;
-  let modelListInfo: IModelListInfo = walletModelListInfo;
+  let serializer: IModelSerializer = categorySerializer;
+  let modelListInfo: IModelListInfo = categoryModelListInfo;
 
-  const breadcrumbs = [{ label: "Carteiras", href: "/api/wallets" }];
+  const breadcrumbs = [{ label: "Categorias", href: "/api/categories" }];
 
   async function onBulkDelete(ids: string[]) {
-    const response = await fetch("/api/wallets?/bulk-delete", {
+    const response = await fetch("/api/categories?/bulk-delete", {
       method: "POST",
       body: JSON.stringify(ids),
     });
 
     if (response.ok) {
       showToast({
-        title: "Remover carteiras",
-        message: "Carteiras removidas com sucesso!",
+        title: "Remover categorias",
+        message: "Categorias removidas com sucesso!",
         type: ToastType.SUCCESS,
       });
-      goto("/api/wallets", { invalidateAll: true });
+      goto("/api/categories", { invalidateAll: true });
       return;
     }
     showToast({
-      title: "Remover carteiras",
-      message: "Não foi possível remover as carteiras selecionadas.",
+      title: "Remover categorias",
+      message: "Não foi possível remover as categorias selecionadas.",
       type: ToastType.ERROR,
     });
   }
 
   async function updateResults(search: string) {
     const urlParams = new URLSearchParams({ search });
-    let url = `/api/wallets?${urlParams.toString()}`;
+    let url = `/api/categories?${urlParams.toString()}`;
     goto(url, { invalidateAll: true });
   }
 
   function removeQuery() {
-    goto("/api/wallets", { invalidateAll: true });
+    goto("/api/categories", { invalidateAll: true });
   }
 </script>
 
@@ -116,7 +114,7 @@
     />
   </div>
 {:else}
-  <WalletAddDrawer bind:hideAddDrawer {currencyResponse} />
+  <CategoryAddDrawer bind:hideAddDrawer />
   <ModelList
     bind:selectedModel
     {updateResults}
@@ -126,6 +124,6 @@
     {serializer}
     {modelListInfo}
     {onBulkDelete}
-    response={walletResponse}
+    response={categoryResponse}
   />
 {/if}

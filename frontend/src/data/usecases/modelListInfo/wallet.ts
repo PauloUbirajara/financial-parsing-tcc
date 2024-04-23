@@ -1,6 +1,6 @@
 import type { IModelListInfo } from "../../../domain/usecases/modelListInfo";
 
-class WallelModelListInfo implements IModelListInfo {
+class WalletModelListInfo implements IModelListInfo {
   getDetailUrl(model: any): string {
     return `/api/wallets/${model.id}`;
   }
@@ -22,4 +22,4 @@ class WallelModelListInfo implements IModelListInfo {
   }
 }
 
-export default new WallelModelListInfo();
+export default new WalletModelListInfo();

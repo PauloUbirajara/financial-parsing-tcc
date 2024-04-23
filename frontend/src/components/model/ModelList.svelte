@@ -30,7 +30,6 @@
   import type { IModelListInfo } from "../../domain/usecases/modelListInfo";
   import type { IModelSerializer } from "../../domain/usecases/modelSerializer";
   import type { GetAllModelsRepositoryResponse } from "../../domain/models/modelRepositoryDto";
-  import { goto } from "$app/navigation";
   import ModelListPagination from "./ModelListPagination.svelte";
 
   // List actions
@@ -55,22 +54,10 @@
   // Search
   let searchTerm = "";
 
-  $: urlQuery = getFilteredUrlSearchParams({
-    page: $page.url.searchParams.get("page") || null,
-    search: searchTerm,
-  });
-
   // List
-  async function updateResults() {
-    if (!urlQuery.get("search")) return;
+  export let updateResults: (search: string) => Promise<void>;
 
-    let url = `/api/wallets?search=${urlQuery.get("search")}`;
-    goto(url, { invalidateAll: true });
-  }
-
-  function removeQuery() {
-    goto("/api/wallets", { invalidateAll: true });
-  }
+  export let removeQuery: () => void;
 
   function onBulkCheck() {
     if (idsToDelete.length === response.results.length) {
@@ -102,13 +89,13 @@
         Filtrando por "{currentQuery}"
       </Badge>
     {/if}
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-4">
       <form
         class="flex gap-2 items-center min-w-80"
-        on:submit|preventDefault={updateResults}
+        on:submit|preventDefault={() => updateResults(searchTerm)}
       >
         <Input
-          placeholder="Buscar carteira por nome"
+          placeholder="Buscar por nome"
           type="text"
           required
           bind:value={searchTerm}
@@ -138,7 +125,7 @@
     {:else}
       <Table divClass="relative overflow-x-auto rounded dark" hoverable={true}>
         <TableHead>
-          <TableHeadCell class="!p-4">
+          <TableHeadCell class="!p-4 w-5">
             <Checkbox
               on:click={() => onBulkCheck()}
               indeterminate={![0, response.results.length].includes(

@@ -1,8 +1,10 @@
 import type {
   BulkDeleteModelRepositoryInput,
+  BulkDeleteModelRepositoryResponse,
   CreateModelsRepositoryInput,
   CreateModelsRepositoryResponse,
   DeleteModelByIdRepositoryInput,
+  DeleteModelByIdRepositoryResponse,
   GetAllModelsRepositoryInput,
   GetAllModelsRepositoryResponse,
   GetModelByIdRepositoryInput,
@@ -13,22 +15,22 @@ import type {
 import { getFilteredUrlSearchParams } from "../../helpers/url";
 import type { IModelRepository } from "../../protocols/modelRepository";
 
-type CurrencyRepositoryDTO = {
+type CategoryRepositoryDTO = {
   accessToken: string | undefined;
 };
 
-export class CurrencyRepository implements IModelRepository {
+export class CategoryRepository implements IModelRepository {
   private headers: Record<string, any>;
   private url: string;
 
-  constructor(input: CurrencyRepositoryDTO) {
+  constructor(input: CategoryRepositoryDTO) {
     if (input.accessToken === undefined) {
       throw new Error(
-        "Could not setup currency repository due to undefined access token",
+        "Could not setup category repository due to undefined access token",
       );
     }
 
-    this.url = import.meta.env.VITE_API_CURRENCIES_ENDPOINT;
+    this.url = import.meta.env.VITE_API_CATEGORIES_ENDPOINT;
 
     this.headers = {
       "Content-Type": "application/json",
@@ -55,7 +57,7 @@ export class CurrencyRepository implements IModelRepository {
     });
 
     if (!response.ok) {
-      console.warn("Could not get currencies using url search params");
+      console.warn("Could not get categories using url search params");
       return {
         links: { next: "", previous: "" },
         num_pages: 0,
@@ -81,20 +83,68 @@ export class CurrencyRepository implements IModelRepository {
     return data;
   }
 
-  create(
+  async create(
     input: CreateModelsRepositoryInput,
   ): Promise<CreateModelsRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+
+    const data: CreateModelsRepositoryResponse = await response.json();
+    return data;
   }
-  updateById(
+
+  async updateById(
     input: UpdateModelByIdRepositoryInput,
   ): Promise<UpdateModelByIdRepositoryResponse> {
-    throw new Error("Method not implemented.");
+    let url = `${this.url}/${input.id}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "PUT",
+      body: JSON.stringify(input.updated),
+    });
+
+    const data: UpdateModelByIdRepositoryResponse = await response.json();
+    return data;
   }
-  deleteById(input: DeleteModelByIdRepositoryInput): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  async deleteById(
+    input: DeleteModelByIdRepositoryInput,
+  ): Promise<DeleteModelByIdRepositoryResponse> {
+    let url = `${this.url}/${input.id}/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      return Promise.reject(await response.json());
+    }
+
+    return;
   }
-  bulkDelete(input: BulkDeleteModelRepositoryInput): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  async bulkDelete(
+    input: BulkDeleteModelRepositoryInput,
+  ): Promise<BulkDeleteModelRepositoryResponse> {
+    let url = `${this.url}/bulk_delete/`;
+
+    const response = await fetch(url, {
+      headers: this.headers,
+      method: "POST",
+      body: JSON.stringify({ ids: input.id }),
+    });
+
+    if (!response.ok) {
+      return Promise.reject(await response.json());
+    }
+
+    return;
   }
 }
