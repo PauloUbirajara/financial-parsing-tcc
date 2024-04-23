@@ -1,11 +1,6 @@
+import type { Actions, PageServerLoad } from "./$types";
 import { CurrencyRepository } from "$lib/repositories/currencyRepository";
 import { WalletRepository } from "$lib/repositories/walletRepository";
-import { constants } from "http2";
-import type { Actions, PageServerLoad } from "./$types";
-import { fail, redirect } from "@sveltejs/kit";
-import { showToast } from "$lib/toast";
-import { ToastType } from "../../../domain/models/toastMessage";
-import wallet from "../../../data/usecases/modelListInfo/wallet";
 
 export const load: PageServerLoad = async (event) => {
   try {
