@@ -36,8 +36,24 @@ class CategoryViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if search_term:
             queryset = queryset.filter(name__icontains=search_term)
 
-        paginated_queryset = self.paginate_queryset(queryset)
         serializer_class = self.get_serializer_class()
+        page = self.request.query_params.get("page")
+        if not page:
+            serializer = serializer_class(queryset, many=True)
+
+            return Response(
+                {
+                    "links": {
+                        "next": None,
+                        "previous": None,
+                    },
+                    "count": queryset.count(),
+                    "num_pages": 1,
+                    "results": serializer.data,
+                }
+            )
+
+        paginated_queryset = self.paginate_queryset(queryset)
         serializer = serializer_class(paginated_queryset, many=True)
         return self.paginator.get_paginated_response(serializer.data)
 

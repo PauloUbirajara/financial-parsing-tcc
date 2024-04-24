@@ -1,18 +1,18 @@
 import type { IModelRepository } from "../../protocols/modelRepository";
 import { BaseRepository } from "./baseRepository";
 
-type WalletRepositoryDTO = {
+type TransactionRepositoryDTO = {
   accessToken: string | undefined;
 };
 
-export class WalletRepository
+export class TransactionRepository
   extends BaseRepository
   implements IModelRepository
 {
-  constructor(input: WalletRepositoryDTO) {
+  constructor(input: TransactionRepositoryDTO) {
     super({
       accessToken: input.accessToken,
-      url: import.meta.env.VITE_API_WALLETS_ENDPOINT,
+      url: import.meta.env.VITE_API_TRANSACTIONS_ENDPOINT,
     });
   }
 }
