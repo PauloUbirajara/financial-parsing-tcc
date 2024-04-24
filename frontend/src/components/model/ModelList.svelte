@@ -18,7 +18,6 @@
     Input,
     Modal,
   } from "flowbite-svelte";
-  import { getFilteredUrlSearchParams } from "../../helpers/url";
   import {
     DotsHorizontalOutline,
     ExclamationCircleOutline,
@@ -167,7 +166,10 @@
       </Table>
     {/if}
 
-    <ModelListPagination {response} />
+    <ModelListPagination
+      {response}
+      baseUrl={modelListInfo.getListUrl(response.results[0])}
+    />
   </div>
 
   <Dropdown triggeredBy=".dots-menu">

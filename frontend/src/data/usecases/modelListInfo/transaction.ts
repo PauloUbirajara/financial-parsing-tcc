@@ -1,6 +1,10 @@
 import type { IModelListInfo } from "../../../domain/usecases/modelListInfo";
 
 class TransactionModelListInfo implements IModelListInfo {
+  getListUrl(model: any): string {
+    return `/api/transactions`;
+  }
+
   getDetailUrl(model: any): string {
     return `/api/transactions/${model.id}`;
   }

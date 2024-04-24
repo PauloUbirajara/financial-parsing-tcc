@@ -7,6 +7,7 @@
   import { getFilteredUrlSearchParams } from "../../helpers/url";
 
   export let response: GetAllModelsRepositoryResponse;
+  export let baseUrl: string;
   let urlQuery = {
     page: parseInt($page.url.searchParams.get("page") || "1"),
     search: $page.url.searchParams.get("search"),
@@ -31,14 +32,14 @@
       urlQueryClone.set("page", (i + 1).toString());
       return {
         name: (i + 1).toString(),
-        href: `/api/wallets?${urlQueryClone.toString()}`,
+        href: `${baseUrl}?${urlQueryClone.toString()}`,
         active: i + 1 === currentPage,
       };
     });
   }
 
-  previousLink = `/api/wallets?page=${currentPage - 1}`;
-  nextLink = `/api/wallets?page=${currentPage + 1}`;
+  previousLink = `${baseUrl}?page=${currentPage - 1}`;
+  nextLink = `${baseUrl}?page=${currentPage + 1}`;
   function goToPreviousPage() {
     if (!hasPreviousLink) return;
     if (currentPage === 1) return;
