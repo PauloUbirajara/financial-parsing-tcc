@@ -1,15 +1,14 @@
 <script lang="ts">
   import { navigating } from "$app/stores";
-  import { Button, P, TextPlaceholder } from "flowbite-svelte";
+  import { A, Badge, Button, P, TextPlaceholder } from "flowbite-svelte";
   import {
     ArrowLeftOutline,
+    ChevronRightOutline,
     EditSolid,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
   import { goto } from "$app/navigation";
   import DeleteModelModal from "../../../../components/model/DeleteModelModal.svelte";
-  import transactionSerializer from "../../../../data/usecases/modelSerializer/transaction";
-  import type { IModelSerializer } from "../../../../domain/usecases/modelSerializer";
   import type { Transaction } from "../../../../domain/models/transaction";
 
   function onEdit() {
@@ -18,8 +17,6 @@
 
   export let transaction: Transaction;
   let showDeleteTransactionModal: boolean = false;
-
-  let serializer: IModelSerializer = transactionSerializer;
 
   async function onDelete() {
     const response = await fetch(
@@ -59,12 +56,50 @@
       </Button>
     </div>
   </div>
-  {#each Object.entries(serializer.serialize(transaction)) as [key, value]}
-    <div class="content">
-      <P>{key}</P>
-      <P size="3xl" weight="semibold">{value}</P>
+  <div class="content">
+    <P>Nome</P>
+    <P size="3xl" weight="semibold">{transaction.name}</P>
+  </div>
+  <div class="content">
+    <P>Descrição</P>
+    <P size="3xl" weight="semibold">{transaction.description}</P>
+  </div>
+  <div class="content">
+    <P>Data da transação</P>
+    <P size="3xl" weight="semibold">
+      {new Date(transaction.transaction_date).toLocaleString("pt-br", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+      })}
+    </P>
+  </div>
+  <div class="content">
+    <P>Valor</P>
+    <P size="3xl" weight="semibold">{transaction.value}</P>
+  </div>
+  <div class="content">
+    <P>Carteira</P>
+    <div class="flex items-center gap-4">
+      <A
+        aClass="inline-flex items-center hover:underline text-3xl font-semibold"
+        href={`/api/wallets/${transaction.wallet.id}`}
+      >
+        {transaction.wallet.name}
+        <ChevronRightOutline />
+      </A>
     </div>
-  {/each}
+  </div>
+  <div class="content">
+    <P class="mb-2">Categorias</P>
+    <div class="flex flex-wrap p-4 bg-white rounded gap-2">
+      {#each transaction.categories as item}
+        <Badge color="primary" href={`/api/categories/${item.id}`} large>
+          {item.name}
+        </Badge>
+      {/each}
+    </div>
+  </div>
 
   <DeleteModelModal
     bind:showDeleteModal={showDeleteTransactionModal}
