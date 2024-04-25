@@ -12,7 +12,7 @@
     return total;
   }, {});
 
-  let transactionsPerCurrency = Object.entries(
+  let transactionsPerWallet = Object.entries(
     transactionResponse.results.reduce((total, current) => {
       const key = current.wallet.id;
       if (total[key] === undefined) {
@@ -22,13 +22,13 @@
       return total;
     }, {}),
   );
-  transactionsPerCurrency.sort((a, b) => a[1] - b[1]);
+  transactionsPerWallet.sort((a, b) => a[1] - b[1]);
 
   const options = {
     series: [
       {
         name: "Valor total",
-        data: transactionsPerCurrency.map((c) => c[1]),
+        data: transactionsPerWallet.map((c) => c[1]),
       },
     ],
     chart: {
