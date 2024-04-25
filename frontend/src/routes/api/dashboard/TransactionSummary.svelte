@@ -1,35 +1,34 @@
 <script lang="ts">
-  import { Card, Chart } from "flowbite-svelte";
+  import { Card, Chart, Spinner } from "flowbite-svelte";
   import type { GetAllModelsRepositoryResponse } from "../../../domain/models/modelRepositoryDto";
+  import { navigating } from "$app/stores";
 
   export let transactionResponse: GetAllModelsRepositoryResponse;
 
-  // TODO Fazer agrupamento pizza por uso de categorias
-
   let wallets = transactionResponse.results.reduce((total, current) => {
     const key = current.wallet.id;
-    const name = current.wallet.name;
+    const name = `${current.wallet.name} (${current.wallet.currency.representation})`;
     total[key] = name;
     return total;
   }, {});
 
-  let transactionsPerCurrency = transactionResponse.results.reduce(
-    (total, current) => {
+  let transactionsPerCurrency = Object.entries(
+    transactionResponse.results.reduce((total, current) => {
       const key = current.wallet.id;
       if (total[key] === undefined) {
         total[key] = 0.0;
       }
       total[key] += Number(current.value);
       return total;
-    },
-    {},
+    }, {}),
   );
+  transactionsPerCurrency.sort((a, b) => a[1] - b[1]);
 
   const options = {
     series: [
       {
         name: "Valor total",
-        data: Object.entries(transactionsPerCurrency).map((c) => c[1]),
+        data: transactionsPerCurrency.map((c) => c[1]),
       },
     ],
     chart: {
@@ -112,8 +111,11 @@
     >
       Valor total de transações (por carteira)
     </h5>
-
-    {#if transactionResponse}
+    {#if $navigating}
+      <div class="mx-auto">
+        <Spinner />
+      </div>
+    {:else if transactionResponse}
       <Chart {options} />
     {:else}
       <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">

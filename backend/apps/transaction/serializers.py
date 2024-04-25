@@ -1,11 +1,9 @@
-from typing import Optional
-
 from django.apps import apps
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from apps.category.serializers import CategorySerializer
-from apps.wallet.serializers import WalletSerializer
+from apps.wallet.serializers import ListWalletSerializer
 
 Transaction = apps.get_model("transaction", "Transaction")
 Wallet = apps.get_model("wallet", "Wallet")
@@ -25,7 +23,7 @@ def get_transaction_serializer(user: User):
         class Meta:
             model = Transaction
             exclude = ["user", "updated_at"]
-            depth = 1
+            depth = 2
             ordering = ["-transaction_date"]
 
     return TransactionSerializer
@@ -33,7 +31,7 @@ def get_transaction_serializer(user: User):
 
 class ListTransactionSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
-    wallet = WalletSerializer(required=True)
+    wallet = ListWalletSerializer(required=True)
     categories = CategorySerializer(required=True, many=True)
 
     class Meta:
