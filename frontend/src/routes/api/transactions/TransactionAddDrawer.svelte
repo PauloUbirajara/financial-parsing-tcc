@@ -6,7 +6,6 @@
     Input,
     Label,
     MultiSelect,
-    NumberInput,
     Select,
     Textarea,
   } from "flowbite-svelte";
@@ -30,8 +29,6 @@
     duration: 200,
     easing: sineIn,
   };
-
-  // TODO mostrar categorias como badge, ajustar backend para mostrar todas categorias/carteiras caso nao fornecer pagina
 
   let transaction = {
     name: "",
