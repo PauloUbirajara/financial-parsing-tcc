@@ -10,7 +10,6 @@
     MultiSelect,
   } from "flowbite-svelte";
   import { ArrowLeftOutline, CheckOutline } from "flowbite-svelte-icons";
-  import type { Transaction } from "../../../../../domain/models/transaction";
   import Sidebar from "../../../../../components/Sidebar.svelte";
   import Breadcrumb from "../../../../../components/Breadcrumb.svelte";
   import type {
@@ -51,7 +50,8 @@
   ];
 
   async function onUpdate() {
-    const response = await fetch("?", {
+    const id = $page.params.id;
+    const response = await fetch(`/api/transactions/${id}/edit`, {
       method: "POST",
       body: JSON.stringify(updated),
     });
@@ -166,7 +166,10 @@
         />
       </div>
 
-      <Button type="submit" class="w-full">Salvar</Button>
+      <Button type="submit" class="w-full" color="green">
+        <CheckOutline class="mr-2" />
+        Salvar
+      </Button>
     </form>
   {/if}
 </div>

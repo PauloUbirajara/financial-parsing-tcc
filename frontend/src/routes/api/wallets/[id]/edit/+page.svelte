@@ -18,6 +18,7 @@
   } from "../../../../../domain/models/modelRepositoryDto";
   import { ToastType } from "../../../../../domain/models/toastMessage";
   import { showToast } from "$lib/toast";
+  import { goto } from "$app/navigation";
 
   let walletResponse: GetModelByIdRepositoryResponse =
     $page.data.walletResponse;
@@ -27,7 +28,7 @@
   let currencies = currencyResponse.results;
   let updated: Wallet = {
     name: wallet.name,
-    currency: wallet.currency,
+    currency: wallet.currency.id,
     description: wallet.description || "",
   };
 
@@ -36,6 +37,29 @@
     { label: wallet.name, href: `/api/wallets/${wallet.id}` },
     { label: "Editar", href: `/api/wallets/${wallet.id}/edit` },
   ];
+
+  async function onUpdate() {
+    const id = $page.params.id;
+    const response = await fetch(`/api/wallets/${id}/edit`, {
+      method: "POST",
+      body: JSON.stringify(updated),
+    });
+
+    if (response.ok) {
+      showToast({
+        title: "Atualizar carteira",
+        message: `Carteira "${updated.name}" atualizada com sucesso!`,
+        type: ToastType.SUCCESS,
+      });
+      goto($page.url, { invalidateAll: true });
+      return;
+    }
+    showToast({
+      title: "Atualizar carteira",
+      message: `Houve um erro ao atualizar a carteira "${updated.name}".`,
+      type: ToastType.ERROR,
+    });
+  }
 </script>
 
 <div class="flex items-center gap-4">
@@ -59,13 +83,13 @@
       </Button>
     </div>
 
-    <form method="POST" action="?">
+    <form method="POST" on:submit|preventDefault={onUpdate}>
       <div class="mb-6">
         <Label for="name" class="block mb-2">Nome*</Label>
         <Input
           id="name"
           name="name"
-          value={updated.name}
+          bind:value={updated.name}
           required
           placeholder="Digite o nome da carteira"
         />
@@ -76,7 +100,7 @@
           id="description"
           placeholder="Digite a descrição da carteira"
           rows="4"
-          value={updated.description}
+          bind:value={updated.description}
           name="description"
         />
       </div>
@@ -87,7 +111,7 @@
           placeholder="Selecione uma moeda"
           rows="4"
           name="currency"
-          value={updated.currency.id}
+          bind:value={updated.currency}
           required
         >
           {#each currencies as item}

@@ -99,7 +99,7 @@
     <div class="mx-auto">
       <Spinner />
     </div>
-  {:else if transactionResponse}
+  {:else if transactionResponse.count}
     <Chart {options} />
   {:else}
     <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">
