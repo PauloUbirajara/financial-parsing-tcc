@@ -42,4 +42,23 @@ export const actions: Actions = {
       });
     }
   },
+  export: async (event) => {
+    const accessToken = event.cookies.get("accessToken");
+    const id = event.params.id;
+
+    if (id === undefined) {
+      return fail(constants.HTTP_STATUS_BAD_REQUEST, { error: "ID inválido." });
+    }
+
+    try {
+      const data = await event.request.json();
+      const format = data["format"];
+      return await new WalletRepository({ accessToken }).export({ id, format });
+    } catch (e) {
+      console.warn(e);
+      return fail(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR, {
+        error: "Erro ao exportar carteira",
+      });
+    }
+  },
 };

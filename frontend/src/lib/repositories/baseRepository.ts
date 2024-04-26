@@ -21,8 +21,8 @@ type BaseRepositoryDTO = {
 };
 
 export abstract class BaseRepository implements IModelRepository {
-  private headers: Record<string, any>;
-  private url: string;
+  protected url: string;
+  protected headers: Record<string, any>;
 
   constructor(input: BaseRepositoryDTO) {
     if (input.accessToken === undefined) {
