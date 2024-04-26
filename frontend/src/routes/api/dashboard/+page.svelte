@@ -4,6 +4,7 @@
   import type { GetAllModelsRepositoryResponse } from "../../../domain/models/modelRepositoryDto";
   import TransactionSummary from "./TransactionSummary.svelte";
   import { page } from "$app/stores";
+  import CategorySummary from "./CategorySummary.svelte";
 
   const breadcrumbs = [{ label: "Dashboard", href: "/api/dashboard" }];
 
@@ -22,4 +23,16 @@
   <Breadcrumb {breadcrumbs} />
 </div>
 
-<TransactionSummary {transactionResponse} />
+<div
+  id="dashboard-chart-cards"
+  class="flex justify-center items-start gap-4 container mx-auto"
+>
+  <TransactionSummary {transactionResponse} />
+  <CategorySummary {transactionResponse} />
+</div>
+
+<style>
+  #dashboard-chart-cards {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+</style>

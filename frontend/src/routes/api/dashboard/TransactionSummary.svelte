@@ -37,9 +37,9 @@
       },
       type: "bar",
       width: "100%",
-      height: 400,
+      height: 300,
       toolbar: {
-        show: false,
+        show: true,
       },
     },
     fill: {
@@ -48,7 +48,7 @@
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "100%",
+        columnWidth: "10%",
         borderRadiusApplication: "end",
         borderRadius: 6,
         dataLabels: {
@@ -66,9 +66,6 @@
     tooltip: {
       shared: true,
       intersect: false,
-      formatter: function (value: string) {
-        return "$" + value;
-      },
     },
     xaxis: {
       labels: {
@@ -76,13 +73,10 @@
         style: {
           cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
         },
-        formatter: (value: string) => {
-          return value;
-        },
       },
       categories: Object.values(wallets),
       axisTicks: {
-        show: false,
+        show: true,
       },
       axisBorder: {
         show: false,
@@ -91,10 +85,6 @@
     yaxis: {
       labels: {
         show: true,
-        style: {
-          fontFamily: "Inter, sans-serif",
-          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400",
-        },
       },
     },
     grid: {
@@ -104,23 +94,21 @@
   };
 </script>
 
-<Card size="lg">
-  <div class="content flex flex-col gap-4">
-    <h5
-      class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
-    >
-      Valor total de transações (por carteira)
-    </h5>
-    {#if $navigating}
-      <div class="mx-auto">
-        <Spinner />
-      </div>
-    {:else if transactionResponse}
-      <Chart {options} />
-    {:else}
-      <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">
-        Sem transações
-      </p>
-    {/if}
-  </div>
-</Card>
+<div class="content flex flex-col gap-4 p-4 bg-white rounded">
+  <h5
+    class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+  >
+    Soma de transações (por carteira)
+  </h5>
+  {#if $navigating}
+    <div class="mx-auto">
+      <Spinner />
+    </div>
+  {:else if transactionResponse}
+    <Chart {options} />
+  {:else}
+    <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">
+      Sem transações
+    </p>
+  {/if}
+</div>
