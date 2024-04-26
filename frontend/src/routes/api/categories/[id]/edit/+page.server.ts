@@ -1,11 +1,7 @@
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import type {
-  GetAllModelsRepositoryResponse,
-  GetModelByIdRepositoryResponse,
-} from "../../../../../domain/models/modelRepositoryDto";
+import type { GetModelByIdRepositoryResponse } from "../../../../../domain/models/modelRepositoryDto";
 import { constants } from "http2";
-import { CurrencyRepository } from "$lib/repositories/currencyRepository";
 import { fail, redirect } from "@sveltejs/kit";
 import { CategoryRepository } from "$lib/repositories/categoryRepository";
 

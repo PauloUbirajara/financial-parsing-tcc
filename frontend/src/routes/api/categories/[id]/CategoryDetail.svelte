@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigating, page } from "$app/stores";
+  import { navigating } from "$app/stores";
   import { Button, P, TextPlaceholder } from "flowbite-svelte";
   import {
     ArrowLeftOutline,
