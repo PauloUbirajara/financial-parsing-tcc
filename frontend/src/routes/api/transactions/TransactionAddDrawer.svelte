@@ -146,6 +146,7 @@
     <div class="mb-6">
       <Label for="categories" class="mb-2">Categorias</Label>
       <MultiSelect
+        dropdownClass="inline-flex h-100 max-h-[200px]"
         id="wallet"
         placeholder="Selecione uma ou mais categorias"
         name="categories"
