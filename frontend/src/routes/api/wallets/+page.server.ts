@@ -33,8 +33,7 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
   create: async (event) => {
-    const formData = await event.request.formData();
-    const data = Object.fromEntries(formData.entries());
+    const data = await event.request.json();
     const wallet = {
       name: data["name"],
       description: data["description"],

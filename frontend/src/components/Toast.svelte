@@ -12,6 +12,7 @@
   } from "flowbite-svelte-icons";
 
   let toasts: ToastMessage[] = [];
+  const MAX_TOASTS_SHOWN = 2;
 
   onMount(() => {
     const unsubscribe = toastStore.subscribe((value) => {
@@ -44,7 +45,7 @@
   }
 </script>
 
-{#each toasts as toast}
+{#each toasts.slice(0, MAX_TOASTS_SHOWN) as toast}
   <Toast
     transition={fly}
     params={{ x: 200 }}

@@ -12,6 +12,9 @@
   import { sineIn } from "svelte/easing";
   import type { Currency } from "../../../domain/models/currency";
   import type { GetAllModelsRepositoryResponse } from "../../../domain/models/modelRepositoryDto";
+  import { goto } from "$app/navigation";
+  import { showToast } from "$lib/toast";
+  import { ToastType } from "../../../domain/models/toastMessage";
 
   export let hideAddDrawer: boolean = true;
   export let currencyResponse: GetAllModelsRepositoryResponse;
@@ -22,6 +25,33 @@
     duration: 200,
     easing: sineIn,
   };
+
+  let wallet = {
+    name: "",
+    description: "",
+    currency: "",
+  };
+
+  async function onAdd() {
+    const response = await fetch("/api/wallets?/create", {
+      method: "POST",
+      body: JSON.stringify(wallet),
+    });
+    if (response.ok) {
+      showToast({
+        title: "Adicionar carteira",
+        message: `Carteira "${wallet.name}" adicionada com sucesso.`,
+        type: ToastType.SUCCESS,
+      });
+      goto("/api/wallets", { invalidateAll: true });
+      return;
+    }
+    showToast({
+      title: "Adicionar carteira",
+      message: `Houve um erro ao adicionar a carteira "${wallet.name}".`,
+      type: ToastType.ERROR,
+    });
+  }
 </script>
 
 <Drawer
@@ -44,13 +74,14 @@
       class="mb-4 dark:text-white"
     />
   </div>
-  <form method="POST" action="?/create" class="mb-6">
+  <form class="mb-6" on:submit|preventDefault={onAdd}>
     <div class="mb-6">
       <Label for="name" class="block mb-2">Nome*</Label>
       <Input
         id="name"
         name="name"
         required
+        bind:value={wallet.name}
         placeholder="Digite o nome da carteira"
       />
     </div>
@@ -60,6 +91,7 @@
         id="description"
         placeholder="Digite a descrição da carteira"
         rows="4"
+        bind:value={wallet.description}
         name="description"
       />
     </div>
@@ -70,6 +102,7 @@
         placeholder="Selecione uma moeda"
         rows="4"
         name="currency"
+        bind:value={wallet.currency}
         required
       >
         {#each currencies as item}
