@@ -7,10 +7,11 @@
   import SecondContent from "../components/landing-page/SecondContent.svelte";
   import ThirdContent from "../components/landing-page/ThirdContent.svelte";
   import JoinContent from "../components/landing-page/JoinContent.svelte";
+  import { ImagePlaceholder, Spinner } from "flowbite-svelte";
 
   $: isLogged = Boolean($page.data.accessToken);
 
-  let screenHeight = 1280;
+  let screenHeight: number | null = null;
   onMount(() => {
     screenHeight = window.innerHeight;
   });
@@ -19,11 +20,17 @@
 <main class="min-h-screen">
   <Navbar {isLogged} />
 
-  <div class="snap-y snap-proximity">
-    <FirstContent {screenHeight} />
-    <SecondContent {screenHeight} />
-    <ThirdContent {screenHeight} />
-    <JoinContent {screenHeight} />
+  <div class="landing-page-content">
+    {#if !screenHeight}
+      <div class="container mx-auto my-5">
+        <ImagePlaceholder />
+      </div>
+    {:else}
+      <FirstContent {screenHeight} />
+      <SecondContent {screenHeight} />
+      <ThirdContent {screenHeight} />
+      <JoinContent {screenHeight} />
+    {/if}
   </div>
 
   <Footer />

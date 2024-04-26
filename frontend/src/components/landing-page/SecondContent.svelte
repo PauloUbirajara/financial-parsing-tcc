@@ -5,11 +5,13 @@
 </script>
 
 <div
-  class="second-content snap-center"
+  class="second-content"
   transition:fly={{ x: -20 }}
-  style={`height: ${screenHeight}px`}
+  style={`height: ${screenHeight}px; min-height: 300px;`}
 >
-  <div id="second-content-img"></div>
+  <div id="second-content-img-div">
+    <div id="second-content-img"></div>
+  </div>
   <div
     id="second-content-text"
     class="bg-custom-foreground text-custom-background"
@@ -44,7 +46,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     padding: 2.5rem;
   }

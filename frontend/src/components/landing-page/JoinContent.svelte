@@ -6,9 +6,9 @@
 </script>
 
 <div
-  class="join-content snap-center"
+  class="join-content"
   transition:fly={{ x: -20 }}
-  style={`height: ${screenHeight}px`}
+  style={`height: ${screenHeight}px; min-height: 300px;`}
 >
   <p class="text-4xl font-bold">Experimente agora a nossa plataforma</p>
   <Button href="/auth/login">Juntar-se</Button>
@@ -17,8 +17,10 @@
 <style>
   .join-content {
     display: grid;
-    grid-template-rows: repeat(2, min-content);
+    grid-template-rows: min-content min-content;
     justify-content: center;
+    align-items: center;
+    align-content: center;
     gap: 2rem;
   }
 </style>

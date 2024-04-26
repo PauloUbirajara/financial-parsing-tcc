@@ -5,9 +5,9 @@
 </script>
 
 <div
-  class="first-content snap-center"
+  class="first-content"
   transition:fly={{ x: -20 }}
-  style={`height: ${screenHeight}px`}
+  style={`height: ${screenHeight}px; min-height: 300px;`}
 >
   <div
     id="first-content-text"
@@ -44,7 +44,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     padding: 2.5rem;
   }
