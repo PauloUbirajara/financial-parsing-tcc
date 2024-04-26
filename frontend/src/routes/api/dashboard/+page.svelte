@@ -23,16 +23,7 @@
   <Breadcrumb {breadcrumbs} />
 </div>
 
-<div
-  id="dashboard-chart-cards"
-  class="flex justify-center items-start gap-4 container mx-auto"
->
+<div id="dashboard-chart-cards" class="grid gap-4 container mx-auto">
   <TransactionSummary {transactionResponse} />
   <CategorySummary {transactionResponse} />
 </div>
-
-<style>
-  #dashboard-chart-cards {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  }
-</style>

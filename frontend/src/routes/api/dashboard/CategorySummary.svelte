@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Chart, Spinner } from "flowbite-svelte";
-  import type { GetAllModelsRepositoryResponse } from "../../../domain/models/modelRepositoryDto";
-  import { navigating } from "$app/stores";
   import type { Category } from "../../../domain/models/category";
+  import type { GetAllModelsRepositoryResponse } from "../../../domain/models/modelRepositoryDto";
+  import { Chart, Heading, Spinner } from "flowbite-svelte";
+  import { navigating } from "$app/stores";
 
   export let transactionResponse: GetAllModelsRepositoryResponse;
 
@@ -62,10 +62,14 @@
             total: {
               showAlways: true,
               show: true,
+              label: "transações",
             },
             value: {
               show: true,
               offsetY: -20,
+              formatter: function (w: any) {
+                return `${w}k`;
+              },
             },
           },
           size: "70%",
@@ -76,7 +80,7 @@
       enabled: false,
     },
     legend: {
-      position: "bottom",
+      position: "right",
     },
     xaxis: {
       axisTicks: {
@@ -90,11 +94,7 @@
 </script>
 
 <div class="content flex flex-col gap-4 p-4 bg-white rounded">
-  <h5
-    class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
-  >
-    10 categorias mais usadas
-  </h5>
+  <Heading tag="h4">10 categorias mais usadas</Heading>
   {#if $navigating}
     <div class="mx-auto">
       <Spinner />
