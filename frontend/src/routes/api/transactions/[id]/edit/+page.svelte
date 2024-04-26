@@ -10,8 +10,6 @@
     MultiSelect,
   } from "flowbite-svelte";
   import { ArrowLeftOutline, CheckOutline } from "flowbite-svelte-icons";
-  import Sidebar from "../../../../../components/Sidebar.svelte";
-  import Breadcrumb from "../../../../../components/Breadcrumb.svelte";
   import type {
     GetAllModelsRepositoryResponse,
     GetModelByIdRepositoryResponse,
@@ -19,6 +17,7 @@
   import { ToastType } from "../../../../../domain/models/toastMessage";
   import { showToast } from "$lib/toast";
   import { goto } from "$app/navigation";
+  import UserNavbar from "../../../../../components/UserNavbar.svelte";
 
   let transactionResponse: GetModelByIdRepositoryResponse =
     $page.data.transactionResponse;
@@ -73,10 +72,7 @@
   }
 </script>
 
-<div class="flex items-center gap-4">
-  <Sidebar />
-  <Breadcrumb {breadcrumbs} />
-</div>
+<UserNavbar {breadcrumbs} />
 <div class="container mx-auto flex flex-col gap-4">
   {#if $navigating}
     <TextPlaceholder divClass="space-y-2.5 animate-pulse mx-auto w-full" />

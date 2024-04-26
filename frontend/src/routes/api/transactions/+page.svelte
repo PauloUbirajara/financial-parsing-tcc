@@ -5,9 +5,7 @@
   import { page } from "$app/stores";
   import { showToast } from "$lib/toast";
 
-  import Breadcrumb from "../../../components/Breadcrumb.svelte";
   import ModelList from "../../../components/model/ModelList.svelte";
-  import Sidebar from "../../../components/Sidebar.svelte";
   import TransactionAddDrawer from "./TransactionAddDrawer.svelte";
   import transactionModelListInfo from "../../../data/usecases/modelListInfo/transaction";
   import transactionserializer from "../../../data/usecases/modelSerializer/transaction";
@@ -15,6 +13,7 @@
   import type { IModelListInfo } from "../../../domain/usecases/modelListInfo";
   import type { IModelSerializer } from "../../../domain/usecases/modelSerializer";
   import { ToastType } from "../../../domain/models/toastMessage";
+  import UserNavbar from "../../../components/UserNavbar.svelte";
 
   let hideAddDrawer = true;
   function onAdd() {
@@ -106,10 +105,7 @@
   }
 </script>
 
-<div class="flex items-center gap-4">
-  <Sidebar />
-  <Breadcrumb {breadcrumbs} />
-</div>
+<UserNavbar {breadcrumbs} />
 {#if loading}
   <div class="container mx-auto">
     <ListPlaceholder

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import Breadcrumb from "../../../../components/Breadcrumb.svelte";
-  import Sidebar from "../../../../components/Sidebar.svelte";
+  import UserNavbar from "../../../../components/UserNavbar.svelte";
   import WalletDetail from "./WalletDetail.svelte";
 
   const wallet = $page.data.wallet;
@@ -11,10 +10,7 @@
   ];
 </script>
 
-<div class="flex items-center gap-4">
-  <Sidebar />
-  <Breadcrumb {breadcrumbs} />
-</div>
+<UserNavbar {breadcrumbs} />
 <div class="container mx-auto grid gap-4">
   <WalletDetail {wallet} />
 </div>

@@ -14,8 +14,7 @@
   import CategoryAddDrawer from "./CategoryAddDrawer.svelte";
   import { ToastType } from "../../../domain/models/toastMessage";
   import { page } from "$app/stores";
-  import Sidebar from "../../../components/Sidebar.svelte";
-  import Breadcrumb from "../../../components/Breadcrumb.svelte";
+  import UserNavbar from "../../../components/UserNavbar.svelte";
 
   let hideAddDrawer = true;
   function onAdd() {
@@ -103,10 +102,6 @@
   }
 </script>
 
-<div class="flex items-center gap-4">
-  <Sidebar />
-  <Breadcrumb {breadcrumbs} />
-</div>
 {#if loading}
   <div class="container mx-auto">
     <ListPlaceholder
@@ -114,6 +109,7 @@
     />
   </div>
 {:else}
+  <UserNavbar {breadcrumbs} />
   <CategoryAddDrawer bind:hideAddDrawer />
   <ModelList
     bind:selectedModel

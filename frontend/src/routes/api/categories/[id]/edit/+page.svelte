@@ -3,12 +3,11 @@
   import { TextPlaceholder, Button, Input, Label } from "flowbite-svelte";
   import { ArrowLeftOutline, CheckOutline } from "flowbite-svelte-icons";
   import type { Category } from "../../../../../domain/models/category";
-  import Sidebar from "../../../../../components/Sidebar.svelte";
-  import Breadcrumb from "../../../../../components/Breadcrumb.svelte";
   import type { GetModelByIdRepositoryResponse } from "../../../../../domain/models/modelRepositoryDto";
   import { goto } from "$app/navigation";
   import { showToast } from "$lib/toast";
   import { ToastType } from "../../../../../domain/models/toastMessage";
+  import UserNavbar from "../../../../../components/UserNavbar.svelte";
 
   let categoryResponse: GetModelByIdRepositoryResponse =
     $page.data.categoryResponse;
@@ -47,14 +46,11 @@
   }
 </script>
 
-<div class="flex items-center gap-4">
-  <Sidebar />
-  <Breadcrumb {breadcrumbs} />
-</div>
 <div class="container mx-auto flex flex-col gap-4">
   {#if $navigating}
     <TextPlaceholder divClass="space-y-2.5 animate-pulse mx-auto w-full" />
   {:else}
+    <UserNavbar {breadcrumbs} />
     <div class="actions flex justify-between">
       <Button
         outline={true}

@@ -107,11 +107,11 @@
     <div class="mx-auto">
       <Spinner />
     </div>
-  {:else if transactionResponse.count}
+  {:else if transactionResponse.count && series.length}
     <Chart {options} />
   {:else}
     <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">
-      Sem transações
+      Sem transações e/ou categorias
     </p>
   {/if}
 </div>
