@@ -32,7 +32,18 @@
 
   const labels = transactionsPerCategory.map((c) => categoryNames[c[0]]);
   const series = transactionsPerCategory.map((c) => c[1]);
-  const colors = ["#25AF9B", "#D16C2C", "#48211C", "#A8152B", "#1A5BF1"];
+  const colors = [
+    "#4169E1",
+    "#FF8C00",
+    "#006400",
+    "#DC143C",
+    "#483D8B",
+    "#008B8B",
+    "#9932CC",
+    "#B8860B",
+    "#8FBC8F",
+    "#4B0082",
+  ];
 
   const options = {
     labels,
@@ -62,14 +73,11 @@
             total: {
               showAlways: true,
               show: true,
-              label: "transações",
+              label: "categorias",
             },
             value: {
               show: true,
               offsetY: -20,
-              formatter: function (w: any) {
-                return `${w}k`;
-              },
             },
           },
           size: "70%",
