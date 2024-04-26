@@ -22,7 +22,7 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         return queryset
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.get_queryset().order_by("representation")
 
         search_term = self.request.query_params.get("search")
         if search_term:
