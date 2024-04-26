@@ -145,7 +145,7 @@
                 <Checkbox bind:checked={checked[item.id]} />
               </TableBodyCell>
               {#each Object.values(serializer.serialize(item)) as val}
-                <TableBodyCell>
+                <TableBodyCell class="max-w-20 overflow-x-clip text-ellipsis">
                   {val}
                 </TableBodyCell>
               {/each}
