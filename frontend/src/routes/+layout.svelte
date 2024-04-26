@@ -3,7 +3,7 @@
   import Toast from "../components/Toast.svelte";
 </script>
 
-<div class="bg-custom-background" id="main-layout">
+<div class="bg-custom-background h-full" id="main-layout">
   <slot />
 </div>
 
@@ -12,10 +12,6 @@
 </div>
 
 <style>
-  #main-layout {
-    min-height: 100%;
-  }
-
   .toasts {
     position: fixed;
     top: 1.5rem;

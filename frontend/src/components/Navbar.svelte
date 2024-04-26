@@ -15,10 +15,10 @@
   export let isLogged: boolean;
 </script>
 
-<Navbar>
+<Navbar class="sticky top-0">
   <NavBrand href="/">
     <img
-      src="logo.png"
+      src="/logo.png"
       class="me-3 h-6 sm:h-9 rounded"
       alt="Financial Parsing Logo"
     />

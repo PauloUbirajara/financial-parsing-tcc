@@ -7,7 +7,7 @@
   import SecondContent from "../components/landing-page/SecondContent.svelte";
   import ThirdContent from "../components/landing-page/ThirdContent.svelte";
   import JoinContent from "../components/landing-page/JoinContent.svelte";
-  import { ImagePlaceholder, Spinner } from "flowbite-svelte";
+  import { ImagePlaceholder } from "flowbite-svelte";
 
   $: isLogged = Boolean($page.data.accessToken);
 

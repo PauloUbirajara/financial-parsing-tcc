@@ -27,7 +27,7 @@
 
 <style>
   #first-content-img {
-    background: url(./landing-page/first-content.webp);
+    background: url("/landing-page/first-content.webp");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;

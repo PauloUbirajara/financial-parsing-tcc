@@ -35,7 +35,7 @@
 {#if $navigating}
   <TextPlaceholder divClass="space-y-2.5 animate-pulse mx-auto w-full" />
 {:else}
-  <div class="actions flex justify-between">
+  <div class="actions flex justify-between items-center">
     <Button
       outline={true}
       class="!p-2"

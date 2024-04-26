@@ -29,7 +29,7 @@
 
 <style>
   #second-content-img {
-    background: url(./landing-page/second-content.webp);
+    background: url("/landing-page/second-content.webp");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;

@@ -31,7 +31,7 @@
 
 <style>
   #third-content-img {
-    background: url(./landing-page/third-content.webp);
+    background: url("/landing-page/third-content.webp");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;

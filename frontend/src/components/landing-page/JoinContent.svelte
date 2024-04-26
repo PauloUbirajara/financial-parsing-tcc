@@ -22,5 +22,6 @@
     align-items: center;
     align-content: center;
     gap: 2rem;
+    padding: 2.5rem;
   }
 </style>

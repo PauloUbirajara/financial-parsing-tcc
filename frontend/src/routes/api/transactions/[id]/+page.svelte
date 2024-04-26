@@ -11,6 +11,6 @@
 </script>
 
 <UserNavbar {breadcrumbs} />
-<div class="container mx-auto grid gap-4">
+<div class="container mx-auto grid gap-8 h-min">
   <TransactionDetail {transaction} />
 </div>
