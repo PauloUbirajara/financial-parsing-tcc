@@ -6,6 +6,9 @@
   import Sidebar from "../../../../../components/Sidebar.svelte";
   import Breadcrumb from "../../../../../components/Breadcrumb.svelte";
   import type { GetModelByIdRepositoryResponse } from "../../../../../domain/models/modelRepositoryDto";
+  import { goto } from "$app/navigation";
+  import { showToast } from "$lib/toast";
+  import { ToastType } from "../../../../../domain/models/toastMessage";
 
   let categoryResponse: GetModelByIdRepositoryResponse =
     $page.data.categoryResponse;
@@ -19,6 +22,29 @@
     { label: category.name, href: `/api/categories/${category.id}` },
     { label: "Editar", href: `/api/categories/${category.id}/edit` },
   ];
+
+  async function onUpdate() {
+    const id = $page.params.id;
+    const response = await fetch(`/api/categories/${id}/edit`, {
+      method: "POST",
+      body: JSON.stringify(updated),
+    });
+
+    if (response.ok) {
+      showToast({
+        title: "Atualizar categoria",
+        message: `Categoria "${updated.name}" atualizada com sucesso!`,
+        type: ToastType.SUCCESS,
+      });
+      goto($page.url, { invalidateAll: true });
+      return;
+    }
+    showToast({
+      title: "Atualizar categoria",
+      message: `Houve um erro ao atualizar a categoria "${updated.name}".`,
+      type: ToastType.ERROR,
+    });
+  }
 </script>
 
 <div class="flex items-center gap-4">
@@ -42,13 +68,13 @@
       </Button>
     </div>
 
-    <form method="POST" action="?">
+    <form on:submit|preventDefault={onUpdate}>
       <div class="mb-6">
         <Label for="name" class="block mb-2">Nome*</Label>
         <Input
           id="name"
           name="name"
-          value={updated.name}
+          bind:value={updated.name}
           required
           placeholder="Digite o nome da categoria"
         />

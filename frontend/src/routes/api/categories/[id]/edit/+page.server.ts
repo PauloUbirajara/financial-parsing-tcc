@@ -37,8 +37,7 @@ export const actions: Actions = {
       });
     }
 
-    const formData = await event.request.formData();
-    const data = Object.fromEntries(formData.entries());
+    const data = await event.request.json();
     const updated = {
       name: data["name"],
     };
