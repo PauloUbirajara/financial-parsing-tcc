@@ -1,7 +1,10 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { showToast } from "$lib/toast";
   import { Button, CloseButton, Drawer, Input, Label } from "flowbite-svelte";
   import { InfoCircleSolid, PlusOutline } from "flowbite-svelte-icons";
   import { sineIn } from "svelte/easing";
+  import { ToastType } from "../../../domain/models/toastMessage";
 
   export let hideAddDrawer: boolean = true;
 
@@ -10,6 +13,31 @@
     duration: 200,
     easing: sineIn,
   };
+
+  let category = {
+    name: "",
+  };
+
+  async function onAdd() {
+    const response = await fetch("/api/categories?/create", {
+      method: "POST",
+      body: JSON.stringify(category),
+    });
+    if (response.ok) {
+      showToast({
+        title: "Adicionar categoria",
+        message: `Categoria "${category.name}" adicionada com sucesso.`,
+        type: ToastType.SUCCESS,
+      });
+      goto("/api/categories", { invalidateAll: true });
+      return;
+    }
+    showToast({
+      title: "Adicionar categoria",
+      message: `Houve um erro ao adicionar a categoria "${category.name}".`,
+      type: ToastType.ERROR,
+    });
+  }
 </script>
 
 <Drawer
@@ -32,13 +60,14 @@
       class="mb-4 dark:text-white"
     />
   </div>
-  <form method="POST" action="?/create" class="mb-6">
+  <form class="mb-6" on:submit|preventDefault={onAdd}>
     <div class="mb-6">
       <Label for="name" class="block mb-2">Nome*</Label>
       <Input
         id="name"
         name="name"
         required
+        bind:value={category.name}
         placeholder="Digite o nome da categoria"
       />
     </div>
