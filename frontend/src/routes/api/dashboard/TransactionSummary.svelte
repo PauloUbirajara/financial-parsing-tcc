@@ -23,14 +23,15 @@
     }, {}),
   );
   transactionsPerWallet.sort((a, b) => a[1] - b[1]);
+  const series = [
+    {
+      name: "Valor total",
+      data: transactionsPerWallet.map((c) => c[1]),
+    },
+  ];
 
   const options = {
-    series: [
-      {
-        name: "Valor total",
-        data: transactionsPerWallet.map((c) => c[1]),
-      },
-    ],
+    series,
     chart: {
       sparkline: {
         enabled: false,
@@ -100,7 +101,7 @@
     <div class="mx-auto">
       <Spinner />
     </div>
-  {:else if transactionResponse.count}
+  {:else if transactionResponse.count && Boolean(wallets)}
     <Chart {options} />
   {:else}
     <p class="font-normal text-gray-700 dark:text-gray-400 leading-tight">

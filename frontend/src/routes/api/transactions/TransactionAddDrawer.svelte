@@ -63,7 +63,6 @@
 
 <Drawer
   placement="right"
-  width="container"
   transitionType="fly"
   {transitionParams}
   bind:hidden={hideAddDrawer}

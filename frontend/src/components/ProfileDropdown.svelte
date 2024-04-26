@@ -7,12 +7,11 @@
   import { ToastType } from "../domain/models/toastMessage";
 
   async function logout() {
-    const response = await fetch("/auth?/logout", {
+    const response = await fetch("/api?/logout", {
       method: "POST",
       body: JSON.stringify({}),
     });
     if (!response.ok) {
-      console.log(await response.text());
       return;
     }
     showToast({

@@ -12,7 +12,6 @@
   } from "flowbite-svelte-icons";
 
   let toasts: ToastMessage[] = [];
-  const MAX_TOASTS_SHOWN = 2;
 
   onMount(() => {
     const unsubscribe = toastStore.subscribe((value) => {
@@ -45,7 +44,7 @@
   }
 </script>
 
-{#each toasts.slice(0, MAX_TOASTS_SHOWN) as toast}
+{#each toasts as toast}
   <Toast
     transition={fly}
     params={{ x: 200 }}
@@ -66,9 +65,9 @@
         <span class="sr-only">Warning icon</span>
       {/if}
     </svelte:fragment>
-    <span class="mb-1 text-lg font-semibold text-gray-900 dark:text-white"
-      >{toast.title}</span
-    >
+    <span class="mb-1 text-lg font-semibold text-gray-900 dark:text-white">
+      {toast.title}
+    </span>
     <div class="mb-2 text-md font-normal">{toast.message}</div>
   </Toast>
 {/each}
