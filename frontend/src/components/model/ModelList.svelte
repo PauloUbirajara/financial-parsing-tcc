@@ -136,7 +136,7 @@
           {#each serializer.getFields() as key}
             <TableHeadCell>{key}</TableHeadCell>
           {/each}
-          <TableHeadCell>Ações</TableHeadCell>
+          <TableHeadCell class="float-right">Ações</TableHeadCell>
         </TableHead>
         <TableBody>
           {#each response.results as item}
@@ -149,7 +149,7 @@
                   {val}
                 </TableBodyCell>
               {/each}
-              <TableBodyCell>
+              <TableBodyCell class="float-right">
                 <Button
                   class="!p-2 dots-menu"
                   color="alternative"
