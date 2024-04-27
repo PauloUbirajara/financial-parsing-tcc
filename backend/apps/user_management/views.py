@@ -1,3 +1,4 @@
+import logging
 from os import getenv
 from urllib.parse import urljoin
 
@@ -26,7 +27,7 @@ from data.usecases.send_password_reset.django_email_send_password_reset import (
 from domain.usecases.send_activate_account import SendActivateAccount
 from domain.usecases.send_password_reset import SendPasswordReset
 from protocols.send_email import SendEmail
-from utils.send_email.django_send_email import DjangoSendEmail
+from utils.send_email.smtplib_send_email import SMTPLibSendEmail
 
 User = get_user_model()
 
@@ -46,28 +47,30 @@ class UserActivationView(APIView):
             )
 
         # Activate user account and remove token
-        try:
-            with transaction.atomic():
-                user = user_management.user
+        user = user_management.user
+        with transaction.atomic():
+            try:
                 user.is_active = True
                 user.save()
                 user_management.delete()
 
-                # Create default categories and wallet per user
-                call_command("add_default_categories", user.id)
-                call_command("add_default_wallet", user.id)
+            except Exception as e:
+                logging.warning(
+                    {"message": "Error when activating account", "error": e}
+                )
+                transaction.set_rollback(True)
+                return Response(
+                    {"detail": "Erro durante a ativação da conta."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
-            return Response(
-                {"detail": "Ativação de conta realizada com sucesso."},
-                status=status.HTTP_200_OK,
-            )
-        except Exception as e:
-            print("Error when activating account", e)
-            transaction.set_rollback(True)
+        # Create default categories and wallet per user
+        call_command("add_default_categories", user.id)
+        call_command("add_default_wallet", user.id)
 
         return Response(
-            {"detail": "Erro durante a ativação da conta."},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            {"detail": "Ativação de conta realizada com sucesso."},
+            status=status.HTTP_200_OK,
         )
 
 
@@ -96,7 +99,7 @@ class SendPasswordResetEmailView(APIView):
         )
 
         # Send password reset email
-        send_email: SendEmail = DjangoSendEmail(user=user)
+        send_email: SendEmail = SMTPLibSendEmail(user=user)
         send_reset_password: SendPasswordReset = DjangoEmailSendPasswordReset(
             reset_link=reset_link, send_email=send_email
         )
@@ -131,8 +134,8 @@ class PasswordResetView(APIView):
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Reset password
-        try:
-            with transaction.atomic():
+        with transaction.atomic():
+            try:
                 user = user_management.user
                 new_password = serializer.validated_data.get("password")
                 user.set_password(new_password)
@@ -141,13 +144,15 @@ class PasswordResetView(APIView):
                 # Delete the used token
                 user_management.delete()
 
-            return Response(
-                {"detail": "Redefinição de senha realizada com sucesso."},
-                status=status.HTTP_200_OK,
-            )
-        except Exception as e:
-            print("Error when resetting password", e)
-            transaction.set_rollback(True)
+                return Response(
+                    {"detail": "Redefinição de senha realizada com sucesso."},
+                    status=status.HTTP_200_OK,
+                )
+            except Exception as e:
+                logging.warning(
+                    {"message": "Error when resetting password", "error": e}
+                )
+                transaction.set_rollback(True)
 
         return Response(
             {"detail": "Erro durante a redefinição de senha."},
@@ -175,8 +180,8 @@ class UserRegistrationView(APIView):
                 {"error": "E-mail já cadastrado."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        try:
-            with transaction.atomic():
+        with transaction.atomic():
+            try:
                 # Create the user
                 password = make_password(serializer.validated_data.get("password"))
                 user = User.objects.create(
@@ -192,21 +197,23 @@ class UserRegistrationView(APIView):
                     )
                 )
 
-            send_email: SendEmail = DjangoSendEmail(user=user)
-            send_activate_account: SendActivateAccount = DjangoEmailSendActivateAccount(
-                activation_link=activation_link, send_email=send_email
-            )
-            send_activate_account.send()
+                send_email: SendEmail = SMTPLibSendEmail(user=user)
+                send_activate_account: SendActivateAccount = (
+                    DjangoEmailSendActivateAccount(
+                        activation_link=activation_link, send_email=send_email
+                    )
+                )
+                send_activate_account.send()
 
-            return Response(
-                {
-                    "detail": "Usuário cadastrado com sucesso. Confirme a sua conta através do link que enviamos para o seu e-mail."
-                },
-                status=status.HTTP_201_CREATED,
-            )
-        except Exception as e:
-            print("Error when registering user", e)
-            transaction.set_rollback(True)
+                return Response(
+                    {
+                        "detail": "Usuário cadastrado com sucesso. Confirme a sua conta através do link que enviamos para o seu e-mail."
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+            except Exception as e:
+                logging.warning({"message": "Error when registering user", "error": e})
+                transaction.set_rollback(True)
 
         return Response(
             {"detail": "Erro durante o cadastro do usuário."},
