@@ -54,7 +54,7 @@
       divClass="overflow-y-auto py-4 px-3 rounded dark:bg-gray-800"
     >
       <SidebarGroup>
-        <SidebarItem label="Dashboard" href="/api/dashboard">
+        <SidebarItem label="Dashboard" href="/app/dashboard">
           <svelte:fragment slot="icon">
             <ChartPieSolid
               class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -62,7 +62,7 @@
           </svelte:fragment>
         </SidebarItem>
 
-        <SidebarItem label="Transações" href="/api/transactions">
+        <SidebarItem label="Transações" href="/app/transactions">
           <svelte:fragment slot="icon">
             <FileChartBarSolid
               class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -70,7 +70,7 @@
           </svelte:fragment>
         </SidebarItem>
 
-        <SidebarItem label="Carteiras" href="/api/wallets">
+        <SidebarItem label="Carteiras" href="/app/wallets">
           <svelte:fragment slot="icon">
             <WalletSolid
               class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -78,7 +78,7 @@
           </svelte:fragment>
         </SidebarItem>
 
-        <SidebarItem label="Categorias" href="/api/categories">
+        <SidebarItem label="Categorias" href="/app/categories">
           <svelte:fragment slot="icon">
             <TagSolid
               class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"

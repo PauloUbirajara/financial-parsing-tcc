@@ -30,13 +30,13 @@ async function handleJwtAuthorization(
     event.cookies.delete("accessToken", { path: "/" });
     event.cookies.delete("refreshToken", { path: "/" });
 
-    if (event.url.pathname.startsWith("/api")) {
+    if (event.url.pathname.startsWith("/app")) {
       redirect(constants.HTTP_STATUS_TEMPORARY_REDIRECT, "/auth/login");
     }
   }
 
   if (isAuthorized && event.url.pathname.startsWith("/auth")) {
-    redirect(constants.HTTP_STATUS_TEMPORARY_REDIRECT, "/api/dashboard");
+    redirect(constants.HTTP_STATUS_TEMPORARY_REDIRECT, "/app/dashboard");
   }
 }
 

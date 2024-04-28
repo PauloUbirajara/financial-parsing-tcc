@@ -2,23 +2,23 @@ import type { IModelListInfo } from "../../../domain/usecases/modelListInfo";
 
 class CategoryModelListInfo implements IModelListInfo {
   getListUrl(model: any): string {
-    return `/api/categories`;
+    return `/app/categories`;
   }
 
   getDetailUrl(model: any): string {
-    return `/api/categories/${model.id}`;
+    return `/app/categories/${model.id}`;
   }
 
   getCreateUrl(model: any): string {
-    return `/api/categories/${model.id}/create`;
+    return `/app/categories/${model.id}/create`;
   }
 
   getEditUrl(model: any): string {
-    return `/api/categories/${model.id}/edit`;
+    return `/app/categories/${model.id}/edit`;
   }
 
   getDeleteUrl(model: any): string {
-    return `/api/categories/${model.id}/delete`;
+    return `/app/categories/${model.id}/delete`;
   }
 
   getDeleteModalTitle(model: any): string {

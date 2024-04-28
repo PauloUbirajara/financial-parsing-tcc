@@ -64,7 +64,7 @@
 
     if (formMessages.success) {
       setTimeout(() => {
-        goto("/api/dashboard");
+        goto("/app/dashboard");
       }, 500);
     }
   }

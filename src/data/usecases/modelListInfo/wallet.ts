@@ -2,23 +2,23 @@ import type { IModelListInfo } from "../../../domain/usecases/modelListInfo";
 
 class WalletModelListInfo implements IModelListInfo {
   getListUrl(model: any): string {
-    return `/api/wallets`;
+    return `/app/wallets`;
   }
 
   getDetailUrl(model: any): string {
-    return `/api/wallets/${model.id}`;
+    return `/app/wallets/${model.id}`;
   }
 
   getCreateUrl(model: any): string {
-    return `/api/wallets/${model.id}/create`;
+    return `/app/wallets/${model.id}/create`;
   }
 
   getEditUrl(model: any): string {
-    return `/api/wallets/${model.id}/edit`;
+    return `/app/wallets/${model.id}/edit`;
   }
 
   getDeleteUrl(model: any): string {
-    return `/api/wallets/${model.id}/delete`;
+    return `/app/wallets/${model.id}/delete`;
   }
 
   getDeleteModalTitle(model: any): string {

@@ -30,11 +30,11 @@
   <NavHamburger />
   <NavUl>
     {#if isLogged}
-      <NavLi href="/api/dashboard">Dashboard</NavLi>
-      <NavLi href="/api/transactions">Transações</NavLi>
-      <NavLi href="/api/wallets">Carteiras</NavLi>
-      <NavLi href="/api/categories">Categorias</NavLi>
-      <NavLi href="/api/currencies">Moedas</NavLi>
+      <NavLi href="/app/dashboard">Dashboard</NavLi>
+      <NavLi href="/app/transactions">Transações</NavLi>
+      <NavLi href="/app/wallets">Carteiras</NavLi>
+      <NavLi href="/app/categories">Categorias</NavLi>
+      <NavLi href="/app/currencies">Moedas</NavLi>
     {:else}
       <NavLi href="/auth/login">Acessar conta</NavLi>
       <NavLi href="/auth/register">Criar conta</NavLi>
