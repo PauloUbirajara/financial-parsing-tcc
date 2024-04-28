@@ -3,7 +3,7 @@
   import type { ToastMessage } from "../domain/models/toastMessage";
   import { ToastType } from "../domain/models/toastMessage";
   import { toastStore } from "../stores/toast";
-  import { Toast } from "flowbite-svelte";
+  import { Progressbar, Toast } from "flowbite-svelte";
   import { fly } from "svelte/transition";
   import {
     CheckCircleSolid,
@@ -11,11 +11,36 @@
     ExclamationCircleSolid,
   } from "flowbite-svelte-icons";
 
-  let toasts: ToastMessage[] = [];
+  let toast: ToastMessage | null = null;
+  let showToast: boolean = true;
+  let currentDuration = 0;
+  let interval: NodeJS.Timeout;
+  const MAX_TOAST_DURATION_IN_MS = 30000;
+
+  function removeToast() {
+    showToast = false;
+    currentDuration = 0;
+    toastStore.set(null);
+  }
+
+  setInterval(() => {
+    if (toast === null) {
+      clearInterval(interval);
+      return;
+    }
+    currentDuration += 1000;
+    if (currentDuration < MAX_TOAST_DURATION_IN_MS) {
+      return;
+    }
+    currentDuration = 0;
+    removeToast();
+  }, 1000);
 
   onMount(() => {
     const unsubscribe = toastStore.subscribe((value) => {
-      toasts = value;
+      toast = value;
+      showToast = true;
+      currentDuration = 0;
     });
 
     return unsubscribe;
@@ -24,8 +49,6 @@
   type ToastColors =
     | "green"
     | "red"
-    | "orange"
-    | "none"
     | "gray"
     | "yellow"
     | "indigo"
@@ -44,12 +67,14 @@
   }
 </script>
 
-{#each toasts as toast}
+{#if toast !== null}
   <Toast
     transition={fly}
     params={{ x: 200 }}
     color={getColorFromToast(toast)}
     class="mb-4"
+    bind:open={showToast}
+    on:close={() => removeToast()}
   >
     <svelte:fragment slot="icon">
       {#if toast.type === ToastType.SUCCESS}
@@ -69,5 +94,13 @@
       {toast.title}
     </span>
     <div class="mb-2 text-md font-normal">{toast.message}</div>
+    <Progressbar
+      color={getColorFromToast(toast)}
+      animate={true}
+      tweenDuration={1000}
+      progress={(currentDuration / MAX_TOAST_DURATION_IN_MS) * 100.0}
+      size="h-1"
+      divClass="w-full bg-gray-200 rounded-full dark:bg-gray-700 relative bottom-0"
+    />
   </Toast>
-{/each}
+{/if}
