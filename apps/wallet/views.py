@@ -28,7 +28,7 @@ class WalletViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
-        queryset = Wallet.objects.filter()
+        queryset = Wallet.objects.filter(user=self.request.user)
         return queryset
 
     def get_serializer_class(self):
