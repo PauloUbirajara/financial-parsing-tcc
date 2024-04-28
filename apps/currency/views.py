@@ -18,6 +18,9 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
 
+        if self.action not in ("list", "retrieve"):
+            raise NotImplementedError()
+
         queryset = Currency.objects.filter()
         return queryset
 
@@ -60,9 +63,3 @@ class CurrencyViewSet(viewsets.ModelViewSet, NestedViewSetMixin):
         serializer = serializer_class(currency)
 
         return Response(data=serializer.data)
-
-    def update(self, request, *args, **kwargs):
-        return Response(status=HTTPStatus.UNAUTHORIZED)
-
-    def delete(self, request, *args, **kwargs):
-        return Response(status=HTTPStatus.UNAUTHORIZED)
