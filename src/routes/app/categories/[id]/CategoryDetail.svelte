@@ -52,7 +52,7 @@
       </Button>
       <Button color="red" on:click={() => (showDeleteCategoryModal = true)}>
         <TrashBinSolid />
-        Editar
+        Apagar
       </Button>
     </div>
   </div>

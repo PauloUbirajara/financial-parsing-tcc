@@ -150,7 +150,7 @@
       </Button>
       <Button color="red" on:click={() => (showDeleteWalletModal = true)}>
         <TrashBinSolid class="me-2" />
-        Editar
+        Apagar
       </Button>
     </div>
   </div>
