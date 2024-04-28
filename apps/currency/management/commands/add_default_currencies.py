@@ -5,25 +5,25 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
 
-def create_default_currencies(user: User):
+def create_default_currencies():
     # Values from py-money python package
     default_currencies_dict = {
-        "ARS": "Argentine Peso",
-        "AUD": "Australian Dollar",
-        "BRL": "Brazilian Real",
-        "CAD": "Canadian Dollar",
+        "ARS": "Peso Argentino",
+        "AUD": "Dólar Australiano",
+        "BRL": "Real Brasileiro",
+        "CAD": "Dólar Canadense",
         "EUR": "Euro",
-        "GBP": "Pound Sterling",
-        "JPY": "Yen",
-        "MXN": "Mexican Peso",
-        "RUB": "Russian Ruble",
-        "USD": "US Dollar",
+        "GBP": "Libra Esterlina",
+        "JPY": "Iene",
+        "MXN": "Peso Mexicano",
+        "RUB": "Rublo Russo",
+        "USD": "Dólar Americano",
     }
 
     for representation, name in default_currencies_dict.items():
         try:
             Currency.objects.get_or_create(
-                name=name, representation=representation, user=user
+                name=name, representation=representation
             )
         except Exception as err:
             logging.warning(
@@ -35,16 +35,7 @@ def create_default_currencies(user: User):
 
 
 class Command(BaseCommand):
-    help = "Adds default currencies for a specific user"
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "user_id", type=int, help="Specify which user to create default currencies"
-        )
+    help = "Adds default currencies"
 
     def handle(self, *args, **kwargs):
-        user = User.objects.filter(id=kwargs["user_id"]).first()
-        if user is None:
-            raise Exception("Could not find user")
-
-        create_default_currencies(user)
+        create_default_currencies()

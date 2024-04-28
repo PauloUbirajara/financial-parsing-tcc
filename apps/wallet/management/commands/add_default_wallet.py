@@ -36,8 +36,4 @@ class Command(BaseCommand):
         if user is None:
             raise Exception("Could not find user")
 
-        if Wallet.objects.filter(user=user).count() > 0:
-            logging.warning("User already has one or more wallets")
-            return
-
         create_default_wallet(user)

@@ -17,7 +17,7 @@ def create_default_categories(user: User):
     )
     for category in default_categories:
         try:
-            Category.objects.create(name=category, user=user)
+            Category.objects.get_or_create(name=category, user=user)
         except Exception as err:
             logging.warning("Could not create default category: {}".format(category))
             logging.warning(str(err))
@@ -35,9 +35,5 @@ class Command(BaseCommand):
         user = User.objects.filter(id=kwargs["user_id"]).first()
         if user is None:
             raise Exception("Could not find user")
-
-        if Category.objects.filter(user=user).count() > 0:
-            logging.warning("User already has one or more categories")
-            return
 
         create_default_categories(user)
