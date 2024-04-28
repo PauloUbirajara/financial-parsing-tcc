@@ -16,7 +16,7 @@
     </p>
     <p class="text-xl">
       Após adicionar suas transações em nossa plataforma, é possível exportá-las
-      em diversos formatos:
+      em diferentes formatos:
     </p>
     <List position="inside">
       <Li>PDF</Li>

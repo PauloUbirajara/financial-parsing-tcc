@@ -20,9 +20,9 @@
       Gerencie diversas transações em um só lugar
     </p>
     <p class="text-xl">
-      Com transações categorizáveis, é possível entender os dados através de
-      gráficos para tomar uma melhor decisão durante a gerência de suas
-      finanças.
+      Com a criação de carteiras personalizadas, você poderá 
+      administrar todas as suas transações financeiras em 
+      uma única plataforma conveniente e intuitiva.
     </p>
   </div>
 </div>

@@ -34,7 +34,6 @@
       <NavLi href="/app/transactions">Transações</NavLi>
       <NavLi href="/app/wallets">Carteiras</NavLi>
       <NavLi href="/app/categories">Categorias</NavLi>
-      <NavLi href="/app/currencies">Moedas</NavLi>
     {:else}
       <NavLi href="/auth/login">Acessar conta</NavLi>
       <NavLi href="/auth/register">Criar conta</NavLi>
