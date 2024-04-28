@@ -12,7 +12,7 @@ export class CategoryRepository
   constructor(input: CategoryRepositoryDTO) {
     super({
       accessToken: input.accessToken,
-      url: import.meta.env.VITE_API_CATEGORIES_ENDPOINT,
+      url: process.env.VITE_API_CATEGORIES_ENDPOINT,
     });
   }
 }

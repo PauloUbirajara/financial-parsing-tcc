@@ -23,7 +23,7 @@ export class WalletRepository
   constructor(input: WalletRepositoryDTO) {
     super({
       accessToken: input.accessToken,
-      url: import.meta.env.VITE_API_WALLETS_ENDPOINT,
+      url: process.env.VITE_API_WALLETS_ENDPOINT,
     });
   }
 

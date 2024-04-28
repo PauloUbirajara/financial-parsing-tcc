@@ -12,7 +12,7 @@ export class TransactionRepository
   constructor(input: TransactionRepositoryDTO) {
     super({
       accessToken: input.accessToken,
-      url: import.meta.env.VITE_API_TRANSACTIONS_ENDPOINT,
+      url: process.env.VITE_API_TRANSACTIONS_ENDPOINT,
     });
   }
 }

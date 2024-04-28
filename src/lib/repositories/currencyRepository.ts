@@ -20,7 +20,7 @@ export class CurrencyRepository
   constructor(input: CurrencyRepositoryDTO) {
     super({
       accessToken: input.accessToken,
-      url: import.meta.env.VITE_API_CURRENCIES_ENDPOINT,
+      url: process.env.VITE_API_CURRENCIES_ENDPOINT,
     });
   }
 

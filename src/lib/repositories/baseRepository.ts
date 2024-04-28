@@ -16,8 +16,8 @@ import { getFilteredUrlSearchParams } from "../../helpers/url";
 import type { IModelRepository } from "../../protocols/modelRepository";
 
 type BaseRepositoryDTO = {
-  accessToken: string | undefined;
-  url: string;
+  accessToken?: string | undefined;
+  url?: string;
 };
 
 export abstract class BaseRepository implements IModelRepository {
@@ -29,6 +29,14 @@ export abstract class BaseRepository implements IModelRepository {
       throw new Error(
         "Could not setup repository due to undefined access token",
       );
+    }
+
+    if (input.url === undefined) {
+      throw new Error("Url not in base repository");
+    }
+
+    if (input.accessToken === undefined) {
+      throw new Error("Access token not set in base repository");
     }
 
     this.url = input.url;

@@ -16,7 +16,7 @@ import { constants } from "http2";
 
 class BackendJWTAuth implements IJWTAuth {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const url = import.meta.env.VITE_AUTH_LOGIN_URL;
+    const url = process.env.VITE_AUTH_LOGIN_URL;
 
     if (url === undefined) {
       return Promise.reject("URL para login de usuários não definida.");
@@ -35,7 +35,7 @@ class BackendJWTAuth implements IJWTAuth {
   }
 
   async register(credentials: RegisterCredentials): Promise<RegisterResponse> {
-    const url = import.meta.env.VITE_AUTH_REGISTER_URL;
+    const url = process.env.VITE_AUTH_REGISTER_URL;
 
     if (url === undefined) {
       return Promise.reject("URL para cadastro de usuários não definida.");
@@ -60,7 +60,7 @@ class BackendJWTAuth implements IJWTAuth {
   async sendResetPassword(
     credentials: SendResetPasswordCredentials,
   ): Promise<void> {
-    const url = import.meta.env.VITE_AUTH_SEND_RESET_PASSWORD_URL;
+    const url = process.env.VITE_AUTH_SEND_RESET_PASSWORD_URL;
 
     if (url === undefined) {
       return Promise.reject(
@@ -89,7 +89,7 @@ class BackendJWTAuth implements IJWTAuth {
   async resetPassword(
     credentials: ResetPasswordCredentials,
   ): Promise<ResetPasswordResponse> {
-    const url = import.meta.env.VITE_AUTH_RESET_PASSWORD_URL;
+    const url = process.env.VITE_AUTH_RESET_PASSWORD_URL;
 
     if (url === undefined) {
       return Promise.reject("URL para redefinição de senha não definida.");
@@ -113,7 +113,7 @@ class BackendJWTAuth implements IJWTAuth {
   }
 
   async validate(accessToken: string): Promise<boolean> {
-    const url = import.meta.env.VITE_AUTH_VALIDATION_URL;
+    const url = process.env.VITE_AUTH_VALIDATION_URL;
 
     if (url === undefined) {
       return Promise.reject("URL para validação de usuário não definida.");
@@ -135,7 +135,7 @@ class BackendJWTAuth implements IJWTAuth {
   }
 
   async refresh(refreshToken: string): Promise<string | null> {
-    const url = import.meta.env.VITE_AUTH_REFRESH_TOKEN_URL;
+    const url = process.env.VITE_AUTH_REFRESH_TOKEN_URL;
 
     if (url === undefined) {
       return Promise.reject("URL para validação de usuário não definida.");
