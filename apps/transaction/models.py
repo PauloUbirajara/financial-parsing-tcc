@@ -19,4 +19,5 @@ class Transaction(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        unique_together = ["name", "user"]
         ordering = ["-updated_at"]

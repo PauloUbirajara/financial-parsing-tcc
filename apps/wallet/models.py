@@ -9,7 +9,7 @@ class Wallet(models.Model):
     user = models.ForeignKey(to="auth.User", on_delete=models.CASCADE)
     currency = models.ForeignKey(to="currency.Currency", on_delete=models.CASCADE)
 
-    name = models.TextField(unique=True)
+    name = models.TextField()
     description = models.TextField(blank=True, default="")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -19,4 +19,5 @@ class Wallet(models.Model):
         return "{} ({})".format(self.name, self.id)
 
     class Meta:
+        unique_together = ["name", "user"]
         ordering = ["-updated_at"]

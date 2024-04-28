@@ -8,10 +8,11 @@ class Category(models.Model):
 
     user = models.ForeignKey(to="auth.User", on_delete=models.CASCADE)
 
-    name = models.TextField(unique=True)
+    name = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        unique_together = ["name", "user"]
         ordering = ["-updated_at"]
