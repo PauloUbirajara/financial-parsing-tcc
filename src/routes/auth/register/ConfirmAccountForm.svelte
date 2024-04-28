@@ -11,8 +11,8 @@
   <Heading tag="h3" class="text-custom-foreground">Confirme sua conta</Heading>
   <div class="flex flex-col gap-4">
     <P>Enviamos um link de confirmação para o e-mail fornecido.</P>
-    <P
-      >Após confirmá-lo, sua conta será ativada e você poderá acessar à
+    <P>
+      Após confirmá-lo, sua conta será ativada e você poderá acessar à
       plataforma.</P
     >
   </div>

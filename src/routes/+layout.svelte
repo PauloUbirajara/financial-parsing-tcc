@@ -3,7 +3,7 @@
   import Toast from "../components/Toast.svelte";
 </script>
 
-<div class="bg-custom-background h-full" id="main-layout">
+<div class="bg-custom-background h-100" id="main-layout">
   <slot />
 </div>
 

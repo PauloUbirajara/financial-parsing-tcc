@@ -2,7 +2,6 @@
   import { navigating, page } from "$app/stores";
   import {
     TextPlaceholder,
-    ButtonGroup,
     Button,
     Table,
     TableHead,
@@ -103,7 +102,7 @@
           <SearchOutline class="w-6 h-6" />
         </Button>
       </form>
-      <ButtonGroup>
+      <div class="flex items-stretch gap-4">
         <Button color="primary" on:click={() => onAdd()}>
           <PlusOutline class="w-4 h-4 me-2" />
           Adicionar
@@ -117,7 +116,7 @@
           <TrashBinSolid class="w-4 h-4 me-2" />
           Deletar
         </Button>
-      </ButtonGroup>
+      </div>
     </div>
     {#if !response.count}
       <P align="center">Sem resultados.</P>

@@ -111,8 +111,7 @@
       </Select>
     </div>
     <Button type="submit" class="w-full">
-      <PlusOutline class="w-3.5 h-3.5 me-2.5" />
-      Criar carteira
+      Salvar carteira
     </Button>
   </form>
 </Drawer>

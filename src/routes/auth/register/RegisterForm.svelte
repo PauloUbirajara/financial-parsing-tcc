@@ -167,9 +167,6 @@
           >{formMessages.errors.password.join(", ")}</Helper
         >
       {/if}
-      {#if credentials.password.length && !hasConfirmedPassword}
-        <Helper class="mt-2" color="red">Senhas não coincidem</Helper>
-      {/if}
     </div>
     <div>
       <Label for="confirmPassword">Confirmar Senha</Label>
@@ -194,7 +191,7 @@
           {/if}
         </button>
       </Input>
-      {#if credentials.confirmPassword.length && !hasConfirmedPassword}
+      {#if credentials.password.length && !hasConfirmedPassword}
         <Helper class="mt-2" color="red">Senhas não coincidem</Helper>
       {/if}
     </div>
@@ -203,7 +200,7 @@
     {#if loading}
       <Spinner class="me-3" size="4" color="white" />
     {:else}
-      Acessar
+      Criar
     {/if}
   </Button>
 </form>
