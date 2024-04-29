@@ -91,11 +91,8 @@ class SendPasswordResetEmailView(APIView):
         user_management = UserManagement.objects.create(user=user)
 
         # Construct password reset link
-        reset_link = request.build_absolute_uri(
-            urljoin(
-                getenv("FRONTEND_RESET_PASSWORD_URL", ""),
-                reverse("password-reset", kwargs={"token": user_management.token}),
-            )
+        reset_link = urljoin(
+            getenv("FRONTEND_RESET_PASSWORD_URL", ""), str(user_management.token)
         )
 
         # Send password reset email
