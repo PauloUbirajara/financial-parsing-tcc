@@ -12,18 +12,22 @@ async function handleJwtAuthorization(
   let access = event.cookies.get("accessToken");
   const refresh = event.cookies.get("refreshToken");
 
-  if (access !== undefined) {
-    isAuthorized = await AuthManager.validate(access);
-  }
-
-  if (refresh !== undefined && !isAuthorized) {
-    const newAccess = await AuthManager.refresh(refresh);
-
-    if (newAccess !== null) {
-      access = newAccess;
-      event.cookies.set("accessToken", access, { path: "/" });
-      isAuthorized = true;
+  try {
+    if (access !== undefined) {
+      isAuthorized = await AuthManager.validate(access);
     }
+
+    if (refresh !== undefined && !isAuthorized) {
+      const newAccess = await AuthManager.refresh(refresh);
+
+      if (newAccess !== null) {
+        access = newAccess;
+        event.cookies.set("accessToken", access, { path: "/" });
+        isAuthorized = true;
+      }
+    }
+  } catch (e) {
+    console.warn("Could not validate user", e);
   }
 
   if (!isAuthorized) {

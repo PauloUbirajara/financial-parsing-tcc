@@ -22,16 +22,21 @@ class BackendJWTAuth implements IJWTAuth {
       return Promise.reject("URL para login de usuários não definida.");
     }
 
-    const response = await fetch(url, {
-      method: "POST",
-      body: JSON.stringify(credentials),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify(credentials),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    const data: LoginResponse = await response.json();
-    return data;
+      const data: LoginResponse = await response.json();
+      return data;
+    } catch (e) {
+      console.warn("Could not login", e);
+      return { detail: "Não foi possível realizar login." };
+    }
   }
 
   async register(credentials: RegisterCredentials): Promise<RegisterResponse> {
@@ -41,20 +46,25 @@ class BackendJWTAuth implements IJWTAuth {
       return Promise.reject("URL para cadastro de usuários não definida.");
     }
 
-    const response = await fetch(url, {
-      method: "POST",
-      body: JSON.stringify(credentials),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify(credentials),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (!response.ok) {
-      const errorData: RegisterResponse = await response.json();
-      return errorData;
+      if (!response.ok) {
+        const errorData: RegisterResponse = await response.json();
+        return errorData;
+      }
+
+      return {};
+    } catch (e) {
+      console.warn("Could not register", e);
+      return { error: "Não foi possível realizar o cadastro." };
     }
-
-    return {};
   }
 
   async sendResetPassword(
