@@ -4,6 +4,12 @@ import path from "path";
 
 export default defineConfig({
   plugins: [sveltekit()],
+  server: {
+    host: "0.0.0.0",
+    watch: {
+      usePolling: true,
+    },
+  },
   resolve: {
     alias: {
       $components: path.resolve(__dirname, "src/components"),
