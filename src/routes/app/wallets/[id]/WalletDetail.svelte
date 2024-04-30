@@ -88,7 +88,7 @@
         type: ToastType.SUCCESS,
       });
     } catch (e) {
-      console.warn({ e });
+      console.warn("Could not export", e);
       showToast({
         title: "Exportar carteira",
         message: `Não foi possível abrir resultado da exportação para o formato "${format}"`,

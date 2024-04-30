@@ -7,7 +7,6 @@
   const isLogged = Boolean($page.data.access);
   const status = $page.status || "Erro";
   const error = $page.error?.message || "Erro ao buscar a página solicitada";
-  console.warn({ status, error });
 </script>
 
 <Navbar {isLogged} />

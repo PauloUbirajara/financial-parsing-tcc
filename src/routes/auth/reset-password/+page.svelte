@@ -49,7 +49,7 @@
       const data = await response.json();
       formMessages.errors = data.errors;
     } catch (e) {
-      console.warn(e);
+      console.warn("Failed to send reset password", e);
       formMessages.errors.detail = "Erro ao solicitar redefinição de senha.";
     } finally {
       loading = false;

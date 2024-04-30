@@ -36,7 +36,7 @@ export const actions: Actions = {
     try {
       await new TransactionRepository({ accessToken }).deleteById({ id });
     } catch (e) {
-      console.warn(e);
+      console.warn("failed to remove transaction", e);
       return fail(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR, {
         error: "Erro ao remover transação",
       });

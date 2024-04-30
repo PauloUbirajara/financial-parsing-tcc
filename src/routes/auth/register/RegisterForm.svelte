@@ -64,7 +64,7 @@
         formMessages.success = "Cadastro realizado com sucesso.";
       }
     } catch (e: any) {
-      console.warn(e);
+      console.warn("Failed to register", e);
       formMessages.errors.detail = "Houve um erro ao tentar realizar cadastro.";
     } finally {
       loading = false;

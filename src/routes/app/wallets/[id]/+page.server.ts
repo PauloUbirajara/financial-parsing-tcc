@@ -36,7 +36,7 @@ export const actions: Actions = {
     try {
       await new WalletRepository({ accessToken }).deleteById({ id });
     } catch (e) {
-      console.warn(e);
+      console.warn("failed when removing wallet", e);
       return fail(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR, {
         error: "Erro ao remover carteira",
       });
@@ -55,7 +55,7 @@ export const actions: Actions = {
       const format = data["format"];
       return await new WalletRepository({ accessToken }).export({ id, format });
     } catch (e) {
-      console.warn(e);
+      console.warn("Could not get credentials for export fetch call", e);
       return fail(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR, {
         error: "Erro ao exportar carteira",
       });

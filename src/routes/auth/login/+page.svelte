@@ -56,7 +56,7 @@
         formMessages.success = "Login realizado com sucesso.";
       }
     } catch (e: any) {
-      console.warn(e);
+      console.warn("Failed to login", e);
       formMessages.errors.detail = "Houve um erro ao tentar realizar login.";
     } finally {
       loading = false;

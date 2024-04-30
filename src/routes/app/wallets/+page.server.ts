@@ -27,7 +27,7 @@ export const load: PageServerLoad = async (event) => {
       currencyResponse,
     };
   } catch (e) {
-    console.warn(e);
+    console.warn("loading wallets", e);
   }
 };
 

@@ -89,7 +89,7 @@ class BackendJWTAuth implements IJWTAuth {
     const { detail } = await response.json();
 
     if (!response.ok) {
-      console.warn(detail);
+      console.warn("Error when resetting password", detail);
       return Promise.reject("Houve um erro ao solicitar redefinição de senha.");
     }
 

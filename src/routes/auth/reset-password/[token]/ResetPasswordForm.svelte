@@ -61,9 +61,8 @@
         onResetPasswordSuccess();
       }
       formMessages.errors = resetPasswordResponse.data.errors;
-      console.log({ formMessages });
     } catch (e) {
-      console.warn(e);
+      console.warn("Error when resetting password", e);
       formMessages.errors.detail = "Erro ao redefinir senha.";
     } finally {
       loading = false;

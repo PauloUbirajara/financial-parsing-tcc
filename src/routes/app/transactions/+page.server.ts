@@ -37,7 +37,7 @@ export const load: PageServerLoad = async (event) => {
       categoryResponse,
     };
   } catch (e) {
-    console.warn(e);
+    console.warn("failed when loading transactions", e);
   }
 };
 
